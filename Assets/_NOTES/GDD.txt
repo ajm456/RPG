@@ -1,3 +1,69 @@
+OVERVIEW:
+- Plot summary
+	- Story about a young man and his companion fighting against a religious
+		conspiracy way beyond them:
+		- In a heavily monoreligious state, a legend promises that their god
+			will one day come down to rule over them in person eternally.
+		- This occurs shortly after the game begins; however, this is not the
+			promised god, but a demon in human form co-operating with the state
+			government.
+		- The demon's goal is to bring satisfaction and peace to all the people
+			of the nation such that he can draw upon their souls' energies (a 
+			magic essence called "Calm") to empower himself in his fight for
+			supremacy over hell.
+		- The antithesis to Calm is a primal energy called "Discord", a
+			manifestation of one's raw emotional state; chaos, pain, and
+			disorder usually generate powerful emotions such as anger and
+			despair, and it's possible to learn how to manipulate Discord to
+			perform normally superhuman actions.
+		- At face value, it seems clear that a demon should not be able to
+			exploit the population of an entire nation for his personal gain.
+			However, it is not black and white; many would argue that a state
+			of high Calm is positive, whereas high Discord is negative. For
+			example, unchecked Discord causes riots and crime; the state
+			obviously doesn't want this, hence their agreeing to the demon's
+			plan. Those who are against the demon's plan have a fundamental
+			belief that nothing should manipulate their emotional state for any
+			kind of personal gain.
+		- The protagonist's primary companion throughout the game - Jack - is,
+			in fact, the promised god, but he is far from what both the player
+			and the game characters expect; years of dogma have malformed the
+			true meaning and purpose behind the religion. He also keeps his
+			true identity hidden until very late in the game, as his goal is to
+			secretly accompany the protagonist to learn what his people have
+			become.
+		
+
+CHARACTERS:
+- (Unnamed protagonist)
+	- Typical JRPG protagonist; primarily a medium for the player to relate to
+		the story.
+	- Silent, but not expressionless - think Joker from Persona 5.
+- Jack
+	- Bishounen-like; kind and light-hearted, but serious when he needs to be.
+	- Almost always positive; any times his outlook turns negative should have
+		*very* serious implications.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 COMBAT:
 	
 - Resource(s)
@@ -16,11 +82,13 @@ COMBAT:
 
 - Battle mechanics
 	- Attacks can be AUGMENTED by allies
-		- Augments are trained separately to abilities (i.e. players can choose to specialise in abilities or augments, or be generalist in both)
+		- Augments are trained separately to abilities (i.e. players can choose to
+			specialise in abilities or augments, or be generalist in both)
 		- Augments do not cost resources but do consume the augmenter's turn
 		- By comboing an ability with a specific augment, bonus effects occur
 			- E.g: augment an attack with a fire-element to "melt armor"
 		- This should NOT feel like Rikku-esque "discover recipes"
-			- Augments primary gameplay purpose are to speed up player turns instead of just mashing attack with each ally
+			- Augments primary gameplay purpose are to speed up player turns
+				instead of just mashing attack with each ally
 	- The faster the player completes their turn...
 		- ??? Reduced Discord / Calm cost ???
