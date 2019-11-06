@@ -1,0 +1,26 @@
+COMBAT:
+	
+- Resource(s)
+	- Two resources: Discord and Calm
+		- Discord is spent on damaging abilities; Calm on buffs and heals
+		- Generally, increasing one decreases the other
+			- Marl is an exception to this due to his passive
+		- 
+
+- Stats
+
+- Abilities
+	- Each character has a unique passive
+		- Marl: Discord and Calm increases do not decrease each other
+		- Jack: While below %x Discord, he gains access to unique Calm spells
+
+- Battle mechanics
+	- Attacks can be AUGMENTED by allies
+		- Augments are trained separately to abilities (i.e. players can choose to specialise in abilities or augments, or be generalist in both)
+		- Augments do not cost resources but do consume the augmenter's turn
+		- By comboing an ability with a specific augment, bonus effects occur
+			- E.g: augment an attack with a fire-element to "melt armor"
+		- This should NOT feel like Rikku-esque "discover recipes"
+			- Augments primary gameplay purpose are to speed up player turns instead of just mashing attack with each ally
+	- The faster the player completes their turn...
+		- ??? Reduced Discord / Calm cost ???
