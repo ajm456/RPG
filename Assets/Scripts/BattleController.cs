@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class BattleController : MonoBehaviour
@@ -15,41 +14,12 @@ public class BattleController : MonoBehaviour
 		ENEMYWON,
 	}
 
-	// All the state-modifying data of a turn
-	public class TurnData
-	{
-		public Aura[] auras;
-
-		public TurnData(Aura[] auras) {
-			this.auras = auras;
-		}
-
-		public override string ToString() {
-			return String.Join<Aura>(" , ", auras);
-		}
-	}
-
-	// Effects (auras)
-	public class Aura
-	{
-		public string targetName;
-		public int hpMod;
-
-		public Aura(string targetName, int hpMod) {
-			this.targetName = targetName;
-			this.hpMod = hpMod;
-		}
-
-		public override string ToString() {
-			return "[targetName: " + targetName + ", hpMod: " + hpMod.ToString() + "]";
-		}
-	}
-
 
 
 
 	/* STATIC MEMBERS */
-	public static Dictionary<int, TurnData> playerTurnChoices;
+	public static Dictionary<int, Ability> playerTurnChoices;
+	public static Dictionary<string, Ability> abilities;
 
 
 
@@ -76,22 +46,18 @@ public class BattleController : MonoBehaviour
 	void Start() {
 		State = BattleState.PLAYERCHOICE;
 		combatants = new List<CombatantController>(combatantsArray);
+		abilities = JsonParser.LoadAllAbilities();
 
 		// Build the dictionary of player turn choices
-		playerTurnChoices = new Dictionary<int, TurnData>();
-		// ID 2: Discord-spending attack
-		{
-			Aura aura = new Aura("frog", -20);
-			Aura[] auras = new Aura[] { aura };
-			playerTurnChoices.Add(2, new TurnData(auras));
-		}
-		// ID 3: Calm-spending heal
-		{
-			Aura aura = new Aura("player", 10);
-			Aura[] auras = new Aura[] { aura };
-			playerTurnChoices.Add(3, new TurnData(auras));
-		}
-		
+		playerTurnChoices = new Dictionary<int, Ability>();
+		// Bottom-left: Discord-spending attack
+		playerTurnChoices.Add(0, abilities["Rend"]);
+		// Bottom-right: Calm-building buff
+		playerTurnChoices.Add(1, abilities["Reflect"]);
+		// Top-left: Normal attack
+		playerTurnChoices.Add(2, abilities["Attack"]);
+		// Top-right: Calm-spending heal
+		playerTurnChoices.Add(3, abilities["Relaxer"]);
 	}
 
 
@@ -100,10 +66,10 @@ public class BattleController : MonoBehaviour
 
 	/* METHODS */
 
-	public void ExecuteTurn(CombatantController combatant, int choiceId) {
+	public void ExecuteTurn(CombatantController source, int choiceId, string targetName) {
 		// Sanity check the correct combatant is taking their turn
-		Debug.Assert(State == BattleState.PLAYERCHOICE && combatant.Name == "player"
-				|| State == BattleState.ENEMYCHOICE && combatant.Name == "frog");
+		Debug.Assert(State == BattleState.PLAYERCHOICE && source.Name == "player"
+				|| State == BattleState.ENEMYCHOICE && source.Name == "frog");
 
 		// Sanity check that the given key has an entry in the dictionary
 		Debug.Assert(playerTurnChoices.ContainsKey(choiceId));
@@ -112,14 +78,18 @@ public class BattleController : MonoBehaviour
 		}
 
 
-		// Apply each aura to its target
-		TurnData data = playerTurnChoices[choiceId];
-		Debug.Log("Executing turn from " + combatant.Name + ": " + data.ToString());
-		foreach(Aura aura in data.auras) {
-			CombatantController target = combatants.Find(comb => comb.Name == aura.targetName);
-			Debug.Assert(target != null);
-			target.CurrHP += aura.hpMod;
-		}
+		// Apply the ability to its target
+		Ability ability = playerTurnChoices[choiceId];
+		Debug.Log("Executing ability from " + source.Name + ": " + ability.ToString());
+		// Find the target
+		CombatantController target = combatants.Find(comb => comb.Name == targetName);
+		Debug.Assert(target != null);
+		// Damage/heal them
+		target.CurrHP += Random.Range(ability.hpAdjMin, ability.hpAdjMax+1);
+		// Adjust source resource values
+		source.CurrCalm += ability.calmAdj;
+		source.CurrDiscord += ability.discordAdj;
+
 
 		// Modify our current battle state
 		Transition();

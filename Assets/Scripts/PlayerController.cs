@@ -23,8 +23,11 @@ public class PlayerController : MonoBehaviour
 				// Determine player input
 				int choiceId = uiController.GetChoice();
 
+				// Determine player target (currently always "frog")
+				string targetName = "frog";
+
 				// Request turn execution
-				battleController.ExecuteTurn(controller, choiceId);
+				battleController.ExecuteTurn(controller, choiceId, targetName);
 			}
 		}
 		// Did we win?

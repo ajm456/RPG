@@ -4,7 +4,7 @@ using TMPro;
 public class CombatantController : MonoBehaviour
 {
 	/* MEMBERS */
-	[SerializeField] private int initHp;
+	[SerializeField] private int initHp, initCalm;
 	[SerializeField] private TextMeshProUGUI hpText, calmText, discordText;
 
 	public int CurrHP {
@@ -32,7 +32,7 @@ public class CombatantController : MonoBehaviour
 	/* METHODS */
 	void Start() {
 		CurrHP = initHp;
-		CurrCalm = 0;
+		CurrCalm = initCalm;
 		CurrDiscord = 0;
 	}
 
