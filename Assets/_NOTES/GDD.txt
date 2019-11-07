@@ -68,10 +68,18 @@ COMBAT:
 	
 - Resource(s)
 	- Two resources: Discord and Calm
-		- Discord is spent on damaging abilities; Calm on buffs and heals
-		- Generally, increasing one decreases the other
-			- Marl is an exception to this due to his passive
-		- 
+		- They are not "spent" like mana, but instead enhance your chosen
+			ability. For example, an attack with high Discord does a lot more
+			damage than one with low.
+		- Generally, abilities that benefit from a resource increase it, i.e.
+			attacks increase Discord, and (also generally) decrease their
+			counterpart resource.
+			- This encourages planning ahead; you can win battles much faster
+				if your whole party focuses on Discord, but you may find
+				yourself lacking in defensive tools (and thus dying).
+			- Notably, the protagonist is an exception to this rule due to his
+				passive.
+			
 
 - Stats
 
