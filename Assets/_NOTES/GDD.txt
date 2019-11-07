@@ -79,9 +79,11 @@ COMBAT:
 				yourself lacking in defensive tools (and thus dying).
 			- Notably, the protagonist is an exception to this rule due to his
 				passive.
+		- Stronger abilities do cost resources, but do not consume them.
 			
 
 - Stats
+	- ???
 
 - Abilities
 	- Each character has a unique passive
@@ -100,3 +102,15 @@ COMBAT:
 				instead of just mashing attack with each ally
 	- The faster the player completes their turn...
 		- ??? Reduced Discord / Calm cost ???
+
+
+
+
+UI:
+	- Battle menus
+		- Attack
+		- Calm
+			- Opens a list of Calm abilities
+		- Discord
+			- Opens a list of Discord abilities
+		- Guard
