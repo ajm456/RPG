@@ -1,0 +1,7 @@
+{
+    "name" : "Rend",
+    "calmAdj" : -5,
+    "discordAdj" : -3,
+    "hpAdjMin" : -25,
+    "hpAdjMax" : -45
+}
