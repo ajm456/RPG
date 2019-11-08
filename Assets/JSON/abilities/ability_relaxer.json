@@ -2,6 +2,8 @@
     "name" : "Relaxer",
     "calmAdj" : -9,
     "discordAdj" : 0,
+    "calmReq" : 0,
+    "discordReq" : 0,
     "hpAdjMin" : 15,
     "hpAdjMax" : 45
 }
