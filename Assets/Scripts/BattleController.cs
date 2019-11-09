@@ -19,7 +19,6 @@ public class BattleController : MonoBehaviour
 
 	/* STATIC MEMBERS */
 	public static Dictionary<int, Ability> playerTurnChoices;
-	public static Dictionary<string, Ability> abilities;
 
 
 
@@ -34,8 +33,10 @@ public class BattleController : MonoBehaviour
 	}
 
 	// Player and enemy CombatantController refs
-	[SerializeField] private CombatantController[] combatantsArray;
-	private List<CombatantController> combatants;
+	[SerializeField] private List<CombatantController> playerCombatants, enemyCombatants;
+
+	// Points to the index of the combatant in playerCombantants or enemyCombatants whose turn it is
+	private float combatantTurnIndex;
 
 
 
@@ -44,9 +45,50 @@ public class BattleController : MonoBehaviour
 	/* OVERRIDES */
 
 	void Start() {
+		LoadAbilityData();
+		InitTurnOrder();
+	}
+
+
+
+
+
+	/* METHODS */
+
+	public void ExecuteTurn(CombatantController source, int choiceId, string targetName) {
+		// Sanity check the correct combatant is taking their turn
+		Debug.Assert(State == BattleState.PLAYERCHOICE && playerCombatants.Exists(comb => comb.Name == source.Name)
+				|| State == BattleState.ENEMYCHOICE && enemyCombatants.Exists(comb => comb.Name == targetName));
+
+		// Sanity check that the given key has an entry in the dictionary
+		Debug.Assert(playerTurnChoices.ContainsKey(choiceId));
+		if(!playerTurnChoices.ContainsKey(choiceId)) {
+			Debug.Log("Trying to execute ability " + choiceId + " but not found in dictionary!");
+			return;
+		}
+
+		// Find the ability
+		Ability ability = playerTurnChoices[choiceId];
+		Debug.Log("Executing ability from " + source.Name + ": " + ability.ToString());
+		// Find the target
+		CombatantController target = enemyCombatants.Find(comb => comb.Name == targetName);
+		Debug.Assert(target != null);
+		// Execute it
+		ExecuteAbility(ability, source, target);
+
+		// Modify our current battle state
+		Transition();
+	}
+
+	private void InitTurnOrder() {
+		// Start with player turn, first character
 		State = BattleState.PLAYERCHOICE;
-		combatants = new List<CombatantController>(combatantsArray);
-		abilities = JsonParser.LoadAllAbilities();
+		combatantTurnIndex = 0;
+	}
+
+	private void LoadAbilityData() {
+		// Load from JSON files
+		Dictionary<string, Ability> abilities = JsonParser.LoadAllAbilities();
 
 		// Build the dictionary of player turn choices
 		playerTurnChoices = new Dictionary<int, Ability>();
@@ -60,52 +102,21 @@ public class BattleController : MonoBehaviour
 		playerTurnChoices.Add(3, abilities["Relaxer"]);
 	}
 
-
-
-
-
-	/* METHODS */
-
-	public void ExecuteTurn(CombatantController source, int choiceId, string targetName) {
-		// Sanity check the correct combatant is taking their turn
-		Debug.Assert(State == BattleState.PLAYERCHOICE && source.Name == "player"
-				|| State == BattleState.ENEMYCHOICE && source.Name == "frog");
-
-		// Sanity check that the given key has an entry in the dictionary
-		Debug.Assert(playerTurnChoices.ContainsKey(choiceId));
-		if(!playerTurnChoices.ContainsKey(choiceId)) {
-			return;
-		}
-
-
-		// Apply the ability to its target
-		Ability ability = playerTurnChoices[choiceId];
-		Debug.Log("Executing ability from " + source.Name + ": " + ability.ToString());
-		// Find the target
-		CombatantController target = combatants.Find(comb => comb.Name == targetName);
-		Debug.Assert(target != null);
+	private void ExecuteAbility(Ability ability, CombatantController source, CombatantController target) {
 		// Damage/heal them
 		target.CurrHP += Random.Range(ability.hpAdjMin, ability.hpAdjMax+1);
 		// Adjust source resource values
 		source.CurrCalm += ability.calmAdj;
 		source.CurrDiscord += ability.discordAdj;
 
-
-		// Modify our current battle state
-		Transition();
-		// DEBUG - For now, immediately return to player turn
-		Transition();
+		// Clamp resource values
+		target.CurrHP = Mathf.Max(0, target.CurrHP);
+		source.CurrCalm = Mathf.Max(0, source.CurrCalm);
+		source.CurrDiscord = Mathf.Max(0, source.CurrDiscord);
 	}
 
 	private void Transition() {
-		switch(State) {
-			case BattleState.PLAYERCHOICE:
-				State = BattleState.ENEMYCHOICE;
-				break;
-
-			case BattleState.ENEMYCHOICE:
-				State = BattleState.PLAYERCHOICE;
-				break;
-		}
+		// DEBUG - for now, keep state in player's turn
+		State = BattleState.PLAYERCHOICE;
 	}
 }
