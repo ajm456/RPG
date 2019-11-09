@@ -5,10 +5,12 @@ public class Ability
 {
 	// Abilities (how does this interact with auras and such?)
 	public string name;
-	public int calmAdj, discordAdj, hpAdjMin, hpAdjMax;
+	public int calmReq, discordReq, calmAdj, discordAdj, hpAdjMin, hpAdjMax;
 
-	public Ability(string name, int calmAdj, int discordAdj, int hpAdjMin, int hpAdjMax) {
+	public Ability(string name, int calmReq, int discordReq, int calmAdj, int discordAdj, int hpAdjMin, int hpAdjMax) {
 		this.name = name;
+		this.calmReq = calmReq;
+		this.discordReq = discordReq;
 		this.calmAdj = calmAdj;
 		this.discordAdj = discordAdj;
 		this.hpAdjMin = hpAdjMin;
