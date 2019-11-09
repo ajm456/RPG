@@ -55,7 +55,7 @@ public class BattleController : MonoBehaviour
 
 	/* METHODS */
 
-	public void ExecuteTurn(CombatantController source, int choiceId, string targetName) {
+	public bool ExecuteTurn(CombatantController source, int choiceId, string targetName) {
 		// Sanity check the correct combatant is taking their turn
 		Debug.Assert(State == BattleState.PLAYERCHOICE && playerCombatants.Exists(comb => comb.Name == source.Name)
 				|| State == BattleState.ENEMYCHOICE && enemyCombatants.Exists(comb => comb.Name == targetName));
@@ -64,7 +64,7 @@ public class BattleController : MonoBehaviour
 		Debug.Assert(playerTurnChoices.ContainsKey(choiceId));
 		if(!playerTurnChoices.ContainsKey(choiceId)) {
 			Debug.Log("Trying to execute ability " + choiceId + " but not found in dictionary!");
-			return;
+			return false;
 		}
 
 		// Find the ability
@@ -73,11 +73,15 @@ public class BattleController : MonoBehaviour
 		// Find the target
 		CombatantController target = enemyCombatants.Find(comb => comb.Name == targetName);
 		Debug.Assert(target != null);
-		// Execute it
-		ExecuteAbility(ability, source, target);
+		// Try and execute the ability
+		if(!ExecuteAbility(ability, source, target))
+			return false;
 
 		// Modify our current battle state
 		Transition();
+
+		// Indicate turn was executed successfully
+		return true;
 	}
 
 	private void InitTurnOrder() {
@@ -102,7 +106,13 @@ public class BattleController : MonoBehaviour
 		playerTurnChoices.Add(3, abilities["Relaxer"]);
 	}
 
-	private void ExecuteAbility(Ability ability, CombatantController source, CombatantController target) {
+	private bool ExecuteAbility(Ability ability, CombatantController source, CombatantController target) {
+		// Check that the source has sufficient resources for the ability
+		if(source.CurrCalm < ability.calmReq || source.CurrDiscord < ability.discordReq) {
+			Debug.Log("Not enough resources to use ability!");
+			return false;
+		}
+
 		// Damage/heal them
 		target.CurrHP += Random.Range(ability.hpAdjMin, ability.hpAdjMax+1);
 		// Adjust source resource values
@@ -113,6 +123,9 @@ public class BattleController : MonoBehaviour
 		target.CurrHP = Mathf.Max(0, target.CurrHP);
 		source.CurrCalm = Mathf.Max(0, source.CurrCalm);
 		source.CurrDiscord = Mathf.Max(0, source.CurrDiscord);
+
+		// Indicate ability was successfully executed
+		return true;
 	}
 
 	private void Transition() {
