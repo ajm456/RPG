@@ -1,5 +1,7 @@
 {
     "name" : "Reflect",
+    "calmReq" : 0,
+    "discordReq" : 0,
     "calmAdj" : 7,
     "discordAdj" : -3,
     "hpAdjMin" : 0,

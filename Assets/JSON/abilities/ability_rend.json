@@ -1,5 +1,7 @@
 {
     "name" : "Rend",
+    "calmReq" : 0,
+    "discordReq" : 30,
     "calmAdj" : -5,
     "discordAdj" : -3,
     "hpAdjMin" : -25,

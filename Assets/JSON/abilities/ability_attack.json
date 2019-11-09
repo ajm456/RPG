@@ -1,5 +1,7 @@
 {
     "name" : "Attack",
+    "calmReq" : 0,
+    "discordReq" : 0,
     "calmAdj" : -1,
     "discordAdj" : 4,
     "hpAdjMin" : -12,
