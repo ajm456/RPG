@@ -87,13 +87,15 @@ public class BattleController : MonoBehaviour
 		// Discern the turn order
 		InitTurnOrder();
 
-		
+		State = BattleState.PLAYERCHOICE;
 	}
 
 	void Update() {
 		if(State == BattleState.PLAYERCHOICE) {
 			// Start polling for the player hero's turn
 			HeroCombatants[combatantTurnIndex].PollForTurn();
+		} else if(State == BattleState.ENEMYCHOICE) {
+			EnemyCombatants[combatantTurnIndex].PollForTurn();
 		}
 	}
 
@@ -104,6 +106,7 @@ public class BattleController : MonoBehaviour
 	/* METHODS */
 
 	public void ExecuteTurn(CombatantController source, Ability ability, CombatantController target) {
+		Debug.Log(source.ToString() + " is using " + ability.ToString() + " on " + target.ToString() + "!");
 		// Try and execute the ability
 		ExecuteAbility(ability, source, target);
 
@@ -128,6 +131,7 @@ public class BattleController : MonoBehaviour
 			newHero.transform.localPosition = HERO_SPAWN_POSITIONS[i];
 			HeroController heroController = newHero.GetComponent<HeroController>();
 			heroController.Init(heroes[i], this);
+			heroController.PartyOrder = i;
 			HeroCombatants.Add(heroController);
 		}
 	}
@@ -151,20 +155,23 @@ public class BattleController : MonoBehaviour
 
 	private void InitTurnOrder() {
 		// Start with player turn, first hero
-		State = BattleState.PLAYERCHOICE;
 		combatantTurnIndex = 0;
 	}
 
 	private void ExecuteAbility(Ability ability, CombatantController source, CombatantController target) {
-		Debug.Log("Executing ability from " + source.Name + ": " + ability.ToString());
-
 		// Damage/heal them
 		target.HP += Random.Range(ability.hpAdjMin, ability.hpAdjMax+1);
 		target.HP = Mathf.Max(0, target.HP);
 	}
 
 	private void Transition() {
-		// DEBUG - for now, keep state in player's turn
-		State = BattleState.PLAYERCHOICE;
+		switch(State) {
+			case BattleState.PLAYERCHOICE:
+				State = BattleState.ENEMYCHOICE;
+				break;
+			case BattleState.ENEMYCHOICE:
+				State = BattleState.PLAYERCHOICE;
+				break;
+		}
 	}
 }

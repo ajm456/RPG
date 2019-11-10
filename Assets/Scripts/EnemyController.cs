@@ -15,6 +15,7 @@ public class EnemyController : CombatantController
 	}
 
 	public override void PollForTurn() {
-		
+		// Use the enemy behaviour on a random target
+		behaviour(battleController, this);
 	}
 }

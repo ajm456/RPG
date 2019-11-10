@@ -623,8 +623,9 @@ GameObject:
   - component: {fileID: 5870172194825420680}
   - component: {fileID: 5870172194825420790}
   - component: {fileID: 5870172194825420788}
+  - component: {fileID: 4935603659664625360}
   m_Layer: 0
-  m_Name: Player
+  m_Name: Hero
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -734,4 +735,20 @@ MonoBehaviour:
   hpText: {fileID: 5870172194871780309}
   calmText: {fileID: 5870172193419454794}
   discordText: {fileID: 5870172193482534264}
-  battleController: {fileID: 0}
+--- !u!114 &4935603659664625360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5870172194825420681}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a5788b576cd65048ba99675a0c84511, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiStatusPrefab: {fileID: 2319579934093680061, guid: c8479d341f4ac7244af572da6357c3e6,
+    type: 3}
+  nameText: {fileID: 0}
+  hpValue: {fileID: 0}
+  missingHealthBar: {fileID: 0}

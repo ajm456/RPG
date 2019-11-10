@@ -1,7 +1,7 @@
 {
     "name" : "Elise",
     "hp" : 40,
-    "maxHp" : 50,
+    "maxHp" : 40,
     "calm" : 0,
     "discord" : 0,
     "abilityNames" : [

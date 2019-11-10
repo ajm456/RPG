@@ -1,7 +1,7 @@
 {
     "name" : "Marl",
     "hp" : 75,
-    "maxHp" : 50,
+    "maxHp" : 75,
     "calm" : 0,
     "discord" : 0,
     "abilityNames" : [

@@ -19,7 +19,6 @@ public class JsonParser
 			if(filename.Contains(".meta")) {
 				continue;
 			}
-			Debug.Log("Reading from file: " + filename);
 			string json = File.ReadAllText(filename);
 			Ability ability = JsonUtility.FromJson<Ability>(json);
 			abilityList.Add(ability);

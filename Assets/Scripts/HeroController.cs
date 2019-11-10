@@ -5,8 +5,6 @@ public class HeroController : CombatantController
 {
 	[SerializeField] private TextMeshProUGUI hpText, calmText, discordText;
 
-	private readonly HeroData hero;
-
 	public int Calm {
 		get;
 		set;
@@ -15,22 +13,34 @@ public class HeroController : CombatantController
 		get;
 		set;
 	}
+	public int PartyOrder {
+		get;
+		set;
+	}
 
 	public void Init(HeroData data, BattleController battleController) {
 		Name = data.name;
 		HP = data.hp;
 		MaxHP = data.maxHp;
+		Abilities = data.abilities;
 		Calm = data.calm;
 		Discord = data.discord;
-		Abilities = data.abilities;
 		this.battleController = battleController;
 		State = CombatantState.IDLE;
 	}
 
-	private void Update() {
-		hpText.SetText(HP.ToString());
-		calmText.SetText(Calm.ToString());
-		discordText.SetText(Discord.ToString());
+	void Update() {
+		if(State != CombatantState.DEAD) {
+			hpText.SetText(HP.ToString());
+			calmText.SetText(Calm.ToString());
+			discordText.SetText(Discord.ToString());
+		}
+
+		if(HP <= 0) {
+			State = CombatantState.DEAD;
+			Canvas canvasChild = GetComponentInChildren<Canvas>();
+			canvasChild.enabled = false;
+		}
 	}
 
 	// Discern which ability the player is using, ensure they have sufficient
