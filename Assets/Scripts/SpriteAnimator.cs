@@ -28,7 +28,7 @@ public class SpriteAnimator : MonoBehaviour
 	}
 
 	void Update() {
-		if(combatantController.CurrHP > 0) {
+		if(combatantController.State != CombatantController.CombatantState.DEAD) {
 			// If alive, play idle animation
 			idleTimer += Time.deltaTime;
 

@@ -3,7 +3,6 @@ using UnityEditor;
 
 public class Ability
 {
-	// Abilities (how does this interact with auras and such?)
 	public string name;
 	public int calmReq, discordReq, calmAdj, discordAdj, hpAdjMin, hpAdjMax;
 
@@ -19,5 +18,9 @@ public class Ability
 
 	public override string ToString() {
 		return "[abilityName: " + name + ", hpAdj: " + hpAdjMin + " to " + hpAdjMax + "]";
+	}
+
+	public override int GetHashCode() {
+		return name.GetHashCode() + (calmReq ^ discordReq ^ calmAdj ^ discordAdj ^ hpAdjMin ^ hpAdjMax);
 	}
 }

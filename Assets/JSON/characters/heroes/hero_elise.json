@@ -1,0 +1,10 @@
+{
+    "name" : "Elise",
+    "hp" : 40,
+    "maxHp" : 50,
+    "calm" : 0,
+    "discord" : 0,
+    "abilityNames" : [
+        "Attack", "Rend"
+    ]
+}

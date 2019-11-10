@@ -8,23 +8,39 @@ public class BattleController : MonoBehaviour
 	// State enum
 	public enum BattleState
 	{
+		INIT,
 		PLAYERCHOICE,
 		ENEMYCHOICE,
 		PLAYERWON,
 		ENEMYWON,
-	}
-
-
-
-
-	/* STATIC MEMBERS */
-	public static Dictionary<int, Ability> playerTurnChoices;
+	};
 
 
 
 
 
+	/* CONSTANTS */
+
+	// The spawn vectors for the Heroes in three-Hero encounters
+	private static readonly Vector2[] HERO_SPAWN_POSITIONS = new Vector2[] {
+		new Vector2(-0.66f, 0.35f),
+		new Vector2(-0.49f, -0.15f),
+		new Vector2(-0.87f, -0.59f)
+	};
+
+	// The spawn vectors for the enemies in three-enemy encounters
+	private static readonly Vector2[] ENEMY_SPAWN_POSITIONS = new Vector2[] {
+		new Vector2(0.7f, 0.6f),
+		new Vector2(0.85f, 0f),
+		new Vector2(1f, -0.6f)
+	};
+	
+	
+	
+	
 	/* MEMBERS */
+
+	[SerializeField] private GameObject heroPrefab, enemyPrefab;
 
 	// BattleController's state
 	public BattleState State {
@@ -32,11 +48,21 @@ public class BattleController : MonoBehaviour
 		set;
 	}
 
+	// This encounter's data
+	private EncounterData data;
+
 	// Player and enemy CombatantController refs
-	[SerializeField] private List<CombatantController> playerCombatants, enemyCombatants;
+	public List<CombatantController> HeroCombatants {
+		get;
+		private set;
+	}
+	public List<CombatantController> EnemyCombatants {
+		get;
+		private set;
+	}
 
 	// Points to the index of the combatant in playerCombantants or enemyCombatants whose turn it is
-	private float combatantTurnIndex;
+	private int combatantTurnIndex;
 
 
 
@@ -45,8 +71,30 @@ public class BattleController : MonoBehaviour
 	/* OVERRIDES */
 
 	void Start() {
-		LoadAbilityData();
+		State = BattleState.INIT;
+
+		// DEBUG - Set encounter data from inside scene
+		List<string> heroNames = new List<string>() { "jack", "marl", "elise" };
+		List<string> enemyNames = new List<string>() { "frog" };
+		EncounterDataStaticContainer.SetData(new EncounterData(heroNames, enemyNames));
+		// Grab the encounter data (hopefully it was set before loading this scene)
+		InitEncounterData();
+
+		// Deserialize Hero/Enemy data and initialise objects
+		SetupHeroes();
+		SetupEnemies();
+
+		// Discern the turn order
 		InitTurnOrder();
+
+		
+	}
+
+	void Update() {
+		if(State == BattleState.PLAYERCHOICE) {
+			// Start polling for the player hero's turn
+			HeroCombatants[combatantTurnIndex].PollForTurn();
+		}
 	}
 
 
@@ -55,77 +103,64 @@ public class BattleController : MonoBehaviour
 
 	/* METHODS */
 
-	public bool ExecuteTurn(CombatantController source, int choiceId, string targetName) {
-		// Sanity check the correct combatant is taking their turn
-		Debug.Assert(State == BattleState.PLAYERCHOICE && playerCombatants.Exists(comb => comb.Name == source.Name)
-				|| State == BattleState.ENEMYCHOICE && enemyCombatants.Exists(comb => comb.Name == targetName));
-
-		// Sanity check that the given key has an entry in the dictionary
-		Debug.Assert(playerTurnChoices.ContainsKey(choiceId));
-		if(!playerTurnChoices.ContainsKey(choiceId)) {
-			Debug.Log("Trying to execute ability " + choiceId + " but not found in dictionary!");
-			return false;
-		}
-
-		// Find the ability
-		Ability ability = playerTurnChoices[choiceId];
-		Debug.Log("Executing ability from " + source.Name + ": " + ability.ToString());
-		// Find the target
-		CombatantController target = enemyCombatants.Find(comb => comb.Name == targetName);
-		Debug.Assert(target != null);
+	public void ExecuteTurn(CombatantController source, Ability ability, CombatantController target) {
 		// Try and execute the ability
-		if(!ExecuteAbility(ability, source, target))
-			return false;
+		ExecuteAbility(ability, source, target);
 
 		// Modify our current battle state
 		Transition();
+	}
 
-		// Indicate turn was executed successfully
-		return true;
+	private void InitEncounterData() {
+		data = EncounterDataStaticContainer.GetData();
+	}
+	
+	private void SetupHeroes() {
+		// Deserialize the heroes we need
+		List<HeroData> heroes = JsonParser.LoadHeroes(data.heroNames);
+
+		// Initialise the combatants list
+		HeroCombatants = new List<CombatantController>();
+
+		// Instantiate game objects for the heroes
+		for(var i = 0; i < heroes.Count; ++i) {
+			GameObject newHero = Instantiate(heroPrefab);
+			newHero.transform.localPosition = HERO_SPAWN_POSITIONS[i];
+			HeroController heroController = newHero.GetComponent<HeroController>();
+			heroController.Init(heroes[i], this);
+			HeroCombatants.Add(heroController);
+		}
+	}
+
+	private void SetupEnemies() {
+		// Deserialize the enemies we need
+		List<EnemyData> enemies = JsonParser.LoadEnemies(data.enemyNames);
+
+		// Initialise the combatants list
+		EnemyCombatants = new List<CombatantController>();
+
+		// Instantiate game objects for the enemies
+		for(var i = 0; i < enemies.Count; ++i) {
+			GameObject newEnemy = Instantiate(enemyPrefab);
+			newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[i];
+			EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
+			enemyController.Init(enemies[i], this);
+			EnemyCombatants.Add(enemyController);
+		}
 	}
 
 	private void InitTurnOrder() {
-		// Start with player turn, first character
+		// Start with player turn, first hero
 		State = BattleState.PLAYERCHOICE;
 		combatantTurnIndex = 0;
 	}
 
-	private void LoadAbilityData() {
-		// Load from JSON files
-		Dictionary<string, Ability> abilities = JsonParser.LoadAllAbilities();
-
-		// Build the dictionary of player turn choices
-		playerTurnChoices = new Dictionary<int, Ability>();
-		// Bottom-left: Discord-spending attack
-		playerTurnChoices.Add(0, abilities["Rend"]);
-		// Bottom-right: Calm-building buff
-		playerTurnChoices.Add(1, abilities["Reflect"]);
-		// Top-left: Normal attack
-		playerTurnChoices.Add(2, abilities["Attack"]);
-		// Top-right: Calm-spending heal
-		playerTurnChoices.Add(3, abilities["Relaxer"]);
-	}
-
-	private bool ExecuteAbility(Ability ability, CombatantController source, CombatantController target) {
-		// Check that the source has sufficient resources for the ability
-		if(source.CurrCalm < ability.calmReq || source.CurrDiscord < ability.discordReq) {
-			Debug.Log("Not enough resources to use ability!");
-			return false;
-		}
+	private void ExecuteAbility(Ability ability, CombatantController source, CombatantController target) {
+		Debug.Log("Executing ability from " + source.Name + ": " + ability.ToString());
 
 		// Damage/heal them
-		target.CurrHP += Random.Range(ability.hpAdjMin, ability.hpAdjMax+1);
-		// Adjust source resource values
-		source.CurrCalm += ability.calmAdj;
-		source.CurrDiscord += ability.discordAdj;
-
-		// Clamp resource values
-		target.CurrHP = Mathf.Max(0, target.CurrHP);
-		source.CurrCalm = Mathf.Max(0, source.CurrCalm);
-		source.CurrDiscord = Mathf.Max(0, source.CurrDiscord);
-
-		// Indicate ability was successfully executed
-		return true;
+		target.HP += Random.Range(ability.hpAdjMin, ability.hpAdjMax+1);
+		target.HP = Mathf.Max(0, target.HP);
 	}
 
 	private void Transition() {

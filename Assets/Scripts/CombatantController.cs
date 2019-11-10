@@ -1,44 +1,47 @@
 ﻿using UnityEngine;
-using TMPro;
+using System.Collections.Generic;
 
-public class CombatantController : MonoBehaviour
+public abstract class CombatantController : MonoBehaviour
 {
+	public enum CombatantState
+	{
+		IDLE,
+		ATTACKING,
+		DEAD,
+	}
+
+	protected BattleController battleController;
+
 	/* MEMBERS */
-	[SerializeField] private int initHp, initCalm;
-	[SerializeField] private TextMeshProUGUI hpText, calmText, discordText;
 
-	public int CurrHP {
-		get;
-		set;
-	}
-	public int CurrCalm {
-		get;
-		set;
-	}
-	public int CurrDiscord {
-		get;
-		set;
-	}
-
-	[SerializeField] private string combatantName;
 	public string Name {
-		get { return combatantName; }
+		get;
+		set;
 	}
 
+	public int HP {
+		get;
+		set;
+	}
+	public int MaxHP {
+		get;
+		set;
+	}
+	public List<Ability> Abilities {
+		get;
+		set;
+	}
 
-
-
-
-	/* METHODS */
-	void Start() {
-		CurrHP = initHp;
-		CurrCalm = initCalm;
-		CurrDiscord = 0;
+	public CombatantState State {
+		get;
+		set;
 	}
 
 	void Update() {
-		hpText.SetText(CurrHP.ToString());
-		calmText.SetText(CurrCalm.ToString());
-		discordText.SetText(CurrDiscord.ToString());
+		if(HP <= 0) {
+			State = CombatantState.DEAD;
+		}
 	}
+
+	public abstract void PollForTurn();
 }

@@ -1,0 +1,8 @@
+{
+    "name" : "frog",
+    "maxHp" : 30,
+    "behaviourIndex" : 0,
+    "abilityNames" : [
+        "Attack"
+    ]
+}
