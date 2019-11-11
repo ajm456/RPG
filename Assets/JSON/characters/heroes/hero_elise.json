@@ -1,5 +1,8 @@
 {
     "name" : "Elise",
+    "color" : [
+        162, 98, 181
+    ],
     "hp" : 40,
     "maxHp" : 40,
     "calm" : 0,

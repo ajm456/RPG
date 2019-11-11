@@ -10,7 +10,7 @@ public static class EnemyBehaviours
 {
 	public static void RandomAbility(BattleController battleController, CombatantController source) {
 		// Use a random ability on a random player character
-		List<CombatantController> playerCharacters = battleController.HeroCombatants;
+		List<HeroController> playerCharacters = battleController.HeroCombatants;
 		CombatantController target = playerCharacters[UnityEngine.Random.Range(0, playerCharacters.Count)];
 		Ability ability = source.Abilities[UnityEngine.Random.Range(0, source.Abilities.Count)];
 		battleController.ExecuteTurn(source, ability, target);

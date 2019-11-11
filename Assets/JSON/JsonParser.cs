@@ -42,7 +42,7 @@ public class JsonParser
 			}
 			
 			string json = File.ReadAllText(filename);
-			HeroData character = new HeroData(JsonUtility.FromJson<HeroDataStrAbilities>(json));
+			HeroData character = new HeroData(JsonUtility.FromJson<HeroDataJsonWrapper>(json));
 			heroList.Add(character);
 		}
 

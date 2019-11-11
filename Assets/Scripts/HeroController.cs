@@ -1,10 +1,11 @@
-﻿using TMPro;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class HeroController : CombatantController
 {
-	[SerializeField] private TextMeshProUGUI hpText, calmText, discordText;
-
+	public Color Color {
+		get;
+		set;
+	}
 	public int Calm {
 		get;
 		set;
@@ -20,6 +21,7 @@ public class HeroController : CombatantController
 
 	public void Init(HeroData data, BattleController battleController) {
 		Name = data.name;
+		Color = data.color;
 		HP = data.hp;
 		MaxHP = data.maxHp;
 		Abilities = data.abilities;
@@ -27,20 +29,6 @@ public class HeroController : CombatantController
 		Discord = data.discord;
 		this.battleController = battleController;
 		State = CombatantState.IDLE;
-	}
-
-	void Update() {
-		if(State != CombatantState.DEAD) {
-			hpText.SetText(HP.ToString());
-			calmText.SetText(Calm.ToString());
-			discordText.SetText(Discord.ToString());
-		}
-
-		if(HP <= 0) {
-			State = CombatantState.DEAD;
-			Canvas canvasChild = GetComponentInChildren<Canvas>();
-			canvasChild.enabled = false;
-		}
 	}
 
 	// Discern which ability the player is using, ensure they have sufficient
@@ -60,10 +48,6 @@ public class HeroController : CombatantController
 			Discord += ability.discordAdj;
 			Calm = Mathf.Clamp(Calm, 0, 100);
 			Discord = Mathf.Clamp(Discord, 0, 100);
-
-			// Clamp resource values
-			Calm = Mathf.Max(0, Calm);
-			Discord = Mathf.Max(0, Discord);
 		}
 	}
 

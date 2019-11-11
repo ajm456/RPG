@@ -52,25 +52,30 @@ public class BattleController : MonoBehaviour
 	private EncounterData data;
 
 	// Player and enemy CombatantController refs
-	public List<CombatantController> HeroCombatants {
+	public List<HeroController> HeroCombatants {
 		get;
 		private set;
 	}
-	public List<CombatantController> EnemyCombatants {
+	public List<EnemyController> EnemyCombatants {
 		get;
 		private set;
 	}
-
-	// Points to the index of the combatant in playerCombantants or enemyCombatants whose turn it is
-	private int combatantTurnIndex;
-
+	public int HeroTurnIndex {
+		get;
+		private set;
+	}
+	
+	public int EnemyTurnIndex {
+		get;
+		private set;
+	}
 
 
 
 
 	/* OVERRIDES */
 
-	void Start() {
+	void Awake() {
 		State = BattleState.INIT;
 
 		// DEBUG - Set encounter data from inside scene
@@ -88,14 +93,16 @@ public class BattleController : MonoBehaviour
 		InitTurnOrder();
 
 		State = BattleState.PLAYERCHOICE;
+		Debug.Log("PLAYER TURN");
+		Debug.Log("Index: " + HeroTurnIndex);
 	}
 
 	void Update() {
 		if(State == BattleState.PLAYERCHOICE) {
 			// Start polling for the player hero's turn
-			HeroCombatants[combatantTurnIndex].PollForTurn();
+			HeroCombatants[HeroTurnIndex].PollForTurn();
 		} else if(State == BattleState.ENEMYCHOICE) {
-			EnemyCombatants[combatantTurnIndex].PollForTurn();
+			EnemyCombatants[EnemyTurnIndex].PollForTurn();
 		}
 	}
 
@@ -106,7 +113,6 @@ public class BattleController : MonoBehaviour
 	/* METHODS */
 
 	public void ExecuteTurn(CombatantController source, Ability ability, CombatantController target) {
-		Debug.Log(source.ToString() + " is using " + ability.ToString() + " on " + target.ToString() + "!");
 		// Try and execute the ability
 		ExecuteAbility(ability, source, target);
 
@@ -123,7 +129,7 @@ public class BattleController : MonoBehaviour
 		List<HeroData> heroes = JsonParser.LoadHeroes(data.heroNames);
 
 		// Initialise the combatants list
-		HeroCombatants = new List<CombatantController>();
+		HeroCombatants = new List<HeroController>();
 
 		// Instantiate game objects for the heroes
 		for(var i = 0; i < heroes.Count; ++i) {
@@ -141,7 +147,7 @@ public class BattleController : MonoBehaviour
 		List<EnemyData> enemies = JsonParser.LoadEnemies(data.enemyNames);
 
 		// Initialise the combatants list
-		EnemyCombatants = new List<CombatantController>();
+		EnemyCombatants = new List<EnemyController>();
 
 		// Instantiate game objects for the enemies
 		for(var i = 0; i < enemies.Count; ++i) {
@@ -155,22 +161,35 @@ public class BattleController : MonoBehaviour
 
 	private void InitTurnOrder() {
 		// Start with player turn, first hero
-		combatantTurnIndex = 0;
+		HeroTurnIndex = 0;
+		EnemyTurnIndex = 0;
 	}
 
 	private void ExecuteAbility(Ability ability, CombatantController source, CombatantController target) {
 		// Damage/heal them
-		target.HP += Random.Range(ability.hpAdjMin, ability.hpAdjMax+1);
+		int damage = Random.Range(ability.hpAdjMin, ability.hpAdjMax+1);
+		target.HP += damage;
 		target.HP = Mathf.Max(0, target.HP);
+		Debug.Log(source.Name + " did " + (-damage) + " damage to " + target.Name);
 	}
 
 	private void Transition() {
 		switch(State) {
 			case BattleState.PLAYERCHOICE:
 				State = BattleState.ENEMYCHOICE;
+				EnemyTurnIndex = 0;
+				Debug.Log("ENEMY TURN");
+				Debug.Log("Index: " + EnemyTurnIndex);
 				break;
 			case BattleState.ENEMYCHOICE:
 				State = BattleState.PLAYERCHOICE;
+				HeroTurnIndex = (HeroTurnIndex + 1) % HeroCombatants.Count;
+				Debug.Log("PLAYER TURN");
+				Debug.Log("Index: " + HeroTurnIndex);
+				break;
+			default:
+				Debug.Log("Unexpected BattleState!");
+				Debug.Break();
 				break;
 		}
 	}
