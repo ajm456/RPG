@@ -1,5 +1,6 @@
 {
     "name" : "Relaxer",
+    "isCalm" : true,
     "calmReq" : 10,
     "discordReq" : 0,
     "calmAdj" : -9,

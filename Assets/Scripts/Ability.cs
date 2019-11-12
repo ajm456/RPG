@@ -4,10 +4,12 @@ using UnityEditor;
 public class Ability
 {
 	public string name;
+	private bool isCalm;
 	public int calmReq, discordReq, calmAdj, discordAdj, hpAdjMin, hpAdjMax;
 
-	public Ability(string name, int calmReq, int discordReq, int calmAdj, int discordAdj, int hpAdjMin, int hpAdjMax) {
+	public Ability(string name, bool isCalm, int calmReq, int discordReq, int calmAdj, int discordAdj, int hpAdjMin, int hpAdjMax) {
 		this.name = name;
+		this.isCalm = isCalm;
 		this.calmReq = calmReq;
 		this.discordReq = discordReq;
 		this.calmAdj = calmAdj;
