@@ -24,7 +24,8 @@ public class HeroController : CombatantController
 		Color = data.color;
 		HP = data.hp;
 		MaxHP = data.maxHp;
-		Abilities = data.abilities;
+		CalmAbilities = data.calmAbilities;
+		DiscordAbilities = data.discordAbilities;
 		Calm = data.calm;
 		Discord = data.discord;
 		this.battleController = battleController;
@@ -52,7 +53,7 @@ public class HeroController : CombatantController
 	}
 
 	private Ability DetermineAbility() {
-		return Abilities[0];
+		return DiscordAbilities[0];
 	}
 	
 	private CombatantController DetermineTarget() {

@@ -20,7 +20,7 @@ public class EnemyData
 
 	public string name;
 	public int maxHp, behaviourIndex;
-	public List<Ability> abilities;
+	public List<Ability> calmAbilities, discordAbilities;
 
 	public EnemyData(EnemyDataStrAbilities enemy) {
 		name = enemy.name;
@@ -28,17 +28,24 @@ public class EnemyData
 		behaviourIndex = enemy.behaviourIndex;
 
 		// Filter to find this character's abilities
-		abilities = new List<Ability>();
+		calmAbilities = new List<Ability>();
 		foreach(Ability ability in allAbilities) {
 			if(enemy.abilityNames.Contains(ability.name)) {
-				abilities.Add(ability);
+				if(ability.isCalm)
+					calmAbilities.Add(ability);
+				else
+					discordAbilities.Add(ability);
 			}
 		}
 	}
 
 	public override string ToString() {
 		string str = "[enemy name: " + name + ", max HP: " + maxHp + ", abilities: {";
-		foreach(Ability ability in abilities) {
+		foreach(Ability ability in calmAbilities) {
+			str += ability.name;
+			str += ", ";
+		}
+		foreach(Ability ability in discordAbilities) {
 			str += ability.name;
 			str += ", ";
 		}

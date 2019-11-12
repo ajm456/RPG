@@ -26,7 +26,7 @@ public class HeroData
 	public string name;
 	public Color color;
 	public int hp, maxHp, calm, discord;
-	public List<Ability> abilities;
+	public List<Ability> calmAbilities, discordAbilities;
 
 	public HeroData(HeroDataJsonWrapper hero) {
 		name = hero.name;
@@ -37,17 +37,25 @@ public class HeroData
 		discord = hero.discord;
 
 		// Filter to find this hero's abilities
-		abilities = new List<Ability>();
+		calmAbilities = new List<Ability>();
+		discordAbilities = new List<Ability>();
 		foreach(Ability ability in allAbilities) {
 			if(hero.abilityNames.Contains(ability.name)) {
-				abilities.Add(ability);
+				if(ability.isCalm)
+					calmAbilities.Add(ability);
+				else
+					discordAbilities.Add(ability);
 			}
 		}
 	}
 
 	public override string ToString() {
 		string str = "[hero name: " + name + ", HP: " + hp + "/" + maxHp + ", abilities: {";
-		foreach(Ability ability in abilities) {
+		foreach(Ability ability in calmAbilities) {
+			str += ability.name;
+			str += ", ";
+		}
+		foreach(Ability ability in discordAbilities) {
 			str += ability.name;
 			str += ", ";
 		}

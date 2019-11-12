@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 public class EnemyController : CombatantController
 {
@@ -9,7 +8,8 @@ public class EnemyController : CombatantController
 		Name = data.name;
 		HP = data.maxHp;
 		behaviour = EnemyBehaviours.GetBehaviour(data.behaviourIndex);
-		Abilities = data.abilities;
+		CalmAbilities = data.calmAbilities;
+		DiscordAbilities = data.discordAbilities;
 		this.battleController = battleController;
 		State = CombatantState.IDLE;
 	}

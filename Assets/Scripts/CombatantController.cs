@@ -27,7 +27,11 @@ public abstract class CombatantController : MonoBehaviour
 		get;
 		set;
 	}
-	public List<Ability> Abilities {
+	public List<Ability> CalmAbilities {
+		get;
+		set;
+	}
+	public List<Ability> DiscordAbilities {
 		get;
 		set;
 	}
