@@ -3,6 +3,40 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
+// Holds the state required for processing root menu items
+internal class RootMenuItem
+{
+	private GameObject menuItem;
+	private RectTransform rectTransform;
+	private TextMeshProUGUI textMeshPro;
+	private Action Callback;
+
+	internal RootMenuItem(GameObject menuItem, RectTransform rectTransform, TextMeshProUGUI textMeshPro, Action callback) {
+		this.menuItem = menuItem;
+		this.rectTransform = rectTransform;
+		this.textMeshPro = textMeshPro;
+		Callback = callback;
+	}
+
+	internal void Highlight(Color color) {
+		textMeshPro.fontSize *= 1.2f;
+		textMeshPro.color = color;
+	}
+
+	internal void ChangeHighlightColor(Color color) {
+		textMeshPro.color = color;
+	}
+
+	internal void Unhighlight() {
+		textMeshPro.fontSize /= 1.2f;
+		textMeshPro.color = Color.white;
+	}
+
+	internal void OnSelect() {
+		Callback();
+	}
+}
+
 public class PlayerMenuController : MonoBehaviour
 {
 	// Prefabs
@@ -17,8 +51,9 @@ public class PlayerMenuController : MonoBehaviour
 	private Transform playerMenu;
 	private RectTransform playerMenuRectTransform;
 
-	// List of actions corresponding to each root menu
-	private List<Action> rootMenuItemOnClicks;
+
+	// List of root menu items
+	private List<RootMenuItem> rootMenuItems;
 
 	// Index of the highlighted root menu item
 	private int rootMenuItemIndex;
@@ -33,7 +68,7 @@ public class PlayerMenuController : MonoBehaviour
 	void Start() {
 		InitialiseMenu();
 		InitialiseHeroAbilityLists();
-		currHeroIndex = -1;
+		currHeroIndex = battleController.HeroTurnIndex;
 		rootMenuItemIndex = 0;
 	}
 
@@ -44,10 +79,21 @@ public class PlayerMenuController : MonoBehaviour
 
 			playerMenu.transform.position = battleController.HeroCombatants[battleController.HeroTurnIndex].transform.position;
 			playerMenuRectTransform.localPosition += new Vector3(playerMenuRectTransform.sizeDelta.x * 0.8f, 0f);
+
+			// Since the hero's changed, the color of the highlighted menu item will change too
+			UnhighlightMenuItem(rootMenuItemIndex);
+			rootMenuItemIndex = 0;
+			HighlightMenuItem(rootMenuItemIndex);
 		}
 		
+		int oldRootMenuItemIndex = rootMenuItemIndex;
 		// Handle navigating menus
 		NavigateMenus();
+
+		if (rootMenuItemIndex != oldRootMenuItemIndex) {
+			UnhighlightMenuItem(oldRootMenuItemIndex);
+			HighlightMenuItem(rootMenuItemIndex);
+		}
 	}
 
 	// Initialise the root menu containing all the player actions
@@ -56,31 +102,27 @@ public class PlayerMenuController : MonoBehaviour
 		playerMenu = Instantiate(playerMenuPrefab, gameUI.transform).transform;
 		playerMenuRectTransform = playerMenu.GetComponent<RectTransform>();
 
-		// Populate it with root level menu items
-		AddMenuItem("ATTACK",	0);
-		AddMenuItem("DISCORD",	1);
-		AddMenuItem("CALM",		2);
-		AddMenuItem("GUARD",	3);
+		// Position it
+		playerMenu.transform.position = battleController.HeroCombatants[battleController.HeroTurnIndex].transform.position;
+		playerMenuRectTransform.localPosition += new Vector3(playerMenuRectTransform.sizeDelta.x * 0.8f, 0f);
 
-		// Set the callback for each root menu item
-		rootMenuItemOnClicks = new List<Action> {
-			// Menu item 0: perform a standard attack
-			new Action(() => {
-				Debug.Log("Clicked on the ATTACK button!");
-			}),
-			// Menu item 1: open the discord abilities list
-			new Action(() => {
-				Debug.Log("Clicked on the DISCORD button!");
-			}),
-			// Menu item 2: open the calm abilities list
-			new Action(() => {
-				Debug.Log("Clicked on the CALM button!");
-			}),
-			// Menu item 3: guard
-			new Action(() => {
-				Debug.Log("Clicked on the GUARD button!");
-			})
-		};
+		// Populate it with root level menu items
+		rootMenuItems = new List<RootMenuItem>();
+		AddMenuItem("ATTACK", 0, new Action(() => {
+			Debug.Log("Clicked on the ATTACK button!");
+		}));
+		AddMenuItem("DISCORD", 1, new Action(() => {
+			Debug.Log("Clicked on the DISCORD button!");
+		}));
+		AddMenuItem("CALM", 2, new Action(() => {
+			Debug.Log("Clicked on the CALM button!");
+		}));
+		AddMenuItem("GUARD", 3, new Action(() => {
+			Debug.Log("Clicked on the GUARD button!");
+		}));
+
+		// Highlight the first item
+		rootMenuItems[0].Highlight(battleController.HeroCombatants[battleController.HeroTurnIndex].Color);
 	}
 
 	// Cache the abilities of each hero
@@ -102,7 +144,7 @@ public class PlayerMenuController : MonoBehaviour
 		}
 	}
 
-	private void AddMenuItem(string text, int itemNum) {
+	private void AddMenuItem(string text, int itemNum, Action callback) {
 		GameObject menuItem = Instantiate(menuItemPrefab, playerMenu);
 		RectTransform rectTransform = menuItem.GetComponent<RectTransform>();
 		TextMeshProUGUI textMeshPro = menuItem.GetComponent<TextMeshProUGUI>();
@@ -110,15 +152,26 @@ public class PlayerMenuController : MonoBehaviour
 
 		menuItem.transform.localPosition -= new Vector3(0f, itemNum * (rectTransform.sizeDelta.y + margin));
 		textMeshPro.SetText(text);
+
+		// Create a RootMenuItem object and add it to the list
+		rootMenuItems.Add(new RootMenuItem(menuItem, rectTransform, textMeshPro, callback));
 	}
 
 	private void NavigateMenus() {
 		if(Input.GetKeyDown(KeyCode.DownArrow)) {
-			rootMenuItemIndex = (rootMenuItemIndex + 1) % rootMenuItemOnClicks.Count;
+			rootMenuItemIndex = (rootMenuItemIndex + 1) % rootMenuItems.Count;
 		} else if(Input.GetKeyDown(KeyCode.UpArrow)) {
-			rootMenuItemIndex = (rootMenuItemOnClicks.Count + rootMenuItemIndex - 1) % rootMenuItemOnClicks.Count;
+			rootMenuItemIndex = (rootMenuItems.Count + rootMenuItemIndex - 1) % rootMenuItems.Count;
 		} else if(Input.GetKeyDown(KeyCode.Space)) {
-			rootMenuItemOnClicks[rootMenuItemIndex]();
+			rootMenuItems[rootMenuItemIndex].OnSelect();
 		}
+	}
+
+	private void HighlightMenuItem(int index) {
+		rootMenuItems[index].Highlight(battleController.HeroCombatants[currHeroIndex].Color);
+	}
+
+	private void UnhighlightMenuItem(int index) {
+		rootMenuItems[index].Unhighlight();
 	}
 }
