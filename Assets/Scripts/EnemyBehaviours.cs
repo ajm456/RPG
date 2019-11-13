@@ -3,11 +3,16 @@ using System;
 
 public enum BehaviourIndex
 {
-	RANDOM_ABILITY = 0
+	DO_NOTHING = 0,
+	RANDOM_ABILITY = 1
 }
 
 public static class EnemyBehaviours
 {
+	public static void DoNothing(BattleController battleController, CombatantController source) {
+		battleController.ExecuteTurn();
+	}
+
 	public static void RandomAbility(BattleController battleController, CombatantController source) {
 		// Use a random discord ability on a random player character
 		List<HeroController> playerCharacters = battleController.HeroCombatants;
@@ -17,7 +22,8 @@ public static class EnemyBehaviours
 	}
 
 	public static Dictionary<BehaviourIndex, Action<BattleController, CombatantController>> behaviourDict = new Dictionary<BehaviourIndex, Action<BattleController, CombatantController>>() {
-		{ BehaviourIndex.RANDOM_ABILITY, RandomAbility }
+		{ BehaviourIndex.RANDOM_ABILITY, RandomAbility },
+		{ BehaviourIndex.DO_NOTHING, DoNothing }
 	};
 
 

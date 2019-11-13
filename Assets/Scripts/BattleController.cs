@@ -120,6 +120,11 @@ public class BattleController : MonoBehaviour
 		Transition();
 	}
 
+	public void ExecuteTurn() {
+		// No turn taken, just modify battle state
+		Transition();
+	}
+
 	private void InitEncounterData() {
 		data = EncounterDataStaticContainer.GetData();
 	}
