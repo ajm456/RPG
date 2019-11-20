@@ -2,24 +2,29 @@
 
 public class HeroController : CombatantController
 {
-	public Color Color {
+	public Color Color
+	{
 		get;
 		set;
 	}
-	public int Calm {
+	public int Calm
+	{
 		get;
 		set;
 	}
-	public int Discord {
+	public int Discord
+	{
 		get;
 		set;
 	}
-	public int PartyOrder {
+	public int PartyOrder
+	{
 		get;
 		set;
 	}
 
-	public void Init(HeroData data, BattleController battleController) {
+	public void Init(HeroData data, BattleController battleController)
+	{
 		Name = data.name;
 		Color = data.color;
 		HP = data.hp;
@@ -34,29 +39,32 @@ public class HeroController : CombatantController
 
 	// Discern which ability the player is using, ensure they have sufficient
 	// resources, etc.
-	public override void PollForTurn() {
-		if(Input.GetKeyDown(KeyCode.Space)) {
-			// Work out which ability the player is using
-			Ability ability = DetermineAbility();
+	public override void PollForTurn()
+	{
+		//if(Input.GetKeyDown(KeyCode.Space)) {
+		//	// Work out which ability the player is using
+		//	Ability ability = DetermineAbility();
 
-			// Determine player target
-			CombatantController target = DetermineTarget();
+		//	// Determine player target
+		//	CombatantController target = DetermineTarget();
 
-			// Execute turn
-			battleController.ExecuteTurn(this, ability, target);
-			// Adjust source resource values
-			Calm += ability.calmAdj;
-			Discord += ability.discordAdj;
-			Calm = Mathf.Clamp(Calm, 0, 100);
-			Discord = Mathf.Clamp(Discord, 0, 100);
-		}
+		//	// Execute turn
+		//	battleController.ExecuteTurn(this, ability, target);
+		//	// Adjust source resource values
+		//	Calm += ability.calmAdj;
+		//	Discord += ability.discordAdj;
+		//	Calm = Mathf.Clamp(Calm, 0, 100);
+		//	Discord = Mathf.Clamp(Discord, 0, 100);
+		//}
 	}
 
-	private Ability DetermineAbility() {
+	private Ability DetermineAbility()
+	{
 		return DiscordAbilities[0];
 	}
-	
-	private CombatantController DetermineTarget() {
+
+	private CombatantController DetermineTarget()
+	{
 		return battleController.EnemyCombatants[0];
 	}
 }

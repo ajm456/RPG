@@ -3,44 +3,286 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-// Holds the state required for processing root menu items
-internal class RootMenuItem
+/// <summary>
+/// Holds the state required for a menu.
+/// </summary>
+internal class Menu
 {
-	private GameObject menuItem;
-	private RectTransform rectTransform;
+	// The local distance between each menu item
+	private static readonly float ITEM_MARGIN = 10f;
+
+	private GameObject menu;
+	private List<MenuItem> items;
+
+	internal Transform Transform
+	{
+		get
+		{
+			return menu.transform;
+		}
+	}
+	internal RectTransform rectTransform
+	{
+		get;
+	}
+	internal int NumItems
+	{
+		get
+		{
+			return items.Count;
+		}
+	}
+
+
+	/// <summary>
+	/// Initialise a Menu object.
+	/// </summary>
+	/// <param name="menu">The (instantiated) GameObject representing this Menu in the game world.</param>
+	internal Menu(GameObject menu)
+	{
+		this.menu = menu;
+		rectTransform = menu.GetComponent<RectTransform>();
+		items = new List<MenuItem>();
+	}
+
+
+	/// <summary>
+	/// Adds a MenuItem object to this menu's list of items.
+	/// </summary>
+	/// <param name="item">The MenuItem object to add</param>
+	internal void AddMenuItem(MenuItem item)
+	{
+		// Position it underneath all other menu items
+		item.transform.localPosition -= new Vector3(0f, items.Count * (item.rectTransform.sizeDelta.y + ITEM_MARGIN));
+		items.Add(item);
+	}
+
+
+	/// <summary>
+	/// <para>
+	/// Clears the list of MenuItem objects this Menu object holds.
+	/// </para>
+	/// <para>
+	/// This does NOT destroy game objects, which must be done in a
+	/// MonoBehaviour object. See <see cref="GetMenuItems"/> to get a list of
+	/// GameObject objects to call Destroy on.
+	/// </para>
+	/// </summary>
+	internal void ClearMenuItems()
+	{
+		items = new List<MenuItem>();
+	}
+
+
+	/// <summary>
+	/// Returns an IEnumerable containing each menu item's GameObject.
+	/// </summary>
+	/// <returns>An IEnumerable of menu item GameObjects.</returns>
+	internal IEnumerable<GameObject> GetMenuItems()
+	{
+		foreach (MenuItem item in items)
+		{
+			yield return item.GameObj;
+		}
+	}
+
+
+	/// <summary>
+	/// Set whether this menu GameObject is active or not.
+	/// </summary>
+	/// <param name="enabled"></param>
+	internal void SetActive(bool enabled)
+	{
+		menu.SetActive(enabled);
+	}
+
+
+	/// <summary>
+	/// Highlights the menu item at a given index with a given color.
+	/// Highlighted menu items are larger in size and colored differently to
+	/// non-highlighted items.
+	/// </summary>
+	/// <param name="index">The index of the menu item to highlight.</param>
+	/// <param name="color">The color to set the menu item.</param>
+	internal void HighlightMenuItem(int index, Color color)
+	{
+		Debug.Assert(index < items.Count, "Trying to highlight index " + index + " but there are only " + items.Count + " items in the menu!");
+		items[index].Highlight(color);
+	}
+
+
+	/// <summary>
+	/// Unhighlights the menu item at a given index. See
+	/// <see cref="HighlightMenuItem(int, Color)"/>.
+	/// </summary>
+	/// <param name="index">The index of the menu item to unhighlight</param>
+	internal void UnhighlightMenuItem(int index)
+	{
+		Debug.Assert(index < items.Count, "Trying to unhighlight index " + index + " but there are only " + items.Count + " items in the menu!");
+		items[index].Unhighlight();
+	}
+
+
+	/// <summary>
+	/// Executes the callback of the item at a given index.
+	/// </summary>
+	/// <param name="index">The index of the item to select.</param>
+	internal void SelectItem(int index)
+	{
+		Debug.Assert(index < items.Count, "Trying to select index " + index + " but there are only " + items.Count + " items in the menu!");
+		items[index].OnSelect();
+	}
+
+
+	/// <summary>
+	/// Returns whether or not the menu item at a given index is currently
+	/// enabled or not. Disabled menu items cannot be selected and appear
+	/// faded.
+	/// </summary>
+	/// <param name="index">The index of the menu item being examined.</param>
+	/// <returns>Whether or not the menu item is currently enabled.</returns>
+	internal bool IsItemEnabled(int index)
+	{
+		Debug.Assert(index < items.Count, "Trying to check enabled status of index " + index + " but there are only " + items.Count + " items in the menu!");
+		return items[index].IsEnabled();
+	}
+
+
+	/// <summary>
+	/// Enables/disables the menu item at a given index. Disabled menu items
+	/// cannot be selected and appear faded.
+	/// </summary>
+	/// <param name="index">The index of the item being enabled/disabled.</param>
+	/// <param name="enabled">Whether to enable or disable the item.</param>
+	internal void SetItemEnabled(int index, bool enabled)
+	{
+		Debug.Assert(index < items.Count, "Trying to enable/disable index " + index + " but there are only " + items.Count + " items in the menu!");
+		items[index].SetEnabled(enabled);
+	}
+}
+
+
+/// <summary>
+/// Holds the state required for a menu item.
+/// </summary>
+internal class MenuItem
+{
 	private TextMeshProUGUI textMeshPro;
-	private Action Callback;
+	private Action callback;
+	private bool enabled;
 
-	internal RootMenuItem(GameObject menuItem, RectTransform rectTransform, TextMeshProUGUI textMeshPro, Action callback) {
-		this.menuItem = menuItem;
-		this.rectTransform = rectTransform;
-		this.textMeshPro = textMeshPro;
-		Callback = callback;
+	internal GameObject GameObj
+	{
+		get;
+	}
+	internal Transform transform
+	{
+		get
+		{
+			return GameObj.transform;
+		}
+	}
+	internal RectTransform rectTransform
+	{
+		get;
 	}
 
-	internal void Highlight(Color color) {
-		textMeshPro.fontSize *= 1.2f;
-		textMeshPro.color = color;
+
+	/// <summary>
+	/// Initialises a MenuItem object.
+	/// </summary>
+	/// <param name="gameObj">The (instantiated) GameObject representing this menu item in the game world.</param>
+	/// <param name="text">The text this menu item displays.</param>
+	/// <param name="callback">The callback to execute when this menu item is selected.</param>
+	internal MenuItem(GameObject gameObj, string text, Action callback)
+	{
+		GameObj = gameObj;
+		this.callback = callback;
+		rectTransform = gameObj.GetComponent<RectTransform>();
+		textMeshPro = gameObj.GetComponent<TextMeshProUGUI>();
+		textMeshPro.SetText(text);
+		enabled = true;
 	}
 
-	internal void ChangeHighlightColor(Color color) {
-		textMeshPro.color = color;
+
+	/// <summary>
+	/// Highlights this menu item with a given color. Highlighted menu items
+	/// are larger in size and colored differently to unhighlighted items.
+	/// </summary>
+	/// <param name="color">The color to set this menu item.</param>
+	internal void Highlight(Color color)
+	{
+		if (enabled)
+		{
+			textMeshPro.fontSize *= 1.2f;
+			textMeshPro.color = color;
+		}
+		else
+		{
+			Debug.LogWarning("Tried to highlight a disabled item!");
+			Debug.Break();
+		}
 	}
 
-	internal void Unhighlight() {
-		textMeshPro.fontSize /= 1.2f;
-		textMeshPro.color = Color.white;
+
+	/// <summary>
+	/// Unhighlights this menu item.
+	/// </summary>
+	internal void Unhighlight()
+	{
+		if (enabled)
+		{
+			textMeshPro.fontSize /= 1.2f;
+			textMeshPro.color = Color.white;
+		}
+		else
+		{
+			Debug.LogWarning("Tried to unhighlight a disabled item!");
+		}
 	}
 
-	internal void OnSelect() {
-		Callback();
+
+	/// <summary>
+	/// Enables/disables this menu item. Disabled menu items cannot be
+	/// selected.
+	/// </summary>
+	/// <param name="enabled">Whether to enable or disable this menu item.</param>
+	internal void SetEnabled(bool enabled)
+	{
+		if (!enabled)
+			textMeshPro.alpha = 0.3f;
+
+		this.enabled = enabled;
+	}
+
+
+	/// <summary>
+	/// Returns whether or not this menu item is currently enabled.
+	/// </summary>
+	/// <returns>Whether or not this menu item is currently enabled.</returns>
+	internal bool IsEnabled()
+	{
+		return enabled;
+	}
+
+
+	/// <summary>
+	/// Executes this MenuItem object's select callback.
+	/// </summary>
+	internal void OnSelect()
+	{
+		Debug.Assert(enabled, "Trying to execute the select callback of a disabled menu item...?");
+		if (!enabled)
+			Debug.Break();
+
+		callback();
 	}
 }
 
 public class PlayerMenuController : MonoBehaviour
 {
 	// Prefabs
-	[SerializeField] private GameObject playerMenuPrefab, menuItemPrefab;
+	[SerializeField] private GameObject menuPrefab, menuItemPrefab;
 
 	// Other scene components
 	[SerializeField] private BattleController battleController;
@@ -48,15 +290,11 @@ public class PlayerMenuController : MonoBehaviour
 
 
 	// Root player menu that moves between heroes
-	private Transform playerMenu;
-	private RectTransform playerMenuRectTransform;
+	private Menu[] menus = new Menu[2];
 
 
-	// List of root menu items
-	private List<RootMenuItem> rootMenuItems;
-
-	// Index of the highlighted root menu item
-	private int rootMenuItemIndex;
+	// Current cursor position in form [menu,item]
+	private Vector2Int cursorPos;
 
 
 	// Index of the hero the menu is currently attached to
@@ -65,71 +303,122 @@ public class PlayerMenuController : MonoBehaviour
 	// Ability list for each hero (calm and discord)
 	private List<List<List<Ability>>> heroAbilityLists;
 
-	void Start() {
-		InitialiseMenu();
+
+	/// <summary>
+	/// MonoBehaviour start.
+	/// </summary>
+	void Start()
+	{
 		InitialiseHeroAbilityLists();
+		InitialiseRootMenu();
+		InitialiseExtraMenu();
 		currHeroIndex = battleController.HeroTurnIndex;
-		rootMenuItemIndex = 0;
+		cursorPos = new Vector2Int(0, 0);
+		// Disable menu items if we need to
+		if (battleController.HeroCombatants[currHeroIndex].DiscordAbilities.Count == 0)
+		{
+			menus[0].SetItemEnabled(1, false);
+		}
+		if (battleController.HeroCombatants[currHeroIndex].CalmAbilities.Count == 0)
+		{
+			menus[0].SetItemEnabled(2, false);
+		}
 	}
 
-	void Update() {
+
+	/// <summary>
+	/// MonoBehaviour update.
+	/// </summary>
+	void Update()
+	{
 		// If required, move the player menu to be next to the current hero
-		if(currHeroIndex != battleController.HeroTurnIndex) {
+		if (currHeroIndex != battleController.HeroTurnIndex)
+		{
 			currHeroIndex = battleController.HeroTurnIndex;
 
-			playerMenu.transform.position = battleController.HeroCombatants[battleController.HeroTurnIndex].transform.position;
-			playerMenuRectTransform.localPosition += new Vector3(playerMenuRectTransform.sizeDelta.x * 0.8f, 0f);
+			menus[0].Transform.position = battleController.HeroCombatants[currHeroIndex].transform.position;
+			menus[0].rectTransform.localPosition += new Vector3(menus[0].rectTransform.sizeDelta.x * 0.8f, 0f);
+
+			// Disable menu items if we need to
+			if (battleController.HeroCombatants[currHeroIndex].DiscordAbilities.Count == 0)
+			{
+				menus[0].SetItemEnabled(1, false);
+			}
+			if (battleController.HeroCombatants[currHeroIndex].CalmAbilities.Count == 0)
+			{
+				menus[0].SetItemEnabled(2, false);
+			}
 
 			// Since the hero's changed, the color of the highlighted menu item will change too
-			UnhighlightMenuItem(rootMenuItemIndex);
-			rootMenuItemIndex = 0;
-			HighlightMenuItem(rootMenuItemIndex);
+			UnhighlightMenuItem(cursorPos);
+			cursorPos.x = 0;
+			cursorPos.y = 0;
+			HighlightMenuItem(cursorPos);
 		}
-		
-		int oldRootMenuItemIndex = rootMenuItemIndex;
+
+		Vector2Int oldCursorPos = cursorPos;
 		// Handle navigating menus
 		NavigateMenus();
 
-		if (rootMenuItemIndex != oldRootMenuItemIndex) {
-			UnhighlightMenuItem(oldRootMenuItemIndex);
-			HighlightMenuItem(rootMenuItemIndex);
+		if (cursorPos != oldCursorPos)
+		{
+			UnhighlightMenuItem(oldCursorPos);
+			HighlightMenuItem(cursorPos);
 		}
 	}
 
-	// Initialise the root menu containing all the player actions
-	private void InitialiseMenu() {
+
+	/// <summary>
+	/// Initialise the root menu containing all the player actions.
+	/// </summary>
+	private void InitialiseRootMenu()
+	{
 		// Initialise it
-		playerMenu = Instantiate(playerMenuPrefab, gameUI.transform).transform;
-		playerMenuRectTransform = playerMenu.GetComponent<RectTransform>();
+		GameObject rootMenuObj = Instantiate(menuPrefab, gameUI.transform);
+		menus[0] = new Menu(rootMenuObj);
 
 		// Position it
-		playerMenu.transform.position = battleController.HeroCombatants[battleController.HeroTurnIndex].transform.position;
-		playerMenuRectTransform.localPosition += new Vector3(playerMenuRectTransform.sizeDelta.x * 0.8f, 0f);
+		menus[0].Transform.position = battleController.HeroCombatants[battleController.HeroTurnIndex].transform.position;
+		menus[0].rectTransform.localPosition += new Vector3(menus[0].rectTransform.sizeDelta.x * 0.8f, 0f);
 
 		// Populate it with root level menu items
-		rootMenuItems = new List<RootMenuItem>();
-		AddMenuItem("ATTACK", 0, new Action(() => {
-			Debug.Log("Clicked on the ATTACK button!");
-		}));
-		AddMenuItem("DISCORD", 1, new Action(() => {
-			Debug.Log("Clicked on the DISCORD button!");
-		}));
-		AddMenuItem("CALM", 2, new Action(() => {
-			Debug.Log("Clicked on the CALM button!");
-		}));
-		AddMenuItem("GUARD", 3, new Action(() => {
-			Debug.Log("Clicked on the GUARD button!");
-		}));
+		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "ATTACK", new Action(OnSelectAttack)));
+		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "DISCORD", new Action(OnSelectDiscord)));
+		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "CALM", new Action(OnSelectCalm)));
+		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "GUARD", new Action(OnSelectGuard)));
 
 		// Highlight the first item
-		rootMenuItems[0].Highlight(battleController.HeroCombatants[battleController.HeroTurnIndex].Color);
+		HighlightMenuItem(0, 0);
 	}
 
-	// Cache the abilities of each hero
-	private void InitialiseHeroAbilityLists() {
+
+	/// <summary>
+	/// Initialise the extra menu containing abilities.
+	/// </summary>
+	private void InitialiseExtraMenu()
+	{
+		// Initialise it
+		GameObject extraMenuObj = Instantiate(menuPrefab, gameUI.transform);
+		menus[1] = new Menu(extraMenuObj);
+
+		// Position it
+		menus[1].Transform.position = menus[0].Transform.position;
+		menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].rectTransform.sizeDelta.x, 0f);
+
+		// For now, hide the menu
+		menus[1].SetActive(false);
+	}
+
+
+	/// <summary>
+	/// Cache the ability lists of each hero.
+	/// </summary>
+	private void InitialiseHeroAbilityLists()
+	{
 		heroAbilityLists = new List<List<List<Ability>>>();
 		// For each hero, load their abilities
-		foreach(HeroController hero in battleController.HeroCombatants) {
+		foreach (HeroController hero in battleController.HeroCombatants)
+		{
 			// Calm abilities
 			List<Ability> calmAbilities = hero.CalmAbilities;
 			// Discord abilities
@@ -144,34 +433,144 @@ public class PlayerMenuController : MonoBehaviour
 		}
 	}
 
-	private void AddMenuItem(string text, int itemNum, Action callback) {
-		GameObject menuItem = Instantiate(menuItemPrefab, playerMenu);
-		RectTransform rectTransform = menuItem.GetComponent<RectTransform>();
-		TextMeshProUGUI textMeshPro = menuItem.GetComponent<TextMeshProUGUI>();
-		float margin = 10f;
 
-		menuItem.transform.localPosition -= new Vector3(0f, itemNum * (rectTransform.sizeDelta.y + margin));
-		textMeshPro.SetText(text);
+	/// <summary>
+	/// Manages user navigation of the root and extra menu.
+	/// </summary>
+	private void NavigateMenus()
+	{
+		if (Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			// Keep navigating until we find an enabled menu item
+			do
+			{
+				cursorPos.y = (cursorPos.y + 1) % menus[cursorPos.x].NumItems;
+			} while (!menus[cursorPos.x].IsItemEnabled(cursorPos.y));
+		}
+		else if (Input.GetKeyDown(KeyCode.UpArrow))
+		{
+			// Keep navigating until we find an enabled menu item
+			do
+			{
+				cursorPos.y = (menus[cursorPos.x].NumItems + cursorPos.y - 1) % menus[cursorPos.x].NumItems;
+			} while (!menus[cursorPos.x].IsItemEnabled(cursorPos.y));
+		}
+		else if (Input.GetKeyDown(KeyCode.LeftArrow))
+		{
+			// We don't do anything if the cursor is on the root menu
+			if (cursorPos.x == 0)
+				return;
 
-		// Create a RootMenuItem object and add it to the list
-		rootMenuItems.Add(new RootMenuItem(menuItem, rectTransform, textMeshPro, callback));
-	}
-
-	private void NavigateMenus() {
-		if(Input.GetKeyDown(KeyCode.DownArrow)) {
-			rootMenuItemIndex = (rootMenuItemIndex + 1) % rootMenuItems.Count;
-		} else if(Input.GetKeyDown(KeyCode.UpArrow)) {
-			rootMenuItemIndex = (rootMenuItems.Count + rootMenuItemIndex - 1) % rootMenuItems.Count;
-		} else if(Input.GetKeyDown(KeyCode.Space)) {
-			rootMenuItems[rootMenuItemIndex].OnSelect();
+			// Providing the cursor is on the extra menu, navigate left and close
+			cursorPos.x -= 1;
+			menus[1].SetActive(false);
+		}
+		else if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.RightArrow))
+		{
+			menus[cursorPos.x].SelectItem(cursorPos.y);
 		}
 	}
 
-	private void HighlightMenuItem(int index) {
-		rootMenuItems[index].Highlight(battleController.HeroCombatants[currHeroIndex].Color);
+
+	/// <summary>
+	/// Highlights the menu item at a given position.
+	/// </summary>
+	/// <param name="pos">The xy position of the item to highlight.</param>
+	private void HighlightMenuItem(Vector2Int pos)
+	{
+		menus[pos.x].HighlightMenuItem(pos.y, battleController.HeroCombatants[currHeroIndex].Color);
 	}
 
-	private void UnhighlightMenuItem(int index) {
-		rootMenuItems[index].Unhighlight();
+
+	/// <summary>
+	/// Highlights the menu item at a given position.
+	/// </summary>
+	/// <param name="x">The x position of the item to highlight (aka which menu it's in).</param>
+	/// <param name="y">The y position of the item to highlight.</param>
+	private void HighlightMenuItem(int x, int y)
+	{
+		menus[x].HighlightMenuItem(y, battleController.HeroCombatants[currHeroIndex].Color);
+	}
+
+
+	/// <summary>
+	/// Reverts the menu item at given position back to its original size and color.
+	/// </summary>
+	/// <param name="pos">xy position of the menu item to unhighlight.</param>
+	private void UnhighlightMenuItem(Vector2Int pos)
+	{
+		menus[pos.x].UnhighlightMenuItem(pos.y);
+	}
+
+
+	/// <summary>
+	/// Callback for selecting the attack menu item.
+	/// </summary>
+	private void OnSelectAttack()
+	{
+		Debug.Log("Attacking!");
+	}
+
+
+	/// <summary>
+	/// Callback for selecting the discord abilities menu item.
+	/// </summary>
+	private void OnSelectDiscord()
+	{
+		// Destroy the old gameobjects before clearing list data
+		foreach (GameObject item in menus[1].GetMenuItems())
+		{
+			Destroy(item);
+		}
+		menus[1].ClearMenuItems();
+
+		for (var i = 0; i < heroAbilityLists[currHeroIndex][1].Count; ++i)
+		{
+			Ability ability = heroAbilityLists[currHeroIndex][1][i];
+			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() => { Debug.Log(ability.name); })));
+		}
+
+		// Move the cursor to the top of the list
+		cursorPos.x = 1;
+		cursorPos.y = 0;
+
+		// Activate the menu
+		menus[1].SetActive(true);
+	}
+
+
+	/// <summary>
+	/// Callback for selecting the calm abilities menu item.
+	/// </summary>
+	private void OnSelectCalm()
+	{
+		// Destroy the old gameobjects before clearing list data
+		foreach (GameObject item in menus[1].GetMenuItems())
+		{
+			Destroy(item);
+		}
+		menus[1].ClearMenuItems();
+
+		for (var i = 0; i < heroAbilityLists[currHeroIndex][0].Count; ++i)
+		{
+			Ability ability = heroAbilityLists[currHeroIndex][0][i];
+			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() => { Debug.Log(ability.name); })));
+		}
+
+		// Move the cursor to the top of the list
+		cursorPos.x = 1;
+		cursorPos.y = 0;
+
+		// Activate the menu
+		menus[1].SetActive(true);
+	}
+
+
+	/// <summary>
+	/// Callback for selecting the guard menu item.
+	/// </summary>
+	private void OnSelectGuard()
+	{
+		Debug.Log("Selected guard!");
 	}
 }
