@@ -29,6 +29,7 @@ public class HeroController : CombatantController
 		Color = data.color;
 		HP = data.hp;
 		MaxHP = data.maxHp;
+		Strength = data.strength;
 		CalmAbilities = data.calmAbilities;
 		DiscordAbilities = data.discordAbilities;
 		Calm = data.calm;

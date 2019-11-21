@@ -7,6 +7,8 @@ public class EnemyController : CombatantController
 	public void Init(EnemyData data, BattleController battleController) {
 		Name = data.name;
 		HP = data.maxHp;
+		MaxHP = data.maxHp;
+		Strength = data.strength;
 		behaviour = EnemyBehaviours.GetBehaviour(data.behaviourIndex);
 		CalmAbilities = data.calmAbilities;
 		DiscordAbilities = data.discordAbilities;

@@ -1,6 +1,7 @@
 {
     "name" : "frog",
     "maxHp" : 300,
+    "strength" : 10,
     "behaviourIndex" : 0,
     "abilityNames" : [
         "Attack"

@@ -5,6 +5,7 @@
     ],
     "hp" : 40,
     "maxHp" : 40,
+    "strength" : 4,
     "calm" : 0,
     "discord" : 0,
     "abilityNames" : [
