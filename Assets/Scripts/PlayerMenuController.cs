@@ -508,7 +508,8 @@ public class PlayerMenuController : MonoBehaviour
 	/// </summary>
 	private void OnSelectAttack()
 	{
-		Debug.Log("Attacking!");
+		// TODO: Determine which enemy index to attack
+		battleController.ExecuteTurnWithAttack(battleController.HeroCombatants[currHeroIndex], battleController.EnemyCombatants[0]);
 	}
 
 
