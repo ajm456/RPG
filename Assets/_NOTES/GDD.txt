@@ -83,12 +83,33 @@ COMBAT:
 			
 
 - Stats
-	- ???
+	- Pretty standard stuff
+	- STRENGTH
+		- Directly correlates with damage dealt by attacks
+		- Formula for attack:
+			- 2.5*strength < damage < 3.5*strength
+	- STAMINA
+		- Increases max HP
+	- AGILITY
+		- Increases chance of critical strikes
+			- Critical strikes are (without improvements) 2x damage
+		- Formula for chance of a crit:
+			- % chance = 3 + 0.3*agility
+	- TRUST
+		- Increases the effectiveness of augments both on allies' attacks
+			- Each augment benefits from trust in a unique way
+	- PASSION <placeholder name>
+		- Increases the effectiveness of discord abilities
+			- Each aura benefits from discord in a unique way (if at all)
+	- WISDOM <placeholder name>
+		- Increases the effectiveness of calm abilities
+			- Each aura benefits from calm in a unique way (if at all)
 
 - Abilities
 	- Each character has a unique passive
 		- Marl: Discord and Calm increases do not decrease each other
-		- Jack: While below %x Discord, he gains access to unique Calm spells
+		- Jack: While below %x Discord, he gains access to unique Calm spells <this might suck>
+		- Eris: <????>
 
 - Battle mechanics
 	- Attacks can be AUGMENTED by allies
@@ -114,3 +135,4 @@ UI:
 		- Discord
 			- Opens a list of Discord abilities
 		- Guard
+			- <???>
