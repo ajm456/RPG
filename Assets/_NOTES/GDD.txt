@@ -84,45 +84,91 @@ COMBAT:
 
 - Stats
 	- Pretty standard stuff
-	- STRENGTH
+	- POWER
 		- Directly correlates with damage dealt by attacks
 		- Formula for attack:
-			- 2.5*strength < damage < 3.5*strength
+			- 2.5*power < damage < 3.5*power
+		- Damaging abilities also uniquely scale with power
 	- STAMINA
 		- Increases max HP
 	- AGILITY
 		- Increases chance of critical strikes
 			- Critical strikes are (without improvements) 2x damage
-		- Formula for chance of a crit:
-			- % chance = 3 + 0.3*agility
+			- Formula for chance of a crit:
+				- % chance = 3 + 0.3*agility
+		- Increases how frequently the character gets to take a turn
 	- TRUST
 		- Increases the effectiveness of augments both on allies' attacks
 			- Each augment benefits from trust in a unique way
-	- PASSION <placeholder name>
-		- Increases the effectiveness of discord abilities
-			- Each aura benefits from discord in a unique way (if at all)
-	- WISDOM <placeholder name>
-		- Increases the effectiveness of calm abilities
-			- Each aura benefits from calm in a unique way (if at all)
 
-- Abilities
+- Character traits
 	- Each character has a unique passive
 		- Marl: Discord and Calm increases do not decrease each other
 		- Jack: While below %x Discord, he gains access to unique Calm spells <this might suck>
 		- Eris: <????>
 
-- Battle mechanics
+
+
+
+- Effects
+	- An effect is a direct stat modifier
+		- For example, -5 HP
+
+- Auras
+	- Effects which repeatedly either cause or maintain an effect on a combatant
+		- For example, -10 HP per turn for 4 turns
+	- Abilities apply 0 or more auras on their target(s)
+	- Auras are resolved at the start of the affected combatant's turn
+	- REPRESENTED AS:
+		- A list of effects and a counter
+			- Each effect in the list details what happens on that turn (relative to when the aura was applied)
+			- e.g.: a damage-over-time would look like {hp -= 2, hp -= 2, hp -= 2}
+			- e.g.: a strength debuff would like like {str -= 3, null, null, str += 3}
+
+- Abilities
+	- The primary combat turn-taking alternative to simple attacking
+	- Combination of one or more effects (applied instantly) and zero or more auras
+	- For example:
+		- Fireball
+			INSTANT EFFECT: {hp -= 10}
+			AURA = {hp -= 2, hp -= 2, hp -= 2}
+		- Frostbolt
+			INSTANT EFFECTS: {hp -= 7, agi -= 5}
+			AURA = {null, null, null, agi += 5}
+		- Slow
+			INSTANT EFFECT: {agi -= 8}
+			AURA = {null, null, null, agi += 8}
+
+
+
+
+
+
+
+
+- Augments
 	- Attacks can be AUGMENTED by allies
 		- Augments are trained separately to abilities (i.e. players can choose to
 			specialise in abilities or augments, or be generalist in both)
-		- Augments do not cost resources but do consume the augmenter's turn
+		- Augments do not cost resources but do consume the augmenter's next turn
 		- By comboing an ability with a specific augment, bonus effects occur
 			- E.g: augment an attack with a fire-element to "melt armor"
 		- This should NOT feel like Rikku-esque "discover recipes"
 			- Augments primary gameplay purpose are to speed up player turns
-				instead of just mashing attack with each ally
-	- The faster the player completes their turn...
-		- ??? Reduced Discord / Calm cost ???
+				i.e. you don't spend 10 turns in a row just mashing attack
+	
+
+
+
+
+- Misc gameplay feature ideas
+	- Some kind of benefit for completing turns quickly
+		- The game *must* remain purely turn-based; this is non-negotiable.
+			However, it would be cool to reward players who think quickly and
+			take their turns fast, without punishing those who do not.
+
+
+
 
 
 
