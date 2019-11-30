@@ -45,6 +45,7 @@ public class EnemyData
 
 		// Filter to find this character's abilities
 		calmAbilities = new List<AbilityData>();
+		discordAbilities = new List<AbilityData>();
 		foreach (AbilityData ability in allAbilities)
 		{
 			if (wrapper.abilityNames.Contains(ability.name))
