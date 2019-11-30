@@ -1,10 +1,16 @@
 ﻿using System.Collections.Generic;
 
+/// <summary>
+/// Contains deserialized data from enemy JSON files, with their ability lists
+/// in string form. To create a <see cref="EnemyData"/> object, you must
+/// instantiate this class and pass the object as an argument to
+/// <see cref="EnemyData"/>'s constructor.
+/// </summary>
 public class EnemyDataStrAbilities
 {
-	public string name;
-	public int maxHp, strength, agility, behaviourIndex;
-	public List<string> abilityNames;
+	internal string name;
+	internal int maxHp, strength, agility, behaviourIndex;
+	internal List<string> abilityNames;
 
 	public EnemyDataStrAbilities(string name, int maxHp, int strength, int agility, int behaviourIndex, List<string> abilityNames)
 	{
@@ -17,6 +23,10 @@ public class EnemyDataStrAbilities
 	}
 }
 
+/// <summary>
+/// Contains deserialized data from enemy JSON files including lists of
+/// fully-instantiated <see cref="Ability"/> objects.
+/// </summary>
 public class EnemyData
 {
 	private static readonly List<Ability> allAbilities = JsonParser.LoadAllAbilities();
@@ -45,23 +55,5 @@ public class EnemyData
 					discordAbilities.Add(ability);
 			}
 		}
-	}
-
-	public override string ToString()
-	{
-		string str = "[enemy name: " + name + ", max HP: " + maxHp + ", abilities: {";
-		foreach (Ability ability in calmAbilities)
-		{
-			str += ability.name;
-			str += ", ";
-		}
-		foreach (Ability ability in discordAbilities)
-		{
-			str += ability.name;
-			str += ", ";
-		}
-		str += "}";
-
-		return str;
 	}
 }
