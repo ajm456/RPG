@@ -1,12 +1,18 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Contains deserialized data from hero JSON files, with their ability lists
+/// in string form. To create a <see cref="HeroData"/> object, you must
+/// instantiate this class and pass the object as an argument to
+/// <see cref="HeroData"/>'s constructor.
+/// </summary>
 public class HeroDataJsonWrapper
 {
-	public string name;
-	public List<int> color;
-	public int hp, maxHp, strength, agility, calm, discord;
-	public List<string> abilityNames;
+	internal string name;
+	internal List<int> color;
+	internal int hp, maxHp, strength, agility, calm, discord;
+	internal List<string> abilityNames;
 
 	public HeroDataJsonWrapper(string name, List<int> color, int hp, int maxHp, int strength, int agility, int calm, int discord, List<string> abilityNames)
 	{
@@ -22,8 +28,15 @@ public class HeroDataJsonWrapper
 	}
 }
 
+
+/// <summary>
+/// Contains deserialized data from JSON files including lists of
+/// fully-instantiated <see cref="Ability"/> objects.
+/// </summary>
 public class HeroData
 {
+	// Load all the abilities so we can filter by name to set this hero's
+	// ability lists
 	private static readonly List<Ability> allAbilities = JsonParser.LoadAllAbilities();
 
 	public string name;
