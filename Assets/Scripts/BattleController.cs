@@ -199,7 +199,6 @@ public class BattleController : MonoBehaviour
 			newHero.transform.localPosition = HERO_SPAWN_POSITIONS[i];
 			HeroController heroController = newHero.GetComponent<HeroController>();
 			heroController.Init(heroes[i], this);
-			heroController.PartyOrder = i;
 			HeroCombatants.Add(heroController);
 		}
 	}

@@ -18,11 +18,6 @@ public class HeroController : CombatantController
 		get;
 		set;
 	}
-	public int PartyOrder
-	{
-		get;
-		set;
-	}
 
 	public void Init(HeroData data, BattleController battleController)
 	{
