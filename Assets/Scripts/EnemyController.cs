@@ -11,6 +11,7 @@ public class EnemyController : CombatantController
 		HP = data.maxHp;
 		MaxHP = data.maxHp;
 		Strength = data.strength;
+		Agility = data.agility;
 		behaviour = EnemyBehaviours.GetBehaviour(data.behaviourIndex);
 		CalmAbilities = data.calmAbilities;
 		DiscordAbilities = data.discordAbilities;

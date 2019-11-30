@@ -61,6 +61,14 @@ public abstract class CombatantController : MonoBehaviour
 		set;
 	}
 	/// <summary>
+	/// The agility of this combatant.
+	/// </summary>
+	public int Agility
+	{
+		get;
+		set;
+	}
+	/// <summary>
 	/// All Calm abilities this combatant can use.
 	/// </summary>
 	public List<Ability> CalmAbilities
