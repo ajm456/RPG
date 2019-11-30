@@ -30,7 +30,7 @@ public class HeroDataJsonWrapper
 
 
 /// <summary>
-/// Contains deserialized data from JSON files including lists of
+/// Contains deserialized data from hero JSON files including lists of
 /// fully-instantiated <see cref="Ability"/> objects.
 /// </summary>
 public class HeroData
@@ -68,23 +68,5 @@ public class HeroData
 					discordAbilities.Add(ability);
 			}
 		}
-	}
-
-	public override string ToString()
-	{
-		string str = "[hero name: " + name + ", HP: " + hp + "/" + maxHp + ", abilities: {";
-		foreach (Ability ability in calmAbilities)
-		{
-			str += ability.name;
-			str += ", ";
-		}
-		foreach (Ability ability in discordAbilities)
-		{
-			str += ability.name;
-			str += ", ";
-		}
-		str += "}";
-
-		return str;
 	}
 }
