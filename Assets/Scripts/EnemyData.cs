@@ -8,9 +8,9 @@
 /// </summary>
 public class EnemyDataStrAbilities
 {
-	internal string name;
-	internal int maxHp, strength, agility, behaviourIndex;
-	internal List<string> abilityNames;
+	public string name;
+	public int maxHp, strength, agility, behaviourIndex;
+	public List<string> abilityNames;
 
 	public EnemyDataStrAbilities(string name, int maxHp, int strength, int agility, int behaviourIndex, List<string> abilityNames)
 	{

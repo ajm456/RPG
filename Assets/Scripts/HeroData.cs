@@ -9,10 +9,10 @@ using UnityEngine;
 /// </summary>
 public class HeroDataJsonWrapper
 {
-	internal string name;
-	internal List<int> color;
-	internal int hp, maxHp, strength, agility, calm, discord;
-	internal List<string> abilityNames;
+	public string name;
+	public List<int> color;
+	public int hp, maxHp, strength, agility, calm, discord;
+	public List<string> abilityNames;
 
 	public HeroDataJsonWrapper(string name, List<int> color, int hp, int maxHp, int strength, int agility, int calm, int discord, List<string> abilityNames)
 	{
