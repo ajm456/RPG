@@ -113,6 +113,7 @@ COMBAT:
 - Effects
 	- An effect is a direct stat modifier
 		- For example, -5 HP
+	- ??? Scale with a stat ???
 
 - Auras
 	- Effects which repeatedly either cause or maintain an effect on a combatant
