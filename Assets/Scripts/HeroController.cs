@@ -39,14 +39,4 @@ public class HeroController : CombatantController
 		AnimState = AnimationState.IDLE;
 		ActiveAuras = new List<Aura>();
 	}
-
-	private Ability DetermineAbility()
-	{
-		return DiscordAbilities[0];
-	}
-
-	private CombatantController DetermineTarget()
-	{
-		return battleController.EnemyCombatants[0];
-	}
 }
