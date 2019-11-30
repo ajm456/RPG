@@ -31,18 +31,18 @@ public class HeroDataJsonWrapper
 
 /// <summary>
 /// Contains deserialized data from hero JSON files including lists of
-/// fully-instantiated <see cref="Ability"/> objects.
+/// fully-instantiated <see cref="AbilityData"/> objects.
 /// </summary>
 public class HeroData
 {
 	// Load all the abilities so we can filter by name to set this hero's
 	// ability lists
-	private static readonly List<Ability> allAbilities = JsonParser.LoadAllAbilities();
+	private static readonly List<AbilityData> allAbilities = JsonParser.LoadAllAbilities();
 
 	public string name;
 	public Color color;
 	public int hp, maxHp, strength, agility, calm, discord;
-	public List<Ability> calmAbilities, discordAbilities;
+	public List<AbilityData> calmAbilities, discordAbilities;
 
 	public HeroData(HeroDataJsonWrapper wrapper)
 	{
@@ -56,9 +56,9 @@ public class HeroData
 		discord = wrapper.discord;
 
 		// Filter to find this hero's abilities
-		calmAbilities = new List<Ability>();
-		discordAbilities = new List<Ability>();
-		foreach (Ability ability in allAbilities)
+		calmAbilities = new List<AbilityData>();
+		discordAbilities = new List<AbilityData>();
+		foreach (AbilityData ability in allAbilities)
 		{
 			if (wrapper.abilityNames.Contains(ability.name))
 			{

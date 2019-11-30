@@ -71,7 +71,7 @@ public abstract class CombatantController : MonoBehaviour
 	/// <summary>
 	/// All Calm abilities this combatant can use.
 	/// </summary>
-	public List<Ability> CalmAbilities
+	public List<AbilityData> CalmAbilities
 	{
 		get;
 		set;
@@ -79,7 +79,7 @@ public abstract class CombatantController : MonoBehaviour
 	/// <summary>
 	/// All Discord abilities this combatant can use.
 	/// </summary>
-	public List<Ability> DiscordAbilities
+	public List<AbilityData> DiscordAbilities
 	{
 		get;
 		set;
@@ -87,7 +87,7 @@ public abstract class CombatantController : MonoBehaviour
 	/// <summary>
 	/// A list of all currently active auras on this combatant.
 	/// </summary>
-	public List<Aura> ActiveAuras
+	public List<AuraData> ActiveAuras
 	{
 		get;
 		set;
@@ -121,7 +121,7 @@ public abstract class CombatantController : MonoBehaviour
 	/// Adds an aura to this combatant's list of currently active auras.
 	/// </summary>
 	/// <param name="aura">The Aura object being added to this combatant's aura list.</param>
-	public void AddAura(Aura aura)
+	public void AddAura(AuraData aura)
 	{
 		ActiveAuras.Add(aura);
 	}
@@ -132,9 +132,6 @@ public abstract class CombatantController : MonoBehaviour
 	/// </summary>
 	public void ResolveAuras()
 	{
-		foreach (Aura aura in ActiveAuras)
-		{
-			aura.ResolveAura();
-		}
+		Debug.Log("UNIMPLEMENTED: CombatantController.ResolveAuras()");
 	}
 }

@@ -33,6 +33,6 @@ public class HeroController : CombatantController
 		Discord = data.discord;
 		this.battleController = battleController;
 		AnimState = AnimationState.IDLE;
-		ActiveAuras = new List<Aura>();
+		ActiveAuras = new List<AuraData>();
 	}
 }

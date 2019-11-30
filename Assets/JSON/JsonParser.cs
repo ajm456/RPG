@@ -8,19 +8,61 @@ using UnityEngine;
 /// </summary>
 public class JsonParser
 {
+	private const string JSON_EFFECTS_ROOT = "Assets/JSON/effects/";
+	private const string JSON_AURAS_ROOT = "Assets/JSON/auras/";
 	private const string JSON_ABILITIES_ROOT = "Assets/JSON/abilities/";
 	private const string JSON_HEROES_ROOT = "Assets/JSON/characters/heroes/";
 	private const string JSON_ENEMIES_ROOT = "Assets/JSON/characters/enemies/";
 
+
+	public static List<EffectData> LoadAllEffects()
+	{
+		List<EffectData> effectList = new List<EffectData>();
+
+		foreach (string filename in Directory.EnumerateFiles(JSON_EFFECTS_ROOT))
+		{
+			// Watch out for Unity-generated .meta files
+			if (filename.Contains(".meta"))
+			{
+				continue;
+			}
+			string json = File.ReadAllText(filename);
+			EffectData effect = JsonUtility.FromJson<EffectData>(json);
+			effectList.Add(effect);
+		}
+
+		return effectList;
+	}
+
+
+	public static List<AuraData> LoadAllAuras()
+	{
+		List<AuraData> auraList = new List<AuraData>();
+
+		foreach (string filename in Directory.EnumerateFiles(JSON_AURAS_ROOT))
+		{
+			// Watch out for Unity-generated .meta files
+			if (filename.Contains(".meta"))
+			{
+				continue;
+			}
+			string json = File.ReadAllText(filename);
+			AuraData aura = new AuraData(JsonUtility.FromJson<AuraDataJsonWrapper>(json));
+			auraList.Add(aura);
+		}
+
+		return auraList;
+	}
 	
+
 	/// <summary>
 	/// Load all JSON-specified abilities in the JSON_ABILITIES_ROOT folder
 	/// into a list.
 	/// </summary>
 	/// <returns>A List of all abilities specified in JSON.</returns>
-	public static List<Ability> LoadAllAbilities()
+	public static List<AbilityData> LoadAllAbilities()
 	{
-		List<Ability> abilityList = new List<Ability>();
+		List<AbilityData> abilityList = new List<AbilityData>();
 
 		foreach (string filename in Directory.EnumerateFiles(JSON_ABILITIES_ROOT))
 		{
@@ -30,7 +72,7 @@ public class JsonParser
 				continue;
 			}
 			string json = File.ReadAllText(filename);
-			Ability ability = JsonUtility.FromJson<Ability>(json);
+			AbilityData ability = new AbilityData(JsonUtility.FromJson<AbilityDataJsonWrapper>(json));
 			abilityList.Add(ability);
 		}
 
@@ -61,6 +103,7 @@ public class JsonParser
 			}
 
 			string json = File.ReadAllText(filename);
+			HeroDataJsonWrapper wrapper = JsonUtility.FromJson<HeroDataJsonWrapper>(json);
 			HeroData character = new HeroData(JsonUtility.FromJson<HeroDataJsonWrapper>(json));
 			heroList.Add(character);
 		}
@@ -92,7 +135,7 @@ public class JsonParser
 			}
 
 			string json = File.ReadAllText(filename);
-			EnemyData enemy = new EnemyData(JsonUtility.FromJson<EnemyDataStrAbilities>(json));
+			EnemyData enemy = new EnemyData(JsonUtility.FromJson<EnemyDataJsonWrapper>(json));
 			enemyList.Add(enemy);
 		}
 

@@ -301,7 +301,7 @@ public class PlayerMenuController : MonoBehaviour
 	private int currHeroIndex;
 
 	// Ability list for each hero (calm and discord)
-	private List<List<List<Ability>>> heroAbilityLists;
+	private List<List<List<AbilityData>>> heroAbilityLists;
 
 
 	/// <summary>
@@ -415,16 +415,16 @@ public class PlayerMenuController : MonoBehaviour
 	/// </summary>
 	private void InitialiseHeroAbilityLists()
 	{
-		heroAbilityLists = new List<List<List<Ability>>>();
+		heroAbilityLists = new List<List<List<AbilityData>>>();
 		// For each hero, load their abilities
 		foreach (HeroController hero in battleController.HeroCombatants)
 		{
 			// Calm abilities
-			List<Ability> calmAbilities = hero.CalmAbilities;
+			List<AbilityData> calmAbilities = hero.CalmAbilities;
 			// Discord abilities
-			List<Ability> discordAbilities = hero.DiscordAbilities;
+			List<AbilityData> discordAbilities = hero.DiscordAbilities;
 			// Group em up
-			List<List<Ability>> allAbilities = new List<List<Ability>> {
+			List<List<AbilityData>> allAbilities = new List<List<AbilityData>> {
 				calmAbilities,
 				discordAbilities
 			};
@@ -527,7 +527,7 @@ public class PlayerMenuController : MonoBehaviour
 
 		for (var i = 0; i < heroAbilityLists[currHeroIndex][1].Count; ++i)
 		{
-			Ability ability = heroAbilityLists[currHeroIndex][1][i];
+			AbilityData ability = heroAbilityLists[currHeroIndex][1][i];
 			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() => { Debug.Log(ability.name); })));
 		}
 
@@ -554,7 +554,7 @@ public class PlayerMenuController : MonoBehaviour
 
 		for (var i = 0; i < heroAbilityLists[currHeroIndex][0].Count; ++i)
 		{
-			Ability ability = heroAbilityLists[currHeroIndex][0][i];
+			AbilityData ability = heroAbilityLists[currHeroIndex][0][i];
 			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() => { Debug.Log(ability.name); })));
 		}
 

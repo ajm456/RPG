@@ -157,7 +157,7 @@ public class BattleController : MonoBehaviour
 	/// <param name="ability">The ability the source combatant is using.</param>
 	/// <param name="source">The combatant taking the turn.</param>
 	/// <param name="target">The combatant receiving the ability.</param>
-	public void ExecuteTurnWithAbility(Ability ability, CombatantController source, CombatantController target)
+	public void ExecuteTurnWithAbility(AbilityData ability, CombatantController source, CombatantController target)
 	{
 		// Try and execute the ability
 		DoAbility(ability, source, target);
@@ -173,8 +173,6 @@ public class BattleController : MonoBehaviour
 		// No turn taken, just modify battle state
 		Transition();
 	}
-
-
 
 
 
@@ -255,16 +253,16 @@ public class BattleController : MonoBehaviour
 	/// <param name="ability">The Ability object being executed</param>
 	/// <param name="source"></param>
 	/// <param name="target"></param>
-	private void DoAbility(Ability ability, CombatantController source, CombatantController target)
+	private void DoAbility(AbilityData ability, CombatantController source, CombatantController target)
 	{
 		// Apply any effects the ability has on the target
-		foreach(Effect effect in ability.effects)
+		foreach(EffectData effect in ability.effects)
 		{
-			effect.DoEffect(target);
+			//effect.DoEffect(target);
 		}
 
 		// Apply any auras the ability has on the target
-		foreach(Aura aura in ability.auras)
+		foreach(AuraData aura in ability.auras)
 		{
 			target.AddAura(aura);
 		}

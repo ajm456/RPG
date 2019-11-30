@@ -6,13 +6,13 @@
 /// instantiate this class and pass the object as an argument to
 /// <see cref="EnemyData"/>'s constructor.
 /// </summary>
-public class EnemyDataStrAbilities
+public class EnemyDataJsonWrapper
 {
 	public string name;
 	public int maxHp, strength, agility, behaviourIndex;
 	public List<string> abilityNames;
 
-	public EnemyDataStrAbilities(string name, int maxHp, int strength, int agility, int behaviourIndex, List<string> abilityNames)
+	public EnemyDataJsonWrapper(string name, int maxHp, int strength, int agility, int behaviourIndex, List<string> abilityNames)
 	{
 		this.name = name;
 		this.maxHp = maxHp;
@@ -25,17 +25,17 @@ public class EnemyDataStrAbilities
 
 /// <summary>
 /// Contains deserialized data from enemy JSON files including lists of
-/// fully-instantiated <see cref="Ability"/> objects.
+/// fully-instantiated <see cref="AbilityData"/> objects.
 /// </summary>
 public class EnemyData
 {
-	private static readonly List<Ability> allAbilities = JsonParser.LoadAllAbilities();
+	private static readonly List<AbilityData> allAbilities = JsonParser.LoadAllAbilities();
 
 	public string name;
 	public int maxHp, strength, agility, behaviourIndex;
-	public List<Ability> calmAbilities, discordAbilities;
+	public List<AbilityData> calmAbilities, discordAbilities;
 
-	public EnemyData(EnemyDataStrAbilities wrapper)
+	public EnemyData(EnemyDataJsonWrapper wrapper)
 	{
 		name = wrapper.name;
 		maxHp = wrapper.maxHp;
@@ -44,8 +44,8 @@ public class EnemyData
 		behaviourIndex = wrapper.behaviourIndex;
 
 		// Filter to find this character's abilities
-		calmAbilities = new List<Ability>();
-		foreach (Ability ability in allAbilities)
+		calmAbilities = new List<AbilityData>();
+		foreach (AbilityData ability in allAbilities)
 		{
 			if (wrapper.abilityNames.Contains(ability.name))
 			{

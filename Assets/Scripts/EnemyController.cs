@@ -17,7 +17,7 @@ public class EnemyController : CombatantController
 		DiscordAbilities = data.discordAbilities;
 		this.battleController = battleController;
 		AnimState = AnimationState.IDLE;
-		ActiveAuras = new List<Aura>();
+		ActiveAuras = new List<AuraData>();
 	}
 
 	public void DoTurn()

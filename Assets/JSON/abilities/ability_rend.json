@@ -3,8 +3,10 @@
     "isCalm" : false,
     "calmReq" : 0,
     "discordReq" : 30,
-    "calmAdj" : -5,
-    "discordAdj" : -3,
-    "hpAdjMin" : -25,
-    "hpAdjMax" : -45
+    "effectNames" : [
+        "Burn Minor"
+    ],
+    "auraNames" : [
+        "Poison Minor"
+    ]
 }

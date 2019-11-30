@@ -19,7 +19,7 @@ public static class EnemyBehaviours
 		// Use a random discord ability on a random player character
 		List<HeroController> playerCharacters = battleController.HeroCombatants;
 		CombatantController target = playerCharacters[UnityEngine.Random.Range(0, playerCharacters.Count)];
-		Ability ability = source.DiscordAbilities[UnityEngine.Random.Range(0, source.DiscordAbilities.Count)];
+		AbilityData ability = source.DiscordAbilities[UnityEngine.Random.Range(0, source.DiscordAbilities.Count)];
 		battleController.ExecuteTurnWithAbility(ability, source, target);
 	}
 
