@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class HeroController : CombatantController
 {
@@ -35,28 +36,8 @@ public class HeroController : CombatantController
 		Calm = data.calm;
 		Discord = data.discord;
 		this.battleController = battleController;
-		State = CombatantState.IDLE;
-	}
-
-	// Discern which ability the player is using, ensure they have sufficient
-	// resources, etc.
-	public override void PollForTurn()
-	{
-		//if(Input.GetKeyDown(KeyCode.Space)) {
-		//	// Work out which ability the player is using
-		//	Ability ability = DetermineAbility();
-
-		//	// Determine player target
-		//	CombatantController target = DetermineTarget();
-
-		//	// Execute turn
-		//	battleController.ExecuteTurn(this, ability, target);
-		//	// Adjust source resource values
-		//	Calm += ability.calmAdj;
-		//	Discord += ability.discordAdj;
-		//	Calm = Mathf.Clamp(Calm, 0, 100);
-		//	Discord = Mathf.Clamp(Discord, 0, 100);
-		//}
+		AnimState = AnimationState.IDLE;
+		ActiveAuras = new List<Aura>();
 	}
 
 	private Ability DetermineAbility()

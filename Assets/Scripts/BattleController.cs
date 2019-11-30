@@ -130,19 +130,6 @@ public class BattleController : MonoBehaviour
 		Transition();
 	}
 
-	void Update()
-	{
-		if (State == BattleState.PLAYERCHOICE)
-		{
-			// Start polling for the player hero's turn
-			HeroCombatants[HeroTurnIndex].PollForTurn();
-		}
-		else if (State == BattleState.ENEMYCHOICE)
-		{
-			EnemyCombatants[EnemyTurnIndex].PollForTurn();
-		}
-	}
-
 
 
 
@@ -208,7 +195,7 @@ public class BattleController : MonoBehaviour
 		// Instantiate game objects for the heroes
 		for (var i = 0; i < heroes.Count; ++i)
 		{
-			GameObject newHero = Instantiate(heroPrefab);
+			GameObject newHero = GameObject.Instantiate(heroPrefab);
 			newHero.transform.localPosition = HERO_SPAWN_POSITIONS[i];
 			HeroController heroController = newHero.GetComponent<HeroController>();
 			heroController.Init(heroes[i], this);
@@ -228,7 +215,7 @@ public class BattleController : MonoBehaviour
 		// Instantiate game objects for the enemies
 		for (var i = 0; i < enemies.Count; ++i)
 		{
-			GameObject newEnemy = Instantiate(enemyPrefab);
+			GameObject newEnemy = GameObject.Instantiate(enemyPrefab);
 			newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[i];
 			EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
 			enemyController.Init(enemies[i], this);
@@ -263,13 +250,25 @@ public class BattleController : MonoBehaviour
 	}
 
 
+	/// <summary>
+	/// Executes an ability from a given combatant to a given target combatant.
+	/// </summary>
+	/// <param name="ability">The Ability object being executed</param>
+	/// <param name="source"></param>
+	/// <param name="target"></param>
 	private void DoAbility(Ability ability, CombatantController source, CombatantController target)
 	{
-		// Damage/heal them
-		int damage = Random.Range(ability.hpAdjMin, ability.hpAdjMax+1);
-		target.HP += damage;
-		target.HP = Mathf.Max(0, target.HP);
-		Debug.Log(source.Name + " did " + (-damage) + " damage to " + target.Name);
+		// Apply any effects the ability has on the target
+		foreach(Effect effect in ability.effects)
+		{
+			effect.DoEffect(target);
+		}
+
+		// Apply any auras the ability has on the target
+		foreach(Aura aura in ability.auras)
+		{
+			target.AddAura(aura);
+		}
 	}
 
 	private void Transition()
@@ -280,16 +279,27 @@ public class BattleController : MonoBehaviour
 				State = BattleState.PLAYERCHOICE;
 				Debug.Log(HeroCombatants[HeroTurnIndex].Name + "'s turn!");
 				break;
+
 			case BattleState.PLAYERCHOICE:
+				// It is now the enemy's turn
 				State = BattleState.ENEMYCHOICE;
 				EnemyTurnIndex = (EnemyTurnIndex + 1) % EnemyCombatants.Count;
 				Debug.Log(EnemyCombatants[EnemyTurnIndex].Name + "'s turn!");
+
+				// Resolve any auras
+				EnemyCombatants[EnemyTurnIndex].ResolveAuras();
+
+				// Carry out the enemy's turn immediately
+				EnemyCombatants[EnemyTurnIndex].DoTurn();
+
 				break;
+
 			case BattleState.ENEMYCHOICE:
 				State = BattleState.PLAYERCHOICE;
 				HeroTurnIndex = (HeroTurnIndex + 1) % HeroCombatants.Count;
 				Debug.Log(HeroCombatants[HeroTurnIndex].Name + "'s turn!");
 				break;
+
 			default:
 				Debug.Log("Unexpected BattleState!");
 				Debug.Break();
