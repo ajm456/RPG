@@ -132,7 +132,7 @@ public abstract class CombatantController : MonoBehaviour
 	/// </summary>
 	public void ResolveAuras()
 	{
-		foreach(Aura aura in ActiveAuras)
+		foreach (Aura aura in ActiveAuras)
 		{
 			aura.ResolveAura();
 		}
