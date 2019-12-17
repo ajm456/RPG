@@ -143,6 +143,14 @@ public class BattleController : MonoBehaviour
 	/// <param name="target">The combatant being attacked.</param>
 	public void ExecuteTurnWithAttack(CombatantController source, CombatantController target)
 	{
+		// Check that it really is the turn of the combatant executing this turn
+		if (!VerifyCombatantTurn(source))
+		{
+			Debug.Log("Someone tried to execute a turn when it wasn't their turn!");
+			Debug.Break();
+			return;
+		}
+
 		// Execute attack
 		DoAttack(source, target);
 
@@ -159,6 +167,14 @@ public class BattleController : MonoBehaviour
 	/// <param name="target">The combatant receiving the ability.</param>
 	public void ExecuteTurnWithAbility(AbilityData ability, CombatantController source, CombatantController target)
 	{
+		// Check that it really is the turn of the combatant executing this turn
+		if (!VerifyCombatantTurn(source))
+		{
+			Debug.Log("Someone tried to execute a turn when it wasn't their turn!");
+			Debug.Break();
+			return;
+		}
+
 		// Try and execute the ability
 		DoAbility(ability, source, target);
 
@@ -225,6 +241,33 @@ public class BattleController : MonoBehaviour
 		// Start with player turn, first hero
 		HeroTurnIndex = 0;
 		EnemyTurnIndex = 0;
+	}
+
+
+	/// <summary>
+	/// Checks whether or not the given combatant should be allowed to take a turn
+	/// in the current BattleController state.
+	/// </summary>
+	/// <param name="source">The CombatantController trying to take a turn.</param>
+	/// <returns>Whether or not this combatant taking a turn is legal.</returns>
+	private bool VerifyCombatantTurn(CombatantController source)
+	{
+		if (State == BattleState.PLAYERCHOICE)
+		{
+			return source.Allegiance == CombatantController.CombatantAllegiance.PLAYER
+				&& source.Name == HeroCombatants[HeroTurnIndex].Name;
+		}
+
+		if (State == BattleState.ENEMYCHOICE)
+		{
+			return source.Allegiance == CombatantController.CombatantAllegiance.ENEMY
+				&& source.Name == EnemyCombatants[EnemyTurnIndex].Name;
+		}
+
+		// We should never get here - why are we trying to take a turn when not in
+		// a combatant choice state?
+		Debug.Break();
+		return false;
 	}
 
 
