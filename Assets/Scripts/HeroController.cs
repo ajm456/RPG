@@ -22,6 +22,7 @@ public class HeroController : CombatantController
 	public void Init(HeroData data, BattleController battleController)
 	{
 		Name = data.name;
+		Allegiance = CombatantAllegiance.PLAYER;
 		Color = data.color;
 		HP = data.hp;
 		MaxHP = data.maxHp;
