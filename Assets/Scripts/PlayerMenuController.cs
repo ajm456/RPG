@@ -544,7 +544,11 @@ public class PlayerMenuController : MonoBehaviour
 		for (var i = 0; i < heroAbilityLists[currHeroIndex][1].Count; ++i)
 		{
 			AbilityData ability = heroAbilityLists[currHeroIndex][1][i];
-			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() => { Debug.Log(ability.name); })));
+			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
+			{
+				// TODO: Determine which enemy index to cast ability on
+				battleController.ExecuteTurnWithAbility(ability, battleController.HeroCombatants[currHeroIndex], battleController.EnemyCombatants[0]);
+			})));
 		}
 
 		// Move the cursor to the top of the list

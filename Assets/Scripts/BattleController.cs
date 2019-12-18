@@ -301,7 +301,7 @@ public class BattleController : MonoBehaviour
 		// Apply any effects the ability has on the target
 		foreach(EffectData effect in ability.effects)
 		{
-			//effect.DoEffect(target);
+			DoEffect(effect, source, target);
 		}
 
 		// Apply any auras the ability has on the target
@@ -310,6 +310,55 @@ public class BattleController : MonoBehaviour
 			target.AddAura(aura);
 		}
 	}
+
+
+	/// <summary>
+	/// Applies an effect to the given target combatant.
+	/// </summary>
+	/// <param name="effect">The effect being applied.</param>
+	/// <param name="source">The combatant who is casting the effect.</param>
+	/// <param name="target">The combatant the effect is affecting.</param>
+	private void DoEffect(EffectData effect, CombatantController source, CombatantController target)
+	{
+		Debug.Log("Applying effect: " + effect.name);
+
+		string statStr = effect.stat.ToLowerInvariant();
+		if (statStr == "hp")
+		{
+			// Calculate the magnitude of this effect
+			int magnitude = effect.amount;
+
+			// Scale it with strength
+			if (magnitude > 0)
+				magnitude = (int)(magnitude + (source.Strength * effect.strengthScaling));
+			else if (magnitude < 0)
+				magnitude = (int)(magnitude - (source.Strength * effect.strengthScaling));
+
+			// Calculate if it crit or not
+			if (effect.canCrit)
+			{
+				// Crit chance is a 3% base plus an amount based on agility
+				float critChance = 3.0f + 0.3f*source.Agility;
+				critChance /= 100.0f;
+
+				// Roll and see if this effect is critting
+				if (Random.value >= 1.0f - critChance)
+				{
+					Debug.Log(source.Name + "'s " + effect.name + " effect crit!");
+					magnitude *= 2;
+				}
+			}
+			
+			// Apply the effect
+			target.HP += magnitude;
+		}
+		else
+		{
+			Debug.Log("Unsupported effect type received!");
+			Debug.Break();
+		}
+	}
+
 
 	private void Transition()
 	{
