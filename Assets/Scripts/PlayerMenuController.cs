@@ -348,7 +348,7 @@ public class PlayerMenuController : MonoBehaviour
 
 			// Reposition the extra menu
 			menus[1].Transform.position = menus[0].Transform.position;
-			menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].rectTransform.sizeDelta.x, 0f);
+			menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].RectTransform.sizeDelta.x, 0f);
 
 			// Hide the extra menu
 			menus[1].SetActive(false);
