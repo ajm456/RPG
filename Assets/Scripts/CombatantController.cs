@@ -15,6 +15,16 @@ public abstract class CombatantController : MonoBehaviour
 	}
 
 
+	/// <summary>
+	/// Defines whether this combatant is player- or enemy-allied.
+	/// </summary>
+	public enum CombatantAllegiance
+	{
+		PLAYER,
+		ENEMY,
+	}
+
+
 
 	/* MEMBERS */
 
@@ -32,6 +42,14 @@ public abstract class CombatantController : MonoBehaviour
 	/// The character name of this combatant.
 	/// </summary>
 	public string Name
+	{
+		get;
+		set;
+	}
+	/// <summary>
+	/// The allegiance of this combatant i.e. player or enemy.
+	/// </summary>
+	public CombatantAllegiance Allegiance
 	{
 		get;
 		set;

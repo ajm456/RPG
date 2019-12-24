@@ -339,6 +339,20 @@ public class PlayerMenuController : MonoBehaviour
 			menus[0].Transform.position = battleController.HeroCombatants[currHeroIndex].transform.position;
 			menus[0].RectTransform.localPosition += new Vector3(menus[0].RectTransform.sizeDelta.x * 0.8f, 0f);
 
+			// Destroy the old gameobjects and clear list data in the extra menu
+			foreach (GameObject item in menus[1].GetMenuItems())
+			{
+				Destroy(item);
+			}
+			menus[1].ClearMenuItems();
+
+			// Reposition the extra menu
+			menus[1].Transform.position = menus[0].Transform.position;
+			menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].rectTransform.sizeDelta.x, 0f);
+
+			// Hide the extra menu
+			menus[1].SetActive(false);
+
 			// Disable menu items if we need to
 			if (battleController.HeroCombatants[currHeroIndex].DiscordAbilities.Count == 0)
 			{
@@ -350,7 +364,8 @@ public class PlayerMenuController : MonoBehaviour
 			}
 
 			// Since the hero's changed, the color of the highlighted menu item will change too
-			UnhighlightMenuItem(cursorPos);
+			if (cursorPos.x == 0)
+				UnhighlightMenuItem(cursorPos);
 			cursorPos.x = 0;
 			cursorPos.y = 0;
 			HighlightMenuItem(cursorPos);
@@ -525,10 +540,15 @@ public class PlayerMenuController : MonoBehaviour
 		}
 		menus[1].ClearMenuItems();
 
+		// Create menu items for each of the hero's discord abilities
 		for (var i = 0; i < heroAbilityLists[currHeroIndex][1].Count; ++i)
 		{
 			AbilityData ability = heroAbilityLists[currHeroIndex][1][i];
-			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() => { Debug.Log(ability.name); })));
+			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
+			{
+				// TODO: Determine which enemy index to cast ability on
+				battleController.ExecuteTurnWithAbility(ability, battleController.HeroCombatants[currHeroIndex], battleController.EnemyCombatants[0]);
+			})));
 		}
 
 		// Move the cursor to the top of the list

@@ -8,6 +8,7 @@ public class EnemyController : CombatantController
 	public void Init(EnemyData data, BattleController battleController)
 	{
 		Name = data.name;
+		Allegiance = CombatantAllegiance.ENEMY;
 		HP = data.maxHp;
 		MaxHP = data.maxHp;
 		Strength = data.strength;

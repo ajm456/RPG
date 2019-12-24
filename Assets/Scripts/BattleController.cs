@@ -143,6 +143,14 @@ public class BattleController : MonoBehaviour
 	/// <param name="target">The combatant being attacked.</param>
 	public void ExecuteTurnWithAttack(CombatantController source, CombatantController target)
 	{
+		// Check that it really is the turn of the combatant executing this turn
+		if (!VerifyCombatantTurn(source))
+		{
+			Debug.Log("Someone tried to execute a turn when it wasn't their turn!");
+			Debug.Break();
+			return;
+		}
+
 		// Execute attack
 		DoAttack(source, target);
 
@@ -159,6 +167,14 @@ public class BattleController : MonoBehaviour
 	/// <param name="target">The combatant receiving the ability.</param>
 	public void ExecuteTurnWithAbility(AbilityData ability, CombatantController source, CombatantController target)
 	{
+		// Check that it really is the turn of the combatant executing this turn
+		if (!VerifyCombatantTurn(source))
+		{
+			Debug.Log("Someone tried to execute a turn when it wasn't their turn!");
+			Debug.Break();
+			return;
+		}
+
 		// Try and execute the ability
 		DoAbility(ability, source, target);
 
@@ -229,6 +245,33 @@ public class BattleController : MonoBehaviour
 
 
 	/// <summary>
+	/// Checks whether or not the given combatant should be allowed to take a turn
+	/// in the current BattleController state.
+	/// </summary>
+	/// <param name="source">The CombatantController trying to take a turn.</param>
+	/// <returns>Whether or not this combatant taking a turn is legal.</returns>
+	private bool VerifyCombatantTurn(CombatantController source)
+	{
+		if (State == BattleState.PLAYERCHOICE)
+		{
+			return source.Allegiance == CombatantController.CombatantAllegiance.PLAYER
+				&& source.Name == HeroCombatants[HeroTurnIndex].Name;
+		}
+
+		if (State == BattleState.ENEMYCHOICE)
+		{
+			return source.Allegiance == CombatantController.CombatantAllegiance.ENEMY
+				&& source.Name == EnemyCombatants[EnemyTurnIndex].Name;
+		}
+
+		// We should never get here - why are we trying to take a turn when not in
+		// a combatant choice state?
+		Debug.Break();
+		return false;
+	}
+
+
+	/// <summary>
 	/// Deals damage to a given target combatant based on the stats of a given
 	/// source combatant.
 	/// </summary>
@@ -258,7 +301,7 @@ public class BattleController : MonoBehaviour
 		// Apply any effects the ability has on the target
 		foreach(EffectData effect in ability.effects)
 		{
-			//effect.DoEffect(target);
+			DoEffect(effect, source, target);
 		}
 
 		// Apply any auras the ability has on the target
@@ -267,6 +310,55 @@ public class BattleController : MonoBehaviour
 			target.AddAura(aura);
 		}
 	}
+
+
+	/// <summary>
+	/// Applies an effect to the given target combatant.
+	/// </summary>
+	/// <param name="effect">The effect being applied.</param>
+	/// <param name="source">The combatant who is casting the effect.</param>
+	/// <param name="target">The combatant the effect is affecting.</param>
+	private void DoEffect(EffectData effect, CombatantController source, CombatantController target)
+	{
+		Debug.Log("Applying effect: " + effect.name);
+
+		string statStr = effect.stat.ToLowerInvariant();
+		if (statStr == "hp")
+		{
+			// Calculate the magnitude of this effect
+			int magnitude = effect.amount;
+
+			// Scale it with strength
+			if (magnitude > 0)
+				magnitude = (int)(magnitude + (source.Strength * effect.strengthScaling));
+			else if (magnitude < 0)
+				magnitude = (int)(magnitude - (source.Strength * effect.strengthScaling));
+
+			// Calculate if it crit or not
+			if (effect.canCrit)
+			{
+				// Crit chance is a 3% base plus an amount based on agility
+				float critChance = 3.0f + 0.3f*source.Agility;
+				critChance /= 100.0f;
+
+				// Roll and see if this effect is critting
+				if (Random.value >= 1.0f - critChance)
+				{
+					Debug.Log(source.Name + "'s " + effect.name + " effect crit!");
+					magnitude *= 2;
+				}
+			}
+			
+			// Apply the effect
+			target.HP += magnitude;
+		}
+		else
+		{
+			Debug.Log("Unsupported effect type received!");
+			Debug.Break();
+		}
+	}
+
 
 	private void Transition()
 	{
