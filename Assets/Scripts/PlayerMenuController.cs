@@ -21,7 +21,7 @@ internal class Menu
 			return menu.transform;
 		}
 	}
-	internal RectTransform rectTransform
+	internal RectTransform RectTransform
 	{
 		get;
 	}
@@ -41,7 +41,7 @@ internal class Menu
 	internal Menu(GameObject menu)
 	{
 		this.menu = menu;
-		rectTransform = menu.GetComponent<RectTransform>();
+		RectTransform = menu.GetComponent<RectTransform>();
 		items = new List<MenuItem>();
 	}
 
@@ -337,7 +337,7 @@ public class PlayerMenuController : MonoBehaviour
 			currHeroIndex = battleController.HeroTurnIndex;
 
 			menus[0].Transform.position = battleController.HeroCombatants[currHeroIndex].transform.position;
-			menus[0].rectTransform.localPosition += new Vector3(menus[0].rectTransform.sizeDelta.x * 0.8f, 0f);
+			menus[0].RectTransform.localPosition += new Vector3(menus[0].RectTransform.sizeDelta.x * 0.8f, 0f);
 
 			// Disable menu items if we need to
 			if (battleController.HeroCombatants[currHeroIndex].DiscordAbilities.Count == 0)
@@ -379,7 +379,7 @@ public class PlayerMenuController : MonoBehaviour
 
 		// Position it
 		menus[0].Transform.position = battleController.HeroCombatants[battleController.HeroTurnIndex].transform.position;
-		menus[0].rectTransform.localPosition += new Vector3(menus[0].rectTransform.sizeDelta.x * 0.8f, 0f);
+		menus[0].RectTransform.localPosition += new Vector3(menus[0].RectTransform.sizeDelta.x * 0.8f, 0f);
 
 		// Populate it with root level menu items
 		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "ATTACK", new Action(OnSelectAttack)));
@@ -403,7 +403,7 @@ public class PlayerMenuController : MonoBehaviour
 
 		// Position it
 		menus[1].Transform.position = menus[0].Transform.position;
-		menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].rectTransform.sizeDelta.x, 0f);
+		menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].RectTransform.sizeDelta.x, 0f);
 
 		// For now, hide the menu
 		menus[1].SetActive(false);
