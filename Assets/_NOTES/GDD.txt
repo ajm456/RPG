@@ -101,6 +101,50 @@ COMBAT:
 		- Increases the effectiveness of augments both on allies' attacks
 			- Each augment benefits from trust in a unique way
 
+
+- Turn order
+	Order by agility descending, dividing by two until < lowest speed (even if
+	original lowest speed combatant is dead)
+
+	Opposing factions with the same agility are resolved favouring the player
+	Same factions with the same agility are resolved predictably (not yet decided how)
+
+	Jack	Marl	Eris	Frog1	Frog2
+	16		14		26		11		8
+
+	Eris	(26 -> 13)
+	Jack	(16 -> 8)
+	Marl	(14 -> 7)
+	Eris	(13 -> 6.5)
+	Frog1	(11 -> 5.5)
+	Jack	(8 -> 4)
+	Frog2	(8 -> 4)
+
+	This queue repeats itself until a) the battle ends, b) a combatant dies, or c) a combatant(s)'s agility changes
+
+	a) Obviously no more turns are taken
+	b) That character is immediately removed from the queue
+	c) Recalculate from the character whose turn it is
+		 i) The stat adjustment is divided by 2^(turns started in this queue iteration)
+		ii) Future queue calculations include this adjusted speed
+
+	EXAMPLE: Marl increases agility by +5 on his turn
+
+	He's started one turn so increase becomes +5/2 = +2.5 = 9.5
+	This is above threshold to give him another turn - recalculate the list to discern where
+
+	<Eris>	already taken
+	<Jack>	already taken
+	<Marl>	already taken, his own turn
+	Eris	(13)
+	Frog1	(11)
+	Jack	(8!)
+
+	Marl's extra turn goes between Frog1 and Jack
+
+
+
+
 - Character traits
 	- Each character has a unique passive
 		- Marl: Discord and Calm increases do not decrease each other
