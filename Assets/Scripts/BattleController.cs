@@ -209,7 +209,7 @@ public class BattleController : MonoBehaviour
 		// Instantiate game objects for the heroes
 		for (var i = 0; i < heroes.Count; ++i)
 		{
-			GameObject newHero = GameObject.Instantiate(heroPrefab);
+			GameObject newHero = Instantiate(heroPrefab);
 			newHero.transform.localPosition = HERO_SPAWN_POSITIONS[i];
 			HeroController heroController = newHero.GetComponent<HeroController>();
 			heroController.Init(heroes[i], this);
@@ -228,7 +228,7 @@ public class BattleController : MonoBehaviour
 		// Instantiate game objects for the enemies
 		for (var i = 0; i < enemies.Count; ++i)
 		{
-			GameObject newEnemy = GameObject.Instantiate(enemyPrefab);
+			GameObject newEnemy = Instantiate(enemyPrefab);
 			newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[i];
 			EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
 			enemyController.Init(enemies[i], this);
