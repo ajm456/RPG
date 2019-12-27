@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using Allegiance = CombatantController.CombatantAllegiance;
 
 /// <summary>
 /// Manages the overall state and actions in a battle.
@@ -69,7 +70,8 @@ public class BattleController : MonoBehaviour
 	private EncounterData data;
 
 	/// <summary>
-	/// Holds a ref to each hero combatant's controller in this battle.
+	/// Holds a ref to each hero combatant's controller in this battle. Ordered
+	/// according to how the heroes appear in battle, not in their turn order.
 	/// </summary>
 	public List<HeroController> HeroCombatants
 	{
@@ -79,6 +81,8 @@ public class BattleController : MonoBehaviour
 
 	/// <summary>
 	/// Holds a ref to each enemy combatant's controller in this battle.
+	/// Ordered according to how the enemies appear in battle, not in their
+	/// turn order.
 	/// </summary>
 	public List<EnemyController> EnemyCombatants
 	{
@@ -87,21 +91,43 @@ public class BattleController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// The index of the hero whose turn it is currently.
+	/// An turn-ordered list of the turns of each combatant. This will be valid
+	/// until a combatant dies or agility stats change.
 	/// </summary>
-	public int HeroTurnIndex
+	private List<CombatantController> TurnOrderCombatants
 	{
 		get;
-		private set;
+		set;
 	}
 
 	/// <summary>
-	/// The index of the enemy whose turn it is currently.
+	/// The index for the current combatant in <see cref="TurnOrderCombatants"/>
 	/// </summary>
-	public int EnemyTurnIndex
+	private int TurnOrderIndex
 	{
 		get;
-		private set;
+		set;
+	}
+
+	/// <summary>
+	/// The name of the combatant whose turn it is.
+	/// </summary>
+	public string CurrCombatantName
+	{
+		get
+		{
+			return TurnOrderCombatants[TurnOrderIndex].Name;
+		}
+	}
+
+	/// <summary>
+	/// Flag to indicate whether this controller is currently waiting for a
+	/// player turn to be executed by <see cref="PlayerMenuController"/>.
+	/// </summary>
+	public bool WaitingOnPlayerTurn
+	{
+		get;
+		set;
 	}
 
 
@@ -109,7 +135,7 @@ public class BattleController : MonoBehaviour
 
 	/* OVERRIDES */
 
-	void Awake()
+	private void Awake()
 	{
 		State = BattleState.INIT;
 
@@ -127,7 +153,46 @@ public class BattleController : MonoBehaviour
 		// Discern the turn order
 		InitTurnOrder();
 
-		Transition();
+		// If we're going to have to wait on the player, raise our flag
+		if (TurnOrderCombatants[TurnOrderIndex].Allegiance == Allegiance.PLAYER)
+		{
+			WaitingOnPlayerTurn = true;
+			State = BattleState.PLAYERCHOICE;
+		}
+		else
+		{
+			WaitingOnPlayerTurn = false;
+			State = BattleState.ENEMYCHOICE;
+		}
+	}
+
+	private void Update()
+	{
+		if (TurnOrderCombatants[TurnOrderIndex].Allegiance == Allegiance.ENEMY)
+		{
+			// For enemies, execute their turn straight away
+			((EnemyController)TurnOrderCombatants[TurnOrderIndex]).DoTurn();
+		}
+		else
+		{
+			// For players, we've got to wait until PlayerMenuController takes
+			// the player turn
+			if (WaitingOnPlayerTurn)
+				return;
+		}
+
+		// The turn has been executed; prepare for the next one
+		TurnOrderIndex = (TurnOrderIndex + 1) % TurnOrderCombatants.Count;
+		if (TurnOrderCombatants[TurnOrderIndex].Allegiance == Allegiance.PLAYER)
+		{
+			State = BattleState.PLAYERCHOICE;
+			WaitingOnPlayerTurn = true;
+		}
+		else
+		{
+			State = BattleState.ENEMYCHOICE;
+			WaitingOnPlayerTurn = false;
+		}
 	}
 
 
@@ -153,9 +218,6 @@ public class BattleController : MonoBehaviour
 
 		// Execute attack
 		DoAttack(source, target);
-
-		// Modify our current battle state
-		Transition();
 	}
 
 	/// <summary>
@@ -177,17 +239,11 @@ public class BattleController : MonoBehaviour
 
 		// Try and execute the ability
 		DoAbility(ability, source, target);
-
-		// Modify our current battle state
-		Transition();
 	}
 
 	public void PassTurn()
 	{
 		Debug.Log("Turn passed!");
-
-		// No turn taken, just modify battle state
-		Transition();
 	}
 
 
@@ -238,9 +294,38 @@ public class BattleController : MonoBehaviour
 
 	private void InitTurnOrder()
 	{
-		// Start with player turn, first hero
-		HeroTurnIndex = 0;
-		EnemyTurnIndex = 0;
+		TurnOrderCombatants = new List<CombatantController>();
+		TurnOrderIndex = 0;
+
+		// For each hero and enemy, store a copy of their faction, index, and agility stat
+		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
+		for (int i = 0; i < HeroCombatants.Count; ++i)
+			factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Allegiance.PLAYER, i, HeroCombatants[i].Agility));
+		for (int i = 0; i < EnemyCombatants.Count; ++i)
+			factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Allegiance.ENEMY, i, EnemyCombatants[i].Agility));
+
+		// Sort list by agility descending
+		factionIndexAgilityList.Sort((x, y) => y.Item3.CompareTo(x.Item3));
+
+		// Find the lowest agility in this battle
+		float lowestAgility = factionIndexAgilityList[factionIndexAgilityList.Count - 1].Item3;
+		
+		while (factionIndexAgilityList.Count > 0)
+		{
+			// Sort by agility
+			factionIndexAgilityList.Sort((x, y) => y.Item3.CompareTo(x.Item3));
+			// Add the highest agility combatant to the turn list
+			var candidate = factionIndexAgilityList[0];
+			if (candidate.Item1 == Allegiance.PLAYER)
+				TurnOrderCombatants.Add(HeroCombatants[candidate.Item2]);
+			else
+				TurnOrderCombatants.Add(EnemyCombatants[candidate.Item2]);
+			// Halve their agility stat
+			factionIndexAgilityList[0] = new Tuple<Allegiance, int, float>(candidate.Item1, candidate.Item2, candidate.Item3 / 2f);
+			// Remove them if their agility has dropped below the lowest
+			if (factionIndexAgilityList[0].Item3 < lowestAgility)
+				factionIndexAgilityList.RemoveAt(0);
+		}
 	}
 
 
@@ -254,14 +339,14 @@ public class BattleController : MonoBehaviour
 	{
 		if (State == BattleState.PLAYERCHOICE)
 		{
-			return source.Allegiance == CombatantController.CombatantAllegiance.PLAYER
-				&& source.Name == HeroCombatants[HeroTurnIndex].Name;
+			return source.Allegiance == Allegiance.PLAYER
+				&& source.Name == TurnOrderCombatants[TurnOrderIndex].Name;
 		}
 
 		if (State == BattleState.ENEMYCHOICE)
 		{
-			return source.Allegiance == CombatantController.CombatantAllegiance.ENEMY
-				&& source.Name == EnemyCombatants[EnemyTurnIndex].Name;
+			return source.Allegiance == Allegiance.ENEMY
+				&& source.Name == TurnOrderCombatants[TurnOrderIndex].Name;
 		}
 
 		// We should never get here - why are we trying to take a turn when not in
@@ -360,39 +445,26 @@ public class BattleController : MonoBehaviour
 	}
 
 
-	private void Transition()
+	private void ExecuteEnemyTurn()
 	{
-		switch (State)
+		// One last check that the current combatant is an enemy
+		Debug.Assert(TurnOrderCombatants[TurnOrderIndex].Allegiance == Allegiance.ENEMY);
+
+		EnemyController enemy = (EnemyController)TurnOrderCombatants[TurnOrderIndex];
+		// Carry out the enemy's turn
+		enemy.DoTurn();
+
+		// If the next turn is an enemy too, recursively execute their turn
+		TurnOrderIndex++;
+		if (TurnOrderCombatants[TurnOrderIndex].Allegiance == Allegiance.ENEMY)
 		{
-			case BattleState.INIT:
-				State = BattleState.PLAYERCHOICE;
-				Debug.Log(HeroCombatants[HeroTurnIndex].Name + "'s turn!");
-				break;
-
-			case BattleState.PLAYERCHOICE:
-				// It is now the enemy's turn
-				State = BattleState.ENEMYCHOICE;
-				EnemyTurnIndex = (EnemyTurnIndex + 1) % EnemyCombatants.Count;
-				Debug.Log(EnemyCombatants[EnemyTurnIndex].Name + "'s turn!");
-
-				// Resolve any auras
-				EnemyCombatants[EnemyTurnIndex].ResolveAuras();
-
-				// Carry out the enemy's turn immediately
-				EnemyCombatants[EnemyTurnIndex].DoTurn();
-
-				break;
-
-			case BattleState.ENEMYCHOICE:
-				State = BattleState.PLAYERCHOICE;
-				HeroTurnIndex = (HeroTurnIndex + 1) % HeroCombatants.Count;
-				Debug.Log(HeroCombatants[HeroTurnIndex].Name + "'s turn!");
-				break;
-
-			default:
-				Debug.Log("Unexpected BattleState!");
-				Debug.Break();
-				break;
+			ExecuteEnemyTurn();
+		}
+		else
+		{
+			// The next combatant is player controlled, so let's wait for
+			// PlayerMenuController to execute the turn
+			State = BattleState.PLAYERCHOICE;
 		}
 	}
 }

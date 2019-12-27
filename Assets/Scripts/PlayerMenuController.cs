@@ -296,8 +296,15 @@ public class PlayerMenuController : MonoBehaviour
 	// Current cursor position in form [menu,item]
 	private Vector2Int cursorPos;
 
+	/// <summary>
+	/// A list of names of all the heroes participating in this battle.
+	/// </summary>
+	private List<string> battleHeroNames;
 
-	// Index of the hero the menu is currently attached to
+	/// <summary>
+	/// The index of the hero combatant the menu is currently attached to (this
+	/// is not guaranteed to always be the same combatant as whose turn it is.)
+	/// </summary>
 	private int currHeroIndex;
 
 	// Ability list for each hero (calm and discord)
@@ -312,17 +319,11 @@ public class PlayerMenuController : MonoBehaviour
 		InitialiseHeroAbilityLists();
 		InitialiseRootMenu();
 		InitialiseExtraMenu();
-		currHeroIndex = battleController.HeroTurnIndex;
+		battleHeroNames = new List<string>(battleController.HeroCombatants.Count);
+		foreach (CombatantController comb in battleController.HeroCombatants)
+			battleHeroNames.Add(comb.Name);	
+		currHeroIndex = -1;
 		cursorPos = new Vector2Int(0, 0);
-		// Disable menu items if we need to
-		if (battleController.HeroCombatants[currHeroIndex].DiscordAbilities.Count == 0)
-		{
-			menus[0].SetItemEnabled(1, false);
-		}
-		if (battleController.HeroCombatants[currHeroIndex].CalmAbilities.Count == 0)
-		{
-			menus[0].SetItemEnabled(2, false);
-		}
 	}
 
 
@@ -332,43 +333,47 @@ public class PlayerMenuController : MonoBehaviour
 	void Update()
 	{
 		// If required, move the player menu to be next to the current hero
-		if (currHeroIndex != battleController.HeroTurnIndex)
+		if (battleController.State == BattleController.BattleState.PLAYERCHOICE)
 		{
-			currHeroIndex = battleController.HeroTurnIndex;
-
-			menus[0].Transform.position = battleController.HeroCombatants[currHeroIndex].transform.position;
-			menus[0].RectTransform.localPosition += new Vector3(menus[0].RectTransform.sizeDelta.x * 0.8f, 0f);
-
-			// Destroy the old gameobjects and clear list data in the extra menu
-			foreach (GameObject item in menus[1].GetMenuItems())
+			// Check to see if we need to move the menu
+			if (currHeroIndex != battleHeroNames.IndexOf(battleController.CurrCombatantName))
 			{
-				Destroy(item);
+				currHeroIndex = battleHeroNames.IndexOf(battleController.CurrCombatantName);
+
+				menus[0].Transform.position = battleController.HeroCombatants[currHeroIndex].transform.position;
+				menus[0].RectTransform.localPosition += new Vector3(menus[0].RectTransform.sizeDelta.x * 0.8f, 0f);
+
+				// Destroy the old gameobjects and clear list data in the extra menu
+				foreach (GameObject item in menus[1].GetMenuItems())
+				{
+					Destroy(item);
+				}
+				menus[1].ClearMenuItems();
+
+				// Reposition the extra menu
+				menus[1].Transform.position = menus[0].Transform.position;
+				menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].RectTransform.sizeDelta.x, 0f);
+
+				// Hide the extra menu
+				menus[1].SetActive(false);
+
+				// Disable menu items if we need to
+				if (battleController.HeroCombatants[currHeroIndex].DiscordAbilities.Count == 0)
+				{
+					menus[0].SetItemEnabled(1, false);
+				}
+				if (battleController.HeroCombatants[currHeroIndex].CalmAbilities.Count == 0)
+				{
+					menus[0].SetItemEnabled(2, false);
+				}
+
+				// Since the hero's changed, the color of the highlighted menu item will change too
+				if (cursorPos.x == 0)
+					UnhighlightMenuItem(cursorPos);
+				cursorPos.x = 0;
+				cursorPos.y = 0;
+				HighlightMenuItem(cursorPos);
 			}
-			menus[1].ClearMenuItems();
-
-			// Reposition the extra menu
-			menus[1].Transform.position = menus[0].Transform.position;
-			menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].RectTransform.sizeDelta.x, 0f);
-
-			// Hide the extra menu
-			menus[1].SetActive(false);
-
-			// Disable menu items if we need to
-			if (battleController.HeroCombatants[currHeroIndex].DiscordAbilities.Count == 0)
-			{
-				menus[0].SetItemEnabled(1, false);
-			}
-			if (battleController.HeroCombatants[currHeroIndex].CalmAbilities.Count == 0)
-			{
-				menus[0].SetItemEnabled(2, false);
-			}
-
-			// Since the hero's changed, the color of the highlighted menu item will change too
-			if (cursorPos.x == 0)
-				UnhighlightMenuItem(cursorPos);
-			cursorPos.x = 0;
-			cursorPos.y = 0;
-			HighlightMenuItem(cursorPos);
 		}
 
 		Vector2Int oldCursorPos = cursorPos;
@@ -393,8 +398,8 @@ public class PlayerMenuController : MonoBehaviour
 		menus[0] = new Menu(rootMenuObj);
 
 		// Position it
-		menus[0].Transform.position = battleController.HeroCombatants[battleController.HeroTurnIndex].transform.position;
-		menus[0].RectTransform.localPosition += new Vector3(menus[0].RectTransform.sizeDelta.x * 0.8f, 0f);
+		//menus[0].Transform.position = battleController.HeroCombatants[battleController.HeroTurnIndex].transform.position;
+		//menus[0].RectTransform.localPosition += new Vector3(menus[0].RectTransform.sizeDelta.x * 0.8f, 0f);
 
 		// Populate it with root level menu items
 		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "ATTACK", new Action(OnSelectAttack)));
@@ -525,6 +530,9 @@ public class PlayerMenuController : MonoBehaviour
 	{
 		// TODO: Determine which enemy index to attack
 		battleController.ExecuteTurnWithAttack(battleController.HeroCombatants[currHeroIndex], battleController.EnemyCombatants[0]);
+
+		// Let BattleController know we've finished taking our turn
+		battleController.WaitingOnPlayerTurn = false;
 	}
 
 
