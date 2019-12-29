@@ -556,6 +556,9 @@ public class PlayerMenuController : MonoBehaviour
 			{
 				// TODO: Determine which enemy index to cast ability on
 				battleController.ExecuteTurnWithAbility(ability, battleController.HeroCombatants[currHeroIndex], battleController.EnemyCombatants[0]);
+
+				// Let BattleController know turn has finished
+				battleController.WaitingOnPlayerTurn = false;
 			})));
 		}
 
@@ -580,10 +583,14 @@ public class PlayerMenuController : MonoBehaviour
 		}
 		menus[1].ClearMenuItems();
 
+		// Populate the list of available Calm abilities
 		for (var i = 0; i < heroAbilityLists[currHeroIndex][0].Count; ++i)
 		{
 			AbilityData ability = heroAbilityLists[currHeroIndex][0][i];
-			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() => { Debug.Log(ability.name); })));
+			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
+			{
+				Debug.Log(ability.name);
+			})));
 		}
 
 		// Move the cursor to the top of the list

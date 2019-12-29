@@ -130,6 +130,17 @@ public class BattleController : MonoBehaviour
 		set;
 	}
 
+	/// <summary>
+	/// Flag raised once auras have been resolved for this turn. This is
+	/// required for player turns as they can take an indefinite number of
+	/// update cycles before actually executing.
+	/// </summary>
+	private bool ResolvedAurasThisTurn
+	{
+		get;
+		set;
+	}
+
 
 
 
@@ -164,10 +175,19 @@ public class BattleController : MonoBehaviour
 			WaitingOnPlayerTurn = false;
 			State = BattleState.ENEMYCHOICE;
 		}
+
+		ResolvedAurasThisTurn = false;
 	}
 
 	private void Update()
 	{
+		// Resolve all auras affecting the current combatant
+		if (!ResolvedAurasThisTurn)
+		{
+			TurnOrderCombatants[TurnOrderIndex].ResolveAuras();
+			ResolvedAurasThisTurn = true;
+		}
+
 		if (TurnOrderCombatants[TurnOrderIndex].Allegiance == Allegiance.ENEMY)
 		{
 			// For enemies, execute their turn straight away
@@ -193,6 +213,7 @@ public class BattleController : MonoBehaviour
 			State = BattleState.ENEMYCHOICE;
 			WaitingOnPlayerTurn = false;
 		}
+		ResolvedAurasThisTurn = false;
 	}
 
 
@@ -386,13 +407,13 @@ public class BattleController : MonoBehaviour
 		// Apply any effects the ability has on the target
 		foreach(EffectData effect in ability.effects)
 		{
-			DoEffect(effect, source, target);
+			target.ApplyEffect(effect, source);
 		}
 
 		// Apply any auras the ability has on the target
 		foreach(AuraData aura in ability.auras)
 		{
-			target.AddAura(aura);
+			target.AddAura(aura, source);
 		}
 	}
 
@@ -405,43 +426,7 @@ public class BattleController : MonoBehaviour
 	/// <param name="target">The combatant the effect is affecting.</param>
 	private void DoEffect(EffectData effect, CombatantController source, CombatantController target)
 	{
-		Debug.Log("Applying effect: " + effect.name);
-
-		string statStr = effect.stat.ToLowerInvariant();
-		if (statStr == "hp")
-		{
-			// Calculate the magnitude of this effect
-			int magnitude = effect.amount;
-
-			// Scale it with strength
-			if (magnitude > 0)
-				magnitude = (int)(magnitude + (source.Strength * effect.strengthScaling));
-			else if (magnitude < 0)
-				magnitude = (int)(magnitude - (source.Strength * effect.strengthScaling));
-
-			// Calculate if it crit or not
-			if (effect.canCrit)
-			{
-				// Crit chance is a 3% base plus an amount based on agility
-				float critChance = 3.0f + 0.3f*source.Agility;
-				critChance /= 100.0f;
-
-				// Roll and see if this effect is critting
-				if (Random.value >= 1.0f - critChance)
-				{
-					Debug.Log(source.Name + "'s " + effect.name + " effect crit!");
-					magnitude *= 2;
-				}
-			}
-			
-			// Apply the effect
-			target.HP += magnitude;
-		}
-		else
-		{
-			Debug.Log("Unsupported effect type received!");
-			Debug.Break();
-		}
+		target.ApplyEffect(effect, source);
 	}
 
 

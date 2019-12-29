@@ -34,6 +34,6 @@ public class HeroController : CombatantController
 		Discord = data.discord;
 		this.battleController = battleController;
 		AnimState = AnimationState.IDLE;
-		ActiveAuras = new List<AuraData>();
+		ActiveAuraCasterPairs = new List<KeyValuePair<CombatantController, AuraData>>();
 	}
 }

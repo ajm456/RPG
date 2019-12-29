@@ -102,10 +102,7 @@ public abstract class CombatantController : MonoBehaviour
 		get;
 		set;
 	}
-	/// <summary>
-	/// A list of all currently active auras on this combatant.
-	/// </summary>
-	public List<AuraData> ActiveAuras
+	public List<KeyValuePair<CombatantController, AuraData>> ActiveAuraCasterPairs
 	{
 		get;
 		set;
@@ -139,9 +136,10 @@ public abstract class CombatantController : MonoBehaviour
 	/// Adds an aura to this combatant's list of currently active auras.
 	/// </summary>
 	/// <param name="aura">The Aura object being added to this combatant's aura list.</param>
-	public void AddAura(AuraData aura)
+	/// <param name="caster">The CombatantController object applying the aura.</param>
+	public void AddAura(AuraData aura, CombatantController caster)
 	{
-		ActiveAuras.Add(aura);
+		ActiveAuraCasterPairs.Add(new KeyValuePair<CombatantController, AuraData>(caster, aura));
 	}
 
 
@@ -150,6 +148,66 @@ public abstract class CombatantController : MonoBehaviour
 	/// </summary>
 	public void ResolveAuras()
 	{
-		Debug.Log("UNIMPLEMENTED: CombatantController.ResolveAuras()");
+		Debug.Log("Resolving combatant " + Name + "'s auras");
+
+		// Remove all expired auras
+		for (var i = ActiveAuraCasterPairs.Count - 1; i >= 0; --i)
+		{
+			if (ActiveAuraCasterPairs[i].Value.effectTurnIndex >= ActiveAuraCasterPairs[i].Value.effects.Count)
+			{
+				Debug.Log("Removing expired aura " + ActiveAuraCasterPairs[i].Value.name + " from combatant " + Name);
+
+				ActiveAuraCasterPairs.RemoveAt(i);
+			}
+		}
+
+		// Apply this turn's effect for each aura
+		foreach (var pair in ActiveAuraCasterPairs)
+		{
+			EffectData effect = pair.Value.effects[pair.Value.effectTurnIndex];
+			ApplyEffect(effect, pair.Key);
+			pair.Value.effectTurnIndex += 1;
+		}
+	}
+
+	public void ApplyEffect(EffectData effect, CombatantController source)
+	{
+		Debug.Log("Applying effect " + effect.name + " to combatant " + Name);
+
+		string statStr = effect.stat.ToLowerInvariant();
+		if (statStr == "hp")
+		{
+			// Calculate the magnitude of this effect
+			int magnitude = effect.amount;
+
+			// Scale it with strength
+			if (magnitude > 0)
+				magnitude = (int)(magnitude + (source.Strength * effect.strengthScaling));
+			else if (magnitude < 0)
+				magnitude = (int)(magnitude - (source.Strength * effect.strengthScaling));
+
+			// Calculate if it crit or not
+			if (effect.canCrit)
+			{
+				// Crit chance is a 3% base plus an amount based on agility
+				float critChance = 3.0f + 0.3f*source.Agility;
+				critChance /= 100.0f;
+
+				// Roll and see if this effect is critting
+				if (Random.value >= 1.0f - critChance)
+				{
+					Debug.Log(source.Name + "'s " + effect.name + " effect crit!");
+					magnitude *= 2;
+				}
+			}
+			
+			// Apply the effect
+			HP += magnitude;
+		}
+		else
+		{
+			Debug.Log("Unsupported effect type received!");
+			Debug.Break();
+		}
 	}
 }
