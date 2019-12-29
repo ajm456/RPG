@@ -172,7 +172,7 @@ COMBAT:
 
 - Abilities
 	- The primary combat turn-taking alternative to simple attacking
-	- Combination of one or more effects (applied instantly) and zero or more auras
+	- Combination of one or more effects (applied instantly) and zero or more auras (applied from the next turn)
 	- For example:
 		- Fireball
 			INSTANT EFFECT: {hp -= 10}
