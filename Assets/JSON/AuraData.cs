@@ -21,6 +21,7 @@ public class AuraData
 
 	public string name;
 	public List<EffectData> effects;
+	public int effectTurnIndex;
 
 	public AuraData(AuraDataJsonWrapper wrapper)
 	{
@@ -30,5 +31,6 @@ public class AuraData
 		effects = new List<EffectData>();
 		foreach (string effectName in wrapper.effectNames)
 			effects.Add(allEffects.Find(d => d.name.ToUpperInvariant() == effectName.ToUpperInvariant()));
+		effectTurnIndex = 0;
 	}
 }
