@@ -316,17 +316,26 @@ public class BattleController : MonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// Set the initial turn order for the combatants in this battle. Details of how
+	/// this is calculated can be found in the GDD.
+	/// </summary>
 	private void InitTurnOrder()
 	{
 		TurnOrderCombatants = new List<CombatantController>();
 		TurnOrderIndex = 0;
 
 		// For each hero and enemy, store a copy of their faction, index, and agility stat
+		// (just to make sorting easier)
 		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
 		for (int i = 0; i < HeroCombatants.Count; ++i)
+		{
 			factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Allegiance.PLAYER, i, HeroCombatants[i].Agility));
+		}
 		for (int i = 0; i < EnemyCombatants.Count; ++i)
+		{
 			factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Allegiance.ENEMY, i, EnemyCombatants[i].Agility));
+		}
 
 		// Sort list by agility descending
 		factionIndexAgilityList.Sort((x, y) => y.Item3.CompareTo(x.Item3));
@@ -341,14 +350,20 @@ public class BattleController : MonoBehaviour
 			// Add the highest agility combatant to the turn list
 			var candidate = factionIndexAgilityList[0];
 			if (candidate.Item1 == Allegiance.PLAYER)
+			{
 				TurnOrderCombatants.Add(HeroCombatants[candidate.Item2]);
+			}
 			else
+			{
 				TurnOrderCombatants.Add(EnemyCombatants[candidate.Item2]);
+			}
 			// Halve their agility stat
 			factionIndexAgilityList[0] = new Tuple<Allegiance, int, float>(candidate.Item1, candidate.Item2, candidate.Item3 / 2f);
 			// Remove them if their agility has dropped below the lowest
 			if (factionIndexAgilityList[0].Item3 < lowestAgility)
+			{
 				factionIndexAgilityList.RemoveAt(0);
+			}
 		}
 	}
 
