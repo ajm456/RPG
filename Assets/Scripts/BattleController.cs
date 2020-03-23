@@ -197,6 +197,9 @@ public class BattleController : MonoBehaviour
 		{
 			// For players, we've got to wait until PlayerMenuController takes
 			// the player turn
+			//
+			// This is pretty grim (why are we running update cycles if nothing's
+			// happening?) but whatever, sue me
 			if (WaitingOnPlayerTurn)
 				return;
 		}
