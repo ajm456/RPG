@@ -11,20 +11,21 @@ OVERVIEW:
 			of the nation such that he can draw upon their souls' energies (a 
 			magic essence called "Calm") to empower himself in his fight for
 			supremacy over hell.
-		- The antithesis to Calm is a primal energy called "Discord", a
+		- The antithesis to Calm is a primal energy called "Strife", a
 			manifestation of one's raw emotional state; chaos, pain, and
 			disorder usually generate powerful emotions such as anger and
-			despair, and it's possible to learn how to manipulate Discord to
-			perform normally superhuman actions.
-		- At face value, it seems clear that a demon should not be able to
-			exploit the population of an entire nation for his personal gain.
-			However, it is not black and white; many would argue that a state
-			of high Calm is positive, whereas high Discord is negative. For
-			example, unchecked Discord causes riots and crime; the state
-			obviously doesn't want this, hence their agreeing to the demon's
-			plan. Those who are against the demon's plan have a fundamental
-			belief that nothing should manipulate their emotional state for any
-			kind of personal gain.
+			despair, and it's possible to learn how to manipulate Strife to
+			perform normally superhuman actions (although kept secret from all
+			except the state's closest agents).
+		- At face value, it seems clear that a demon should not be allowed to
+			exploit the population of an entire nation for his personal gain; he
+			is the villain, so to speak. However, it is not black and white;
+			many would argue that a state of high Calm is positive, whereas
+			high Strife is negative. For example, unchecked Strife causes riots
+			and crime; the state obviously doesn't want this, hence their agreeing
+			to the demon's plan. Those who are against the demon's plan have a
+			fundamental belief that nothing should manipulate their emotional
+			state for any kind of personal gain.
 		- The protagonist's primary companion throughout the game - Jack - is,
 			in fact, the promised god, but he is far from what both the player
 			and the game characters expect; years of dogma have malformed the
@@ -43,6 +44,8 @@ CHARACTERS:
 	- Bishounen-like; kind and light-hearted, but serious when he needs to be.
 	- Almost always positive; any times his outlook turns negative should have
 		*very* serious implications.
+- Elise
+	- Ara ara gamedev-kun
 
 
 
@@ -67,15 +70,17 @@ CHARACTERS:
 COMBAT:
 	
 - Resource(s)
-	- Two resources: Discord and Calm
+	- Two resources: Strife and Calm
 		- They are not "spent" like mana, but instead enhance your chosen
-			ability. For example, an attack with high Discord does a lot more
-			damage than one with low.
+			ability. For example, performing an attack when you have with high
+			Strife does a lot more damage than when you have low Strife.
+		- There is a general and intuitive rule that Strife-based abilities are
+			destructive and Calm-based ones restorative / supportive.
 		- Generally, abilities that benefit from a resource increase it, i.e.
-			attacks increase Discord, and (also generally) decrease their
+			attacks increase Strife, and (also generally) decrease their
 			counterpart resource.
 			- This encourages planning ahead; you can win battles much faster
-				if your whole party focuses on Discord, but you may find
+				if your whole party focuses on Strife, but you may find
 				yourself lacking in defensive tools (and thus dying).
 			- Notably, the protagonist is an exception to this rule due to his
 				passive.
@@ -103,8 +108,8 @@ COMBAT:
 
 
 - Turn order
-	Order by agility descending, dividing by two until < lowest speed (even if
-	original lowest speed combatant is dead)
+	Order by agility descending, dividing by two until < lowest agility (even if
+	original lowest agility combatant is dead)
 
 	Opposing factions with the same agility are resolved favouring the player
 	Same factions with the same agility are resolved predictably (not yet decided how)
@@ -131,7 +136,7 @@ COMBAT:
 	EXAMPLE: Marl increases agility by +5 on his turn
 
 	He's started one turn so increase becomes +5/2 = +2.5 = 9.5
-	This is above threshold to give him another turn - recalculate the list to discern where
+	This is above the round's lowest agility stat so he gets another turn - recalculate the list to discern where
 
 	<Eris>	already taken
 	<Jack>	already taken
@@ -147,20 +152,24 @@ COMBAT:
 
 - Character traits
 	- Each character has a unique passive
-		- Marl: Discord and Calm increases do not decrease each other
-		- Jack: While below %x Discord, he gains access to unique Calm spells <this might suck>
-		- Eris: <????>
+		- Marl: Strife and Calm increases do not decrease each other
+			- Marl should be the only character to feel 100% specializable by the player. You
+				can make him a physical attacker, a supporter, an augmenter, or any mix of the
+				three. This is *NOT* the case with other characters, where their obvious progression
+				route reflects their character (i.e. Jack is very much a Calm specialist).
+		- Jack: While below %x Strife, he gains access to unique Calm spells <this might be too limiting?>
+		- Eris: ara ara gamedev-kun
 
 
 
 
 - Effects
 	- An effect is a direct stat modifier
-		- For example, -5 HP
+		- For example, -5 HP (attacking can be thought of as applying an effect)
 	- ??? Scale with a stat ???
 
 - Auras
-	- Effects which repeatedly either cause or maintain an effect on a combatant
+	- Repeatedly either cause or maintain an effect on a combatant
 		- For example, -10 HP per turn for 4 turns
 	- Abilities apply 0 or more auras on their target(s)
 	- Auras are resolved at the start of the affected combatant's turn
@@ -172,7 +181,7 @@ COMBAT:
 
 - Abilities
 	- The primary combat turn-taking alternative to simple attacking
-	- Combination of one or more effects (applied instantly) and zero or more auras (applied from the next turn)
+	- Combination of one or more effects (applied instantly) and zero or more auras (applied from the target's next turn)
 	- For example:
 		- Fireball
 			INSTANT EFFECT: {hp -= 10}
@@ -198,8 +207,8 @@ COMBAT:
 		- Augments do not cost resources but do consume the augmenter's next turn
 		- By comboing an ability with a specific augment, bonus effects occur
 			- E.g: augment an attack with a fire-element to "melt armor"
-		- This should NOT feel like Rikku-esque "discover recipes"
-			- Augments primary gameplay purpose are to speed up player turns
+		- This should NOT feel like an encyclopedia of augment + ability combinations to trial-and-error discover
+			- Augments' primary gameplay purpose are to speed up player turns
 				i.e. you don't spend 10 turns in a row just mashing attack
 	
 
