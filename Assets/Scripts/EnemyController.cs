@@ -5,9 +5,10 @@ public class EnemyController : CombatantController
 {
 	private Action<BattleController, CombatantController> behaviour;
 
-	public void Init(EnemyData data, BattleController battleController)
+	public void Init(EnemyData data, BattleController battleController, int battleID)
 	{
 		Name = data.name;
+		BattleID = battleID;
 		Allegiance = CombatantAllegiance.ENEMY;
 		HP = data.maxHp;
 		MaxHP = data.maxHp;

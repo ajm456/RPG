@@ -47,6 +47,14 @@ public abstract class CombatantController : MonoBehaviour
 		set;
 	}
 	/// <summary>
+	/// A unique-to-this-battle identifier for this combatant.
+	/// </summary>
+	public int BattleID
+	{
+		get;
+		set;
+	}
+	/// <summary>
 	/// The allegiance of this combatant i.e. player or enemy.
 	/// </summary>
 	public CombatantAllegiance Allegiance
@@ -182,9 +190,13 @@ public abstract class CombatantController : MonoBehaviour
 
 			// Scale it with strength
 			if (magnitude > 0)
+			{
 				magnitude = (int)(magnitude + (source.Strength * effect.strengthScaling));
+			}
 			else if (magnitude < 0)
+			{
 				magnitude = (int)(magnitude - (source.Strength * effect.strengthScaling));
+			}
 
 			// Calculate if it crit or not
 			if (effect.canCrit)

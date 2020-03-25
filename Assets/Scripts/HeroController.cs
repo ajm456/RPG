@@ -19,9 +19,10 @@ public class HeroController : CombatantController
 		set;
 	}
 
-	public void Init(HeroData data, BattleController battleController)
+	public void Init(HeroData data, BattleController battleController, int battleID)
 	{
 		Name = data.name;
+		BattleID = battleID;
 		Allegiance = CombatantAllegiance.PLAYER;
 		Color = data.color;
 		HP = data.hp;

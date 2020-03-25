@@ -158,8 +158,9 @@ public class BattleController : MonoBehaviour
 		InitEncounterData();
 
 		// Deserialize Hero/Enemy data and initialise objects
-		SetupHeroes();
-		SetupEnemies();
+		int lastAssignedID = 0;
+		SetupHeroes(ref lastAssignedID);
+		SetupEnemies(ref lastAssignedID);
 
 		// Discern the turn order
 		InitTurnOrder();
@@ -278,7 +279,7 @@ public class BattleController : MonoBehaviour
 		data = EncounterDataStaticContainer.GetData();
 	}
 
-	private void SetupHeroes()
+	private void SetupHeroes(ref int lastAssignedID)
 	{
 		// Deserialize the heroes we need
 		List<HeroData> heroes = JsonParser.LoadHeroes(data.heroNames);
@@ -292,12 +293,13 @@ public class BattleController : MonoBehaviour
 			GameObject newHero = Instantiate(heroPrefab);
 			newHero.transform.localPosition = HERO_SPAWN_POSITIONS[i];
 			HeroController heroController = newHero.GetComponent<HeroController>();
-			heroController.Init(heroes[i], this);
+			heroController.Init(heroes[i], this, lastAssignedID + i);
+			++lastAssignedID;
 			HeroCombatants.Add(heroController);
 		}
 	}
 
-	private void SetupEnemies()
+	private void SetupEnemies(ref int lastAssignedID)
 	{
 		// Deserialize the enemies we need
 		List<EnemyData> enemies = JsonParser.LoadEnemies(data.enemyNames);
@@ -311,7 +313,8 @@ public class BattleController : MonoBehaviour
 			GameObject newEnemy = Instantiate(enemyPrefab);
 			newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[i];
 			EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
-			enemyController.Init(enemies[i], this);
+			enemyController.Init(enemies[i], this, lastAssignedID + i);
+			++lastAssignedID;
 			EnemyCombatants.Add(enemyController);
 		}
 	}
