@@ -73,28 +73,17 @@ public class BattleController : MonoBehaviour
 	/// Holds a ref to each hero combatant's controller in this battle. Ordered
 	/// according to how the heroes appear in battle, not in their turn order.
 	/// </summary>
-	public List<HeroController> HeroCombatants
+	private List<CombatantController> Combatants
 	{
 		get;
-		private set;
-	}
-
-	/// <summary>
-	/// Holds a ref to each enemy combatant's controller in this battle.
-	/// Ordered according to how the enemies appear in battle, not in their
-	/// turn order.
-	/// </summary>
-	public List<EnemyController> EnemyCombatants
-	{
-		get;
-		private set;
+		set;
 	}
 
 	/// <summary>
 	/// An turn-ordered list of the turns of each combatant. This will be valid
 	/// until a combatant dies or agility stats change.
 	/// </summary>
-	private List<CombatantController> TurnOrderCombatants
+	private List<int> TurnOrderCombatantIDs
 	{
 		get;
 		set;
@@ -110,13 +99,25 @@ public class BattleController : MonoBehaviour
 	}
 
 	/// <summary>
+	/// Helper property for accessing the current combatant.
+	/// </summary>
+	private CombatantController CurrCombatant
+	{
+		get
+		{
+			return Combatants[TurnOrderCombatantIDs[TurnOrderIndex]];
+		}
+	}
+
+
+	/// <summary>
 	/// The name of the combatant whose turn it is.
 	/// </summary>
 	public string CurrCombatantName
 	{
 		get
 		{
-			return TurnOrderCombatants[TurnOrderIndex].Name;
+			return CurrCombatant.Name;
 		}
 	}
 
@@ -158,15 +159,13 @@ public class BattleController : MonoBehaviour
 		InitEncounterData();
 
 		// Deserialize Hero/Enemy data and initialise objects
-		int lastAssignedID = 0;
-		SetupHeroes(ref lastAssignedID);
-		SetupEnemies(ref lastAssignedID);
+		SetupCombatants();
 
 		// Discern the turn order
 		InitTurnOrder();
 
 		// If we're going to have to wait on the player, raise our flag
-		if (TurnOrderCombatants[TurnOrderIndex].Allegiance == Allegiance.PLAYER)
+		if (CurrCombatant.Allegiance == Allegiance.PLAYER)
 		{
 			WaitingOnPlayerTurn = true;
 			State = BattleState.PLAYERCHOICE;
@@ -185,14 +184,14 @@ public class BattleController : MonoBehaviour
 		// Resolve all auras affecting the current combatant
 		if (!ResolvedAurasThisTurn)
 		{
-			TurnOrderCombatants[TurnOrderIndex].ResolveAuras();
+			CurrCombatant.ResolveAuras();
 			ResolvedAurasThisTurn = true;
 		}
 
-		if (TurnOrderCombatants[TurnOrderIndex].Allegiance == Allegiance.ENEMY)
+		if (CurrCombatant.Allegiance == Allegiance.ENEMY)
 		{
 			// For enemies, execute their turn straight away
-			((EnemyController)TurnOrderCombatants[TurnOrderIndex]).DoTurn();
+			((EnemyController)CurrCombatant).DoTurn();
 		}
 		else
 		{
@@ -206,8 +205,8 @@ public class BattleController : MonoBehaviour
 		}
 
 		// The turn has been executed; prepare for the next one
-		TurnOrderIndex = (TurnOrderIndex + 1) % TurnOrderCombatants.Count;
-		if (TurnOrderCombatants[TurnOrderIndex].Allegiance == Allegiance.PLAYER)
+		TurnOrderIndex = (TurnOrderIndex + 1) % TurnOrderCombatantIDs.Count;
+		if (CurrCombatant.Allegiance == Allegiance.PLAYER)
 		{
 			State = BattleState.PLAYERCHOICE;
 			WaitingOnPlayerTurn = true;
@@ -279,13 +278,16 @@ public class BattleController : MonoBehaviour
 		data = EncounterDataStaticContainer.GetData();
 	}
 
-	private void SetupHeroes(ref int lastAssignedID)
+	private void SetupCombatants()
 	{
+		// Initialise the combatants list
+		Combatants = new List<CombatantController>();
+
+		// Keep track of the assigned IDs
+		int lastAssignedID = 0;
+
 		// Deserialize the heroes we need
 		List<HeroData> heroes = JsonParser.LoadHeroes(data.heroNames);
-
-		// Initialise the combatants list
-		HeroCombatants = new List<HeroController>();
 
 		// Instantiate game objects for the heroes
 		for (var i = 0; i < heroes.Count; ++i)
@@ -295,17 +297,11 @@ public class BattleController : MonoBehaviour
 			HeroController heroController = newHero.GetComponent<HeroController>();
 			heroController.Init(heroes[i], this, lastAssignedID + i);
 			++lastAssignedID;
-			HeroCombatants.Add(heroController);
+			Combatants.Add(heroController);
 		}
-	}
 
-	private void SetupEnemies(ref int lastAssignedID)
-	{
 		// Deserialize the enemies we need
 		List<EnemyData> enemies = JsonParser.LoadEnemies(data.enemyNames);
-
-		// Initialise the combatants list
-		EnemyCombatants = new List<EnemyController>();
 
 		// Instantiate game objects for the enemies
 		for (var i = 0; i < enemies.Count; ++i)
@@ -315,7 +311,7 @@ public class BattleController : MonoBehaviour
 			EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
 			enemyController.Init(enemies[i], this, lastAssignedID + i);
 			++lastAssignedID;
-			EnemyCombatants.Add(enemyController);
+			Combatants.Add(enemyController);
 		}
 	}
 
@@ -325,19 +321,15 @@ public class BattleController : MonoBehaviour
 	/// </summary>
 	private void InitTurnOrder()
 	{
-		TurnOrderCombatants = new List<CombatantController>();
+		TurnOrderCombatantIDs = new List<int>();
 		TurnOrderIndex = 0;
 
-		// For each hero and enemy, store a copy of their faction, index, and agility stat
-		// (just to make sorting easier)
+		// For each combatant, store a copy of their faction, index, and agility
+		// stat (just to make sorting easier)
 		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
-		for (int i = 0; i < HeroCombatants.Count; ++i)
+		for (int i = 0; i < Combatants.Count; ++i)
 		{
-			factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Allegiance.PLAYER, i, HeroCombatants[i].Agility));
-		}
-		for (int i = 0; i < EnemyCombatants.Count; ++i)
-		{
-			factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Allegiance.ENEMY, i, EnemyCombatants[i].Agility));
+			factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Combatants[i].Allegiance, i, Combatants[i].Agility));
 		}
 
 		// Sort list by agility descending
@@ -352,14 +344,7 @@ public class BattleController : MonoBehaviour
 			factionIndexAgilityList.Sort((x, y) => y.Item3.CompareTo(x.Item3));
 			// Add the highest agility combatant to the turn list
 			var candidate = factionIndexAgilityList[0];
-			if (candidate.Item1 == Allegiance.PLAYER)
-			{
-				TurnOrderCombatants.Add(HeroCombatants[candidate.Item2]);
-			}
-			else
-			{
-				TurnOrderCombatants.Add(EnemyCombatants[candidate.Item2]);
-			}
+			TurnOrderCombatantIDs.Add(Combatants[candidate.Item2].BattleID);
 			// Halve their agility stat
 			factionIndexAgilityList[0] = new Tuple<Allegiance, int, float>(candidate.Item1, candidate.Item2, candidate.Item3 / 2f);
 			// Remove them if their agility has dropped below the lowest
@@ -382,13 +367,13 @@ public class BattleController : MonoBehaviour
 		if (State == BattleState.PLAYERCHOICE)
 		{
 			return source.Allegiance == Allegiance.PLAYER
-				&& source.Name == TurnOrderCombatants[TurnOrderIndex].Name;
+				&& source.Name == CurrCombatant.Name;
 		}
 
 		if (State == BattleState.ENEMYCHOICE)
 		{
 			return source.Allegiance == Allegiance.ENEMY
-				&& source.Name == TurnOrderCombatants[TurnOrderIndex].Name;
+				&& source.Name == CurrCombatant.Name;
 		}
 
 		// We should never get here - why are we trying to take a turn when not in
@@ -454,15 +439,15 @@ public class BattleController : MonoBehaviour
 	private void ExecuteEnemyTurn()
 	{
 		// One last check that the current combatant is an enemy
-		Debug.Assert(TurnOrderCombatants[TurnOrderIndex].Allegiance == Allegiance.ENEMY);
+		Debug.Assert(CurrCombatant.Allegiance == Allegiance.ENEMY);
 
-		EnemyController enemy = (EnemyController)TurnOrderCombatants[TurnOrderIndex];
+		EnemyController enemy = (EnemyController)CurrCombatant;
 		// Carry out the enemy's turn
 		enemy.DoTurn();
 
 		// If the next turn is an enemy too, recursively execute their turn
 		TurnOrderIndex++;
-		if (TurnOrderCombatants[TurnOrderIndex].Allegiance == Allegiance.ENEMY)
+		if (CurrCombatant.Allegiance == Allegiance.ENEMY)
 		{
 			ExecuteEnemyTurn();
 		}
