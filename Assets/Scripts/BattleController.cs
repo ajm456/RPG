@@ -593,7 +593,7 @@ public class BattleController : MonoBehaviour
 		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
 		for (int i = 0; i < Combatants.Count; ++i)
 		{
-			int TurnsTaken = NumTurns[Combatants[i].BattleID].Value;
+			int TurnsTaken = NumTurns[Combatants[i].BattleID];
 			if (TurnsTaken == 0)
 			{
 				factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Combatants[i].Allegiance, i, Combatants[i].Agility));
