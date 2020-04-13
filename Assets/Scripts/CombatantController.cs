@@ -216,6 +216,16 @@ public abstract class CombatantController : MonoBehaviour
 			// Apply the effect
 			HP += magnitude;
 		}
+
+		 if (statStr == "agi")
+		 {
+		 	int magnitude = effect.amount;
+
+		 	Agility += magnitude;
+
+		 	battleController.ChangeTurnOrder();
+		}
+		
 		else
 		{
 			Debug.Log("Unsupported effect type received!");
