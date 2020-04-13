@@ -279,6 +279,7 @@ internal class MenuItem
 	}
 }
 
+
 public class PlayerMenuController : MonoBehaviour
 {
 	// Prefabs
@@ -302,10 +303,10 @@ public class PlayerMenuController : MonoBehaviour
 	private List<string> battleHeroNames;
 
 	/// <summary>
-	/// The index of the hero combatant the menu is currently attached to (this
+	/// The ID of the hero combatant the menu is currently attached to (this
 	/// is not guaranteed to always be the same combatant as whose turn it is.)
 	/// </summary>
-	private int currHeroIndex;
+	private int currHeroID;
 
 	// Ability list for each hero (calm and discord)
 	private List<List<List<AbilityData>>> heroAbilityLists;
@@ -319,10 +320,8 @@ public class PlayerMenuController : MonoBehaviour
 		InitialiseHeroAbilityLists();
 		InitialiseRootMenu();
 		InitialiseExtraMenu();
-		battleHeroNames = new List<string>(battleController.HeroCombatants.Count);
-		foreach (CombatantController comb in battleController.HeroCombatants)
-			battleHeroNames.Add(comb.Name);	
-		currHeroIndex = -1;
+		battleHeroNames = battleController.GetHeroNames();
+		currHeroID = -1;
 		cursorPos = new Vector2Int(0, 0);
 	}
 
@@ -336,11 +335,11 @@ public class PlayerMenuController : MonoBehaviour
 		if (battleController.State == BattleController.BattleState.PLAYERCHOICE)
 		{
 			// Check to see if we need to move the menu
-			if (currHeroIndex != battleHeroNames.IndexOf(battleController.CurrCombatantName))
+			if (currHeroID != battleController.CurrCombatantID)
 			{
-				currHeroIndex = battleHeroNames.IndexOf(battleController.CurrCombatantName);
+				currHeroID = battleController.CurrCombatantID;
 
-				menus[0].Transform.position = battleController.HeroCombatants[currHeroIndex].transform.position;
+				menus[0].Transform.position = battleController.GetCombatantTransform(currHeroID).position;
 				menus[0].RectTransform.localPosition += new Vector3(menus[0].RectTransform.sizeDelta.x * 0.8f, 0f);
 
 				// Destroy the old gameobjects and clear list data in the extra menu
@@ -358,11 +357,11 @@ public class PlayerMenuController : MonoBehaviour
 				menus[1].SetActive(false);
 
 				// Disable menu items if we need to
-				if (battleController.HeroCombatants[currHeroIndex].DiscordAbilities.Count == 0)
+				if (battleController.CurrCombatantStrifeAbilities.Count == 0)
 				{
 					menus[0].SetItemEnabled(1, false);
 				}
-				if (battleController.HeroCombatants[currHeroIndex].CalmAbilities.Count == 0)
+				if (battleController.CurrCombatantCalmAbilities.Count == 0)
 				{
 					menus[0].SetItemEnabled(2, false);
 				}
@@ -435,22 +434,7 @@ public class PlayerMenuController : MonoBehaviour
 	/// </summary>
 	private void InitialiseHeroAbilityLists()
 	{
-		heroAbilityLists = new List<List<List<AbilityData>>>();
-		// For each hero, load their abilities
-		foreach (HeroController hero in battleController.HeroCombatants)
-		{
-			// Calm abilities
-			List<AbilityData> calmAbilities = hero.CalmAbilities;
-			// Discord abilities
-			List<AbilityData> discordAbilities = hero.DiscordAbilities;
-			// Group em up
-			List<List<AbilityData>> allAbilities = new List<List<AbilityData>> {
-				calmAbilities,
-				discordAbilities
-			};
-			// And put em away
-			heroAbilityLists.Add(allAbilities);
-		}
+		heroAbilityLists = battleController.GetHeroAbilities();
 	}
 
 
@@ -498,7 +482,7 @@ public class PlayerMenuController : MonoBehaviour
 	/// <param name="pos">The xy position of the item to highlight.</param>
 	private void HighlightMenuItem(Vector2Int pos)
 	{
-		menus[pos.x].HighlightMenuItem(pos.y, battleController.HeroCombatants[currHeroIndex].Color);
+		menus[pos.x].HighlightMenuItem(pos.y, battleController.CurrCombatantColor);
 	}
 
 
@@ -509,7 +493,7 @@ public class PlayerMenuController : MonoBehaviour
 	/// <param name="y">The y position of the item to highlight.</param>
 	private void HighlightMenuItem(int x, int y)
 	{
-		menus[x].HighlightMenuItem(y, battleController.HeroCombatants[currHeroIndex].Color);
+		menus[x].HighlightMenuItem(y, battleController.CurrCombatantColor);
 	}
 
 
@@ -529,7 +513,8 @@ public class PlayerMenuController : MonoBehaviour
 	private void OnSelectAttack()
 	{
 		// TODO: Determine which enemy index to attack
-		battleController.ExecuteTurnWithAttack(battleController.HeroCombatants[currHeroIndex], battleController.EnemyCombatants[0]);
+		battleController.DebugAttack();
+		//battleController.ExecuteTurnWithAttack(battleController.HeroCombatants[currHeroIndex], battleController.EnemyCombatants[0]);
 
 		// Let BattleController know we've finished taking our turn
 		battleController.WaitingOnPlayerTurn = false;
@@ -549,13 +534,13 @@ public class PlayerMenuController : MonoBehaviour
 		menus[1].ClearMenuItems();
 
 		// Create menu items for each of the hero's discord abilities
-		for (var i = 0; i < heroAbilityLists[currHeroIndex][1].Count; ++i)
+		for (var i = 0; i < heroAbilityLists[currHeroID][1].Count; ++i)
 		{
-			AbilityData ability = heroAbilityLists[currHeroIndex][1][i];
+			AbilityData ability = heroAbilityLists[currHeroID][1][i];
 			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
 			{
 				// TODO: Determine which enemy index to cast ability on
-				battleController.ExecuteTurnWithAbility(ability, battleController.HeroCombatants[currHeroIndex], battleController.EnemyCombatants[0]);
+				battleController.DebugAttack();
 
 				// Let BattleController know turn has finished
 				battleController.WaitingOnPlayerTurn = false;
@@ -584,9 +569,9 @@ public class PlayerMenuController : MonoBehaviour
 		menus[1].ClearMenuItems();
 
 		// Populate the list of available Calm abilities
-		for (var i = 0; i < heroAbilityLists[currHeroIndex][0].Count; ++i)
+		for (var i = 0; i < heroAbilityLists[currHeroID][0].Count; ++i)
 		{
-			AbilityData ability = heroAbilityLists[currHeroIndex][0][i];
+			AbilityData ability = heroAbilityLists[currHeroID][0][i];
 			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
 			{
 				Debug.Log(ability.name);

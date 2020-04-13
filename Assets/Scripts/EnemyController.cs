@@ -16,7 +16,7 @@ public class EnemyController : CombatantController
 		Agility = data.agility;
 		behaviour = EnemyBehaviours.GetBehaviour(data.behaviourIndex);
 		CalmAbilities = data.calmAbilities;
-		DiscordAbilities = data.discordAbilities;
+		StrifeAbilities = data.discordAbilities;
 		this.battleController = battleController;
 		AnimState = AnimationState.IDLE;
 		ActiveAuraCasterPairs = new List<KeyValuePair<CombatantController, AuraData>>();

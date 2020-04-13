@@ -122,6 +122,53 @@ public class BattleController : MonoBehaviour
 	}
 
 	/// <summary>
+	/// The ID of the combatant whose turn it is
+	/// </summary>
+	public int CurrCombatantID
+	{
+		get
+		{
+			return CurrCombatant.BattleID;
+		}
+	}
+
+	/// <summary>
+	/// A list of the current combatant's Strife abilities
+	/// </summary>
+	public List<AbilityData> CurrCombatantStrifeAbilities
+	{
+		get
+		{
+			return CurrCombatant.StrifeAbilities;
+		}
+	}
+
+	/// <summary>
+	/// A list of the current combatant's Calm abilities
+	/// </summary>
+	public List<AbilityData> CurrCombatantCalmAbilities
+	{
+		get
+		{
+			return CurrCombatant.CalmAbilities;
+		}
+	}
+
+	public Color CurrCombatantColor
+	{
+		get
+		{
+			if (CurrCombatant.Allegiance != Allegiance.PLAYER)
+			{
+				Debug.Log("Trying to get the color of a non-player Combatant - is this right?");
+				Debug.Break();
+			}
+
+			return ((HeroController)CurrCombatant).Color;
+		}
+	}
+
+	/// <summary>
 	/// Flag to indicate whether this controller is currently waiting for a
 	/// player turn to be executed by <see cref="PlayerMenuController"/>.
 	/// </summary>
@@ -210,7 +257,9 @@ public class BattleController : MonoBehaviour
 			// This is pretty grim (why are we running update cycles if nothing's
 			// happening?) but whatever, sue me
 			if (WaitingOnPlayerTurn)
+			{
 				return;
+			}
 		}
 
 		// The turn has been executed; prepare for the next one
@@ -239,15 +288,28 @@ public class BattleController : MonoBehaviour
 
 	/* METHODS */
 
+	public void DebugAttack()
+	{
+		// DEBUG: Find the first enemy combatant and use the attack on that
+		foreach (CombatantController combatant in Combatants)
+		{
+			if (combatant.Allegiance == Allegiance.ENEMY)
+			{
+				ExecuteTurnWithAttack(CurrCombatantID, combatant.BattleID);
+				break;
+			}
+		}
+	}
+
 	/// <summary>
 	/// Executes a turn from a give combatant by attacking a given target.
 	/// </summary>
 	/// <param name="source">The combatant taking the turn.</param>
 	/// <param name="target">The combatant being attacked.</param>
-	public void ExecuteTurnWithAttack(CombatantController source, CombatantController target)
+	public void ExecuteTurnWithAttack(int sourceID, int targetID)
 	{
 		// Check that it really is the turn of the combatant executing this turn
-		if (!VerifyCombatantTurn(source))
+		if (!VerifyCombatantTurn(sourceID))
 		{
 			Debug.Log("Someone tried to execute a turn when it wasn't their turn!");
 			Debug.Break();
@@ -255,7 +317,7 @@ public class BattleController : MonoBehaviour
 		}
 
 		// Execute attack
-		DoAttack(source, target);
+		DoAttack(Combatants[sourceID], Combatants[targetID]);
 	}
 
 	/// <summary>
@@ -265,23 +327,172 @@ public class BattleController : MonoBehaviour
 	/// <param name="ability">The ability the source combatant is using.</param>
 	/// <param name="source">The combatant taking the turn.</param>
 	/// <param name="target">The combatant receiving the ability.</param>
-	public void ExecuteTurnWithAbility(AbilityData ability, CombatantController source, CombatantController target)
+	public void ExecuteTurnWithAbilityOnRandomTarget(AbilityData ability, int sourceID, Allegiance sourceAllegiance)
 	{
 		// Check that it really is the turn of the combatant executing this turn
-		if (!VerifyCombatantTurn(source))
+		if (!VerifyCombatantTurn(sourceID))
 		{
 			Debug.Log("Someone tried to execute a turn when it wasn't their turn!");
 			Debug.Break();
 			return;
 		}
 
+		// Pick a random enemy to the given allegiance type
+		List<int> possibleTargetIDs = new List<int>();
+		foreach (CombatantController combatant in Combatants)
+		{
+			if (combatant.Allegiance != sourceAllegiance)
+			{
+				possibleTargetIDs.Add(combatant.BattleID);
+			}
+		}
+		int targetID = possibleTargetIDs[Random.Range(0, possibleTargetIDs.Count)];
+
 		// Try and execute the ability
-		DoAbility(ability, source, target);
+		DoAbility(ability, Combatants[sourceID], Combatants[targetID]);
 	}
 
 	public void PassTurn()
 	{
 		Debug.Log("Turn passed!");
+	}
+
+
+	public int GetNumHeroes()
+	{
+		int num = 0;
+		foreach (CombatantController combatant in Combatants)
+		{
+			if (combatant.Allegiance == Allegiance.PLAYER)
+			{
+				num++;
+			}
+		}
+		
+		return num;
+	}
+
+	public int GetNthHeroID(int n)
+	{
+		int currHeroIndex = 0;
+		int nthHeroID = -1;
+		foreach (CombatantController combatant in Combatants)
+		{
+			if (combatant.Allegiance != Allegiance.PLAYER)
+			{
+				continue;
+			}
+
+			if (currHeroIndex == n)
+			{
+				nthHeroID = combatant.BattleID;
+				break;
+			}
+
+			currHeroIndex++;
+		}
+
+		if (nthHeroID == -1)
+		{
+			Debug.Log("Could not find hero number " + n + "!");
+			Debug.Break();
+		}
+		
+		return nthHeroID;
+	}
+
+	/// <summary>
+	/// Fetches a list of all hero combatant names in this battle including
+	/// dead ones.
+	/// </summary>
+	/// <returns>String list of all hero combatant names.</returns>
+	public List<string> GetHeroNames()
+	{
+		List<string> heroNames = new List<string>();
+		foreach (CombatantController combatant in Combatants)
+		{
+			if (combatant.Allegiance == Allegiance.PLAYER)
+			{
+				heroNames.Add(combatant.Name);
+			}
+		}
+
+		return heroNames;
+	}
+
+	public Color GetHeroColor(int heroID)
+	{
+		Color color = Color.magenta;
+
+		if (Combatants[heroID].Allegiance == Allegiance.ENEMY)
+		{
+			Debug.Log("Trying to get color of a non-hero combatant!");
+			Debug.Break();
+		}
+		else
+		{
+			color = ((HeroController)Combatants[heroID]).Color;
+		}
+
+		return color;
+	}
+
+	/// <summary>
+	/// Fetches the transform of the combatant with a given ID.
+	/// </summary>
+	/// <param name="combatantID"></param>
+	/// <returns></returns>
+	public Transform GetCombatantTransform(int combatantID)
+	{
+		return Combatants[combatantID].transform;
+	}
+
+	public string GetCombatantName(int combatantID)
+	{
+		Debug.Assert(combatantID < Combatants.Count, "Trying to get combatant name for index " + combatantID + " which is outside of combatant list range " + Combatants.Count);
+		return Combatants[combatantID].Name;
+	}
+
+	public int GetCombatantHP(int combatantID)
+	{
+		return Combatants[combatantID].HP;
+	}
+
+	public int GetCombatantMaxHP(int combatantID)
+	{
+		return Combatants[combatantID].MaxHP;
+	}
+
+	/// <summary>
+	/// Fetches a list of all hero combatant ability lists.
+	/// </summary>
+	/// <returns>A list of Calm + Strife ability lists.</returns>
+	public List<List<List<AbilityData>>> GetHeroAbilities()
+	{
+		List<List<List<AbilityData>>> heroAbilityLists = new List<List<List<AbilityData>>>();
+
+		foreach (CombatantController combatant in Combatants)
+		{
+			// Skip non-Hero combatants
+			if (combatant.Allegiance != Allegiance.PLAYER)
+			{
+				continue;
+			}
+
+			// Calm abilities
+			List<AbilityData> calmAbilities = combatant.CalmAbilities;
+			// Discord abilities
+			List<AbilityData> strifeAbilities = combatant.StrifeAbilities;
+			// Group em up
+			List<List<AbilityData>> allAbilities = new List<List<AbilityData>> {
+				calmAbilities,
+				strifeAbilities
+			};
+			// And put em away
+			heroAbilityLists.Add(allAbilities);
+		}
+
+		return heroAbilityLists;
 	}
 
 
@@ -309,7 +520,7 @@ public class BattleController : MonoBehaviour
 			GameObject newHero = Instantiate(heroPrefab);
 			newHero.transform.localPosition = HERO_SPAWN_POSITIONS[i];
 			HeroController heroController = newHero.GetComponent<HeroController>();
-			heroController.Init(heroes[i], this, lastAssignedID + i);
+			heroController.Init(heroes[i], this, lastAssignedID);
 			++lastAssignedID;
 			Combatants.Add(heroController);
 		}
@@ -323,7 +534,7 @@ public class BattleController : MonoBehaviour
 			GameObject newEnemy = Instantiate(enemyPrefab);
 			newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[i];
 			EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
-			enemyController.Init(enemies[i], this, lastAssignedID + i);
+			enemyController.Init(enemies[i], this, lastAssignedID);
 			++lastAssignedID;
 			Combatants.Add(enemyController);
 		}
@@ -354,6 +565,8 @@ public class BattleController : MonoBehaviour
 		// Find the lowest agility in this battle
 		float lowestAgility = factionIndexAgilityList[factionIndexAgilityList.Count - 1].Item3;
 		
+		// Keep halving agilities and assigning turn order until everyone's
+		// turns have been assigned
 		while (factionIndexAgilityList.Count > 0)
 		{
 			// Sort by agility
@@ -436,23 +649,23 @@ public class BattleController : MonoBehaviour
 
 
 	/// <summary>
-	/// Checks whether or not the given combatant should be allowed to take a turn
-	/// in the current BattleController state.
+	/// Checks whether or not the given combatant ID should be allowed to take
+	/// a turn in the current BattleController state.
 	/// </summary>
-	/// <param name="source">The CombatantController trying to take a turn.</param>
+	/// <param name="sourceID">The ID of the CombatantController trying to take a turn.</param>
 	/// <returns>Whether or not this combatant taking a turn is legal.</returns>
-	private bool VerifyCombatantTurn(CombatantController source)
+	private bool VerifyCombatantTurn(int sourceID)
 	{
 		if (State == BattleState.PLAYERCHOICE)
 		{
-			return source.Allegiance == Allegiance.PLAYER
-				&& source.Name == CurrCombatant.Name;
+			return Combatants[sourceID].Allegiance == Allegiance.PLAYER
+				&& Combatants[sourceID].Name == CurrCombatant.Name;
 		}
 
 		if (State == BattleState.ENEMYCHOICE)
 		{
-			return source.Allegiance == Allegiance.ENEMY
-				&& source.Name == CurrCombatant.Name;
+			return Combatants[sourceID].Allegiance == Allegiance.ENEMY
+				&& Combatants[sourceID].Name == CurrCombatant.Name;
 		}
 
 		// We should never get here - why are we trying to take a turn when not in

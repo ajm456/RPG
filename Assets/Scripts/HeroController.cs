@@ -30,7 +30,7 @@ public class HeroController : CombatantController
 		Strength = data.strength;
 		Agility = data.agility;
 		CalmAbilities = data.calmAbilities;
-		DiscordAbilities = data.discordAbilities;
+		StrifeAbilities = data.discordAbilities;
 		Calm = data.calm;
 		Discord = data.discord;
 		this.battleController = battleController;
