@@ -6,12 +6,14 @@ public struct EncounterData
 	public List<string> heroNames;
 	public List<string> enemyNames;
 
-	public EncounterData(List<string> characterNames, List<string> enemyNames) {
+	public EncounterData(List<string> characterNames, List<string> enemyNames)
+	{
 		this.heroNames = characterNames;
 		this.enemyNames = enemyNames;
 	}
 
-	public EncounterData(EncounterData data) {
+	public EncounterData(EncounterData data)
+	{
 		heroNames = data.heroNames;
 		enemyNames = data.enemyNames;
 	}
@@ -30,13 +32,16 @@ public static class EncounterDataStaticContainer
 	private static EncounterData data;
 
 
-	public static void SetData(EncounterData data) {
+	public static void SetData(EncounterData data)
+	{
 		EncounterDataStaticContainer.data = data;
 		isSet = true;
 	}
 
-	public static EncounterData GetData() {
-		if(!isSet) {
+	public static EncounterData GetData()
+	{
+		if(!isSet)
+		{
 			Debug.Log("Encounter scene data is unset - did you forget to call EncounterDataStaticContainer.SetData() before loading a battle?");
 			Debug.Break();
 		}
