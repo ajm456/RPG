@@ -369,6 +369,49 @@ public class BattleController : MonoBehaviour
 	}
 
 
+
+	/// <summary>
+	/// Fetches the transform of the combatant with a given ID.
+	/// </summary>
+	/// <param name="combatantID"></param>
+	/// <returns></returns>
+	public Transform GetCombatantTransform(int combatantID)
+	{
+		return Combatants[combatantID].transform;
+	}
+
+	public string GetCombatantName(int combatantID)
+	{
+		Debug.Assert(combatantID < Combatants.Count, "Trying to get combatant name for index " + combatantID + " which is outside of combatant list range " + Combatants.Count);
+		return Combatants[combatantID].Name;
+	}
+
+	public int GetCombatantHP(int combatantID)
+	{
+		return Combatants[combatantID].HP;
+	}
+
+	public int GetCombatantMaxHP(int combatantID)
+	{
+		return Combatants[combatantID].MaxHP;
+	}
+
+	public List<string> GetCombatantNames()
+	{
+		List<string> names = new List<string>(Combatants.Count);
+		foreach (CombatantController combatant in Combatants)
+		{
+			names.Add(combatant.Name);
+		}
+
+		return names;
+	}
+
+	public int GetNumCombatants()
+	{
+		return Combatants.Count;
+	}
+
 	/// <summary>
 	/// Fetches the number of hero combatants.
 	/// </summary>
@@ -456,32 +499,6 @@ public class BattleController : MonoBehaviour
 		}
 
 		return color;
-	}
-
-	/// <summary>
-	/// Fetches the transform of the combatant with a given ID.
-	/// </summary>
-	/// <param name="combatantID"></param>
-	/// <returns></returns>
-	public Transform GetCombatantTransform(int combatantID)
-	{
-		return Combatants[combatantID].transform;
-	}
-
-	public string GetCombatantName(int combatantID)
-	{
-		Debug.Assert(combatantID < Combatants.Count, "Trying to get combatant name for index " + combatantID + " which is outside of combatant list range " + Combatants.Count);
-		return Combatants[combatantID].Name;
-	}
-
-	public int GetCombatantHP(int combatantID)
-	{
-		return Combatants[combatantID].HP;
-	}
-
-	public int GetCombatantMaxHP(int combatantID)
-	{
-		return Combatants[combatantID].MaxHP;
 	}
 
 	/// <summary>
