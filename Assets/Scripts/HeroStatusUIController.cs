@@ -43,7 +43,6 @@ public class HeroStatusUIController : MonoBehaviour
 
 			StatusMenu status = new StatusMenu();
 			status.heroID = battleController.GetNthHeroID(i);
-			Debug.Log("Just set a StatusMenu's heroID to " + status.heroID);
 			status.rootTransform = statusMenu.transform;
 			status.nameText = statusMenu.transform.Find("Name").GetComponent<TextMeshProUGUI>();
 			status.hpText = statusMenu.transform.Find("HPText").GetComponent<TextMeshProUGUI>();

@@ -368,7 +368,9 @@ public class PlayerMenuController : MonoBehaviour
 
 				// Since the hero's changed, the color of the highlighted menu item will change too
 				if (cursorPos.x == 0)
+				{
 					UnhighlightMenuItem(cursorPos);
+				}
 				cursorPos.x = 0;
 				cursorPos.y = 0;
 				HighlightMenuItem(cursorPos);
