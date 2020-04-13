@@ -217,7 +217,7 @@ public abstract class CombatantController : MonoBehaviour
 			HP += magnitude;
 		}
 
-		 if (statStr == "agi")
+		 if (statStr == "agility")
 		 {
 		 	int magnitude = effect.amount;
 
