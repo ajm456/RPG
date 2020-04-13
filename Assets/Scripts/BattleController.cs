@@ -154,6 +154,10 @@ public class BattleController : MonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// Fetches the color of the current combatant. This is meaningless if the
+	/// current combatant is an enemy as they do not have a color property.
+	/// </summary>
 	public Color CurrCombatantColor
 	{
 		get
@@ -288,6 +292,10 @@ public class BattleController : MonoBehaviour
 
 	/* METHODS */
 
+	/// <summary>
+	/// Debug attack implementation to be called by HeroControllers which
+	/// attacks the first enemy found in Combatants.
+	/// </summary>
 	public void DebugAttack()
 	{
 		// DEBUG: Find the first enemy combatant and use the attack on that
@@ -352,12 +360,19 @@ public class BattleController : MonoBehaviour
 		DoAbility(ability, Combatants[sourceID], Combatants[targetID]);
 	}
 
+	/// <summary>
+	/// Executes a turn by doing nothing.
+	/// </summary>
 	public void PassTurn()
 	{
 		Debug.Log("Turn passed!");
 	}
 
 
+	/// <summary>
+	/// Fetches the number of hero combatants.
+	/// </summary>
+	/// <returns>The integer number of hero combatants in this battle.</returns>
 	public int GetNumHeroes()
 	{
 		int num = 0;
@@ -365,13 +380,19 @@ public class BattleController : MonoBehaviour
 		{
 			if (combatant.Allegiance == Allegiance.PLAYER)
 			{
-				num++;
+				++num;
 			}
 		}
 		
 		return num;
 	}
 
+	/// <summary>
+	/// Fetches the battle ID for the nth hero combatant ordered by how
+	/// they're loaded.
+	/// </summary>
+	/// <param name="n">The number of the hero combatant being searched for.</param>
+	/// <returns>The integer battle ID of the nth hero combatant.</returns>
 	public int GetNthHeroID(int n)
 	{
 		int currHeroIndex = 0;
