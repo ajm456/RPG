@@ -142,6 +142,13 @@ public class BattleController : MonoBehaviour
 		set;
 	}
 
+	/// <summary>
+	/// Keeps track of the number of turns each combatant has had.
+	/// </summary>
+	private Dictionary<int,int> NumTurns{
+		get;
+		set;
+	}
 
 
 
@@ -163,6 +170,8 @@ public class BattleController : MonoBehaviour
 
 		// Discern the turn order
 		InitTurnOrder();
+
+
 
 		// If we're going to have to wait on the player, raise our flag
 		if (CurrCombatant.Allegiance == Allegiance.PLAYER)
@@ -216,7 +225,12 @@ public class BattleController : MonoBehaviour
 			State = BattleState.ENEMYCHOICE;
 			WaitingOnPlayerTurn = false;
 		}
+		NumTurns[CurrCombatant.BattleID] += 1;
 		ResolvedAurasThisTurn = false;
+		if (CheckRoundEnd())
+		{
+			InitTurnOrder();
+		}
 	}
 
 
@@ -327,9 +341,11 @@ public class BattleController : MonoBehaviour
 		// For each combatant, store a copy of their faction, index, and agility
 		// stat (just to make sorting easier)
 		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
+		NumTurns = new Dictionary<int, int>();
 		for (int i = 0; i < Combatants.Count; ++i)
 		{
 			factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Combatants[i].Allegiance, i, Combatants[i].Agility));
+			NumTurns.Add(Combatants[i].BattleID, 0);
 		}
 
 		// Sort list by agility descending
@@ -354,6 +370,69 @@ public class BattleController : MonoBehaviour
 			}
 		}
 	}
+
+	public void ChangeTurnOrder(){
+		TurnOrderCombatantIDs = new List<int>();
+		TurnOrderIndex = 0;
+
+		// For each combatant, store a copy of their faction, index, and agility
+		// stat (just to make sorting easier)
+		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
+		for (int i = 0; i < Combatants.Count; ++i)
+		{
+			int TurnsTaken = NumTurns[Combatants[i].BattleID].Value;
+			if (TurnsTaken == 0)
+			{
+				factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Combatants[i].Allegiance, i, Combatants[i].Agility));
+			} 
+			else 
+			{
+				factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Combatants[i].Allegiance, i, Combatants[i].Agility / 2 * TurnsTaken));
+			}
+
+		}
+
+		// Sort list by agility descending
+		factionIndexAgilityList.Sort((x, y) => y.Item3.CompareTo(x.Item3));
+
+		// Find the lowest agility in this battle
+		float lowestAgility = factionIndexAgilityList[factionIndexAgilityList.Count - 1].Item3;
+		
+		while (factionIndexAgilityList.Count > 0)
+		{
+			// Sort by agility
+			factionIndexAgilityList.Sort((x, y) => y.Item3.CompareTo(x.Item3));
+			// Add the highest agility combatant to the turn list
+			var candidate = factionIndexAgilityList[0];
+			TurnOrderCombatantIDs.Add(Combatants[candidate.Item2].BattleID);
+			// Halve their agility stat
+			factionIndexAgilityList[0] = new Tuple<Allegiance, int, float>(candidate.Item1, candidate.Item2, candidate.Item3 / 2f);
+			// Remove them if their agility has dropped below the lowest
+			if (factionIndexAgilityList[0].Item3 < lowestAgility)
+			{
+				factionIndexAgilityList.RemoveAt(0);
+			}
+		}
+	}
+
+	
+
+
+
+	/// <summary>
+	/// Returns true if the round is over (all combatants have had at least one turn), false otherwise.
+	/// </summary> 
+	private bool CheckRoundEnd(){
+		foreach (var Combatant in NumTurns){
+			if (Combatant.Value == 0)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	
 
 
 	/// <summary>
@@ -434,6 +513,7 @@ public class BattleController : MonoBehaviour
 	{
 		target.ApplyEffect(effect, source);
 	}
+
 
 
 	private void ExecuteEnemyTurn()
