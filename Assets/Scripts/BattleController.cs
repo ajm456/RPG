@@ -276,7 +276,7 @@ public class BattleController : MonoBehaviour
 		}
 		NumTurns[CurrCombatant.BattleID] += 1;
 		ResolvedAurasThisTurn = false;
-		if (CheckRoundEnd())
+		if (TurnOrderIndex == 0)
 		{
 			InitTurnOrder();
 		}
@@ -627,26 +627,6 @@ public class BattleController : MonoBehaviour
 			}
 		}
 	}
-
-	
-
-
-
-	/// <summary>
-	/// Returns true if the round is over (all combatants have had at least one turn), false otherwise.
-	/// </summary> 
-	private bool CheckRoundEnd(){
-		foreach (var Combatant in NumTurns){
-			if (Combatant.Value == 0)
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	
-
 
 	/// <summary>
 	/// Checks whether or not the given combatant ID should be allowed to take
