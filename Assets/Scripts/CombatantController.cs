@@ -105,7 +105,7 @@ public abstract class CombatantController : MonoBehaviour
 	/// <summary>
 	/// All Discord abilities this combatant can use.
 	/// </summary>
-	public List<AbilityData> DiscordAbilities
+	public List<AbilityData> StrifeAbilities
 	{
 		get;
 		set;

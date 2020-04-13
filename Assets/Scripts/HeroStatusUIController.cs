@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 class StatusMenu
 {
-	internal HeroController hero;
+	internal int heroID;
 	internal Transform rootTransform;
 	internal TextMeshProUGUI nameText, hpText, hpValue;
 	internal RectTransform healthBar, missingHealthBar;
@@ -31,20 +31,19 @@ public class HeroStatusUIController : MonoBehaviour
 
 	void Start()
 	{
-		menus = new List<StatusMenu>(battleController.HeroCombatants.Count);
-		battleHeroNames = new List<string>(battleController.HeroCombatants.Count);
-		foreach (CombatantController comb in battleController.HeroCombatants)
-			battleHeroNames.Add(comb.Name);
+		menus = new List<StatusMenu>(battleController.GetNumHeroes());
+		battleHeroNames = battleController.GetHeroNames();
 
 		// Instantiate a status menu for each hero in this battle
-		for (var i = 0; i < battleController.HeroCombatants.Count; ++i)
+		for (var i = 0; i < battleController.GetNumHeroes(); ++i)
 		{
 			GameObject statusMenu = Instantiate(statusMenuPrefab, container.transform);
 			float yOffset = i * 90f;
 			statusMenu.transform.localPosition = new Vector3(statusMenu.transform.localPosition.x, statusMenu.transform.localPosition.y - yOffset);
 
 			StatusMenu status = new StatusMenu();
-			status.hero = battleController.HeroCombatants[i];
+			status.heroID = battleController.GetNthHeroID(i);
+			Debug.Log("Just set a StatusMenu's heroID to " + status.heroID);
 			status.rootTransform = statusMenu.transform;
 			status.nameText = statusMenu.transform.Find("Name").GetComponent<TextMeshProUGUI>();
 			status.hpText = statusMenu.transform.Find("HPText").GetComponent<TextMeshProUGUI>();
@@ -58,7 +57,7 @@ public class HeroStatusUIController : MonoBehaviour
 			menus.Add(status);
 
 			// Set the text to our hero name
-			status.nameText.SetText(status.hero.Name.ToUpper());
+			status.nameText.SetText(battleController.GetCombatantName(status.heroID));
 		}
 	}
 
@@ -69,12 +68,17 @@ public class HeroStatusUIController : MonoBehaviour
 		{
 			StatusMenu menu = menus[i];
 
+			// Get all the data we need
+			int hp = battleController.GetCombatantHP(menu.heroID);
+			int maxHp = battleController.GetCombatantMaxHP(menu.heroID);
+			Color color = battleController.GetHeroColor(menu.heroID);
+
 			// Update the hit point numerical indicator
-			menu.hpValue.SetText(menu.hero.HP.ToString() + " / " + menu.hero.MaxHP.ToString());
+			menu.hpValue.SetText(hp.ToString() + " / " + maxHp.ToString());
 
 			// Update the missing health mask
-			float missingHealth = menu.hero.MaxHP - menu.hero.HP;
-			float percentageMissing = missingHealth / menu.hero.MaxHP;
+			float missingHealth =  battleController.GetCombatantMaxHP(menu.heroID) - battleController.GetCombatantHP(menu.heroID);
+			float percentageMissing = missingHealth / maxHp;
 			float newWidth = percentageMissing * menu.healthBar.sizeDelta.x;
 			menu.missingHealthBar.sizeDelta = new Vector2(newWidth, menu.missingHealthBar.sizeDelta.y);
 
@@ -82,10 +86,10 @@ public class HeroStatusUIController : MonoBehaviour
 			if (i == battleHeroNames.IndexOf(battleController.CurrCombatantName))
 			{
 				// Set the colours
-				menu.nameText.color = menu.hero.Color;
-				menu.hpText.color = menu.hero.Color;
-				menu.hpValue.color = menu.hero.Color;
-				menu.healthBar.GetComponent<Image>().color = menu.hero.Color;
+				menu.nameText.color = color;
+				menu.hpText.color = color;
+				menu.hpValue.color = color;
+				menu.healthBar.GetComponent<Image>().color = color;
 
 				// Lerp animate to expanded position
 				if (!menu.expanded)
