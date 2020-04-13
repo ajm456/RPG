@@ -8,9 +8,10 @@ public class HeroOverworldMovement : MonoBehaviour
     public Transform movePoint;
     public LayerMask collisionDetector;
     public Animator anim;
-    //Start is called before the first frame update
+    //Start is called before the first frame update 
     void Start()
     {
+        anim = GetComponent<Animator>();
         movePoint.parent = null;
     }
 
@@ -21,10 +22,14 @@ public class HeroOverworldMovement : MonoBehaviour
 
         if(Vector3.Distance(transform.position, movePoint.position) <= 0.05f){
             if(Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1f){
+                anim.SetFloat("turnHoriz", Input.GetAxisRaw("Horizontal"));
+                anim.SetFloat("turnVert", 0);
                 if(!Physics2D.OverlapCircle(movePoint.position + new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f), 0.2f, collisionDetector))
                 movePoint.position += new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f);
                 }
             else if (Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1f){
+                anim.SetFloat("turnHoriz", 0);
+                anim.SetFloat("turnVert", Input.GetAxisRaw("Vertical"));
                 if(!Physics2D.OverlapCircle(movePoint.position + new Vector3(Input.GetAxisRaw("Vertical"), 0f, 0f), 0.2f, collisionDetector)){
                 movePoint.position += new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
                 }
