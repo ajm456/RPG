@@ -10,16 +10,16 @@ public class AbilityDataJsonWrapper
 {
 	public string name;
 	public bool isCalm;
-	public int calmReq, discordReq;
+	public int calmReq, strifeReq;
 	public List<string> effectNames;
 	public List<string> auraNames;
 
-	public AbilityDataJsonWrapper(string name, bool isCalm, int calmReq, int discordReq, List<string> effectNames, List<string> auraNames)
+	public AbilityDataJsonWrapper(string name, bool isCalm, int calmReq, int strifeReq, List<string> effectNames, List<string> auraNames)
 	{
 		this.name = name;
 		this.isCalm = isCalm;
 		this.calmReq = calmReq;
-		this.discordReq = discordReq;
+		this.strifeReq = strifeReq;
 		this.effectNames = effectNames;
 		this.auraNames = auraNames;
 	}
@@ -37,7 +37,7 @@ public class AbilityData
 
 	public string name;
 	public bool isCalm;
-	public int calmReq, discordReq;
+	public int calmReq, strifeReq;
 	public List<EffectData> effects;
 	public List<AuraData> auras;
 
@@ -46,16 +46,34 @@ public class AbilityData
 		name = wrapper.name;
 		isCalm = wrapper.isCalm;
 		calmReq = wrapper.calmReq;
-		discordReq = wrapper.discordReq;
+		strifeReq = wrapper.strifeReq;
 
 		// Filter to find this ability's effects
 		effects = new List<EffectData>();
 		foreach (string effectName in wrapper.effectNames)
+		{
 			effects.Add(allEffects.Find(d => d.name.ToUpperInvariant() == effectName.ToUpperInvariant()));
+		}
 
 		// Filter to find this ability's auras
 		auras = new List<AuraData>();
 		foreach (string auraName in wrapper.auraNames)
+		{
 			auras.Add(allAuras.Find(d => d.name.ToUpperInvariant() == auraName.ToUpperInvariant()));
+		}
+	}
+
+	/// <summary>
+	/// Copy constructor.
+	/// </summary>
+	/// <param name="old">AbilityData object being copied from.</param>
+	public AbilityData(AbilityData old)
+	{
+		name = old.name;
+		isCalm = old.isCalm;
+		calmReq = old.calmReq;
+		strifeReq = old.strifeReq;
+		effects = new List<EffectData>(old.effects);
+		auras = new List<AuraData>(old.auras);
 	}
 }
