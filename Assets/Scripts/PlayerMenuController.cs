@@ -308,7 +308,7 @@ public class PlayerMenuController : MonoBehaviour
 	/// </summary>
 	private int currHeroID;
 
-	// Ability list for each hero (calm and discord)
+	// Ability list for each hero (calm and strife)
 	private List<List<List<AbilityData>>> heroAbilityLists;
 
 
@@ -404,7 +404,7 @@ public class PlayerMenuController : MonoBehaviour
 
 		// Populate it with root level menu items
 		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "ATTACK", new Action(OnSelectAttack)));
-		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "DISCORD", new Action(OnSelectDiscord)));
+		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "DISCORD", new Action(OnSelectStrife)));
 		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "CALM", new Action(OnSelectCalm)));
 		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "GUARD", new Action(OnSelectGuard)));
 
@@ -524,9 +524,9 @@ public class PlayerMenuController : MonoBehaviour
 
 
 	/// <summary>
-	/// Callback for selecting the discord abilities menu item.
+	/// Callback for selecting the strife abilities menu item.
 	/// </summary>
-	private void OnSelectDiscord()
+	private void OnSelectStrife()
 	{
 		// Destroy the old gameobjects before clearing list data
 		foreach (GameObject item in menus[1].GetMenuItems())
@@ -535,7 +535,7 @@ public class PlayerMenuController : MonoBehaviour
 		}
 		menus[1].ClearMenuItems();
 
-		// Create menu items for each of the hero's discord abilities
+		// Create menu items for each of the hero's strife abilities
 		for (var i = 0; i < heroAbilityLists[currHeroID][1].Count; ++i)
 		{
 			AbilityData ability = heroAbilityLists[currHeroID][1][i];
