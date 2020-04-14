@@ -356,14 +356,6 @@ public class BattleController : MonoBehaviour
 	/// <param name="target">The combatant receiving the ability.</param>
 	public void ExecuteTurnWithAbilityOnRandomTarget(AbilityData ability)
 	{
-		// Check that it really is the turn of the combatant executing this turn
-		if (!VerifyCombatantTurn(sourceID))
-		{
-			Debug.Log("Someone tried to execute a turn when it wasn't their turn!");
-			Debug.Break();
-			return;
-		}
-
 		// Pick a random enemy to the given allegiance type
 		List<int> possibleTargetIDs = new List<int>();
 		foreach (CombatantController combatant in Combatants)
