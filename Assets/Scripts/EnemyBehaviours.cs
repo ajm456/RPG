@@ -18,7 +18,7 @@ public static class EnemyBehaviours
 	{
 		// Use a random discord ability on a random player character
 		AbilityData ability = source.StrifeAbilities[UnityEngine.Random.Range(0, source.StrifeAbilities.Count)];
-		battleController.ExecuteTurnWithAbilityOnRandomTarget(ability, source.BattleID, CombatantController.CombatantAllegiance.ENEMY);
+		battleController.ExecuteTurnWithAbilityOnRandomTarget(ability);
 	}
 
 	public static Dictionary<BehaviourIndex, Action<BattleController, CombatantController>> behaviourDict = new Dictionary<BehaviourIndex, Action<BattleController, CombatantController>>() {

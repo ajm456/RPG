@@ -349,13 +349,12 @@ public class BattleController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Executes a turn from a given combatant with a given ability on a given
-	/// target combatant.
+	/// Executes a turn for the current combatant with the given ability.
 	/// </summary>
 	/// <param name="ability">The ability the source combatant is using.</param>
 	/// <param name="source">The combatant taking the turn.</param>
 	/// <param name="target">The combatant receiving the ability.</param>
-	public void ExecuteTurnWithAbilityOnRandomTarget(AbilityData ability, int sourceID, Allegiance sourceAllegiance)
+	public void ExecuteTurnWithAbilityOnRandomTarget(AbilityData ability)
 	{
 		// Check that it really is the turn of the combatant executing this turn
 		if (!VerifyCombatantTurn(sourceID))
@@ -369,7 +368,7 @@ public class BattleController : MonoBehaviour
 		List<int> possibleTargetIDs = new List<int>();
 		foreach (CombatantController combatant in Combatants)
 		{
-			if (combatant.Allegiance != sourceAllegiance)
+			if (combatant.Allegiance != CurrCombatant.Allegiance)
 			{
 				possibleTargetIDs.Add(combatant.BattleID);
 			}
@@ -377,7 +376,7 @@ public class BattleController : MonoBehaviour
 		int targetID = possibleTargetIDs[Random.Range(0, possibleTargetIDs.Count)];
 
 		// Try and execute the ability
-		DoAbility(ability, Combatants[sourceID], Combatants[targetID]);
+		DoAbility(ability, Combatants[CurrCombatantID], Combatants[targetID]);
 	}
 
 	/// <summary>

@@ -311,6 +311,17 @@ public class PlayerMenuController : MonoBehaviour
 	// Ability list for each hero (calm and strife)
 	private List<List<List<AbilityData>>> heroAbilityLists;
 
+	/// <summary>
+	/// Flag raised when the player is selecting a target for their action.
+	/// </summary>
+	private bool selectingTarget;
+
+	/// <summary>
+	/// AbilityData for the ability selected when a player starts choosing a
+	/// target.
+	/// </summary>
+	private AbilityData selectedAbility;
+
 
 	/// <summary>
 	/// MonoBehaviour start.
@@ -445,35 +456,45 @@ public class PlayerMenuController : MonoBehaviour
 	/// </summary>
 	private void NavigateMenus()
 	{
-		if (Input.GetKeyDown(KeyCode.DownArrow))
+		if (selectingTarget)
 		{
-			// Keep navigating until we find an enabled menu item
-			do
+			if (Input.GetKeyDown(KeyCode.Space))
 			{
-				cursorPos.y = (cursorPos.y + 1) % menus[cursorPos.x].NumItems;
-			} while (!menus[cursorPos.x].IsItemEnabled(cursorPos.y));
+				battleController.ExecuteTurnWithAbilityOnRandomTarget(selectedAbility);
+			}
 		}
-		else if (Input.GetKeyDown(KeyCode.UpArrow))
+		else
 		{
-			// Keep navigating until we find an enabled menu item
-			do
+			if (Input.GetKeyDown(KeyCode.DownArrow))
 			{
-				cursorPos.y = (menus[cursorPos.x].NumItems + cursorPos.y - 1) % menus[cursorPos.x].NumItems;
-			} while (!menus[cursorPos.x].IsItemEnabled(cursorPos.y));
-		}
-		else if (Input.GetKeyDown(KeyCode.LeftArrow))
-		{
-			// We don't do anything if the cursor is on the root menu
-			if (cursorPos.x == 0)
-				return;
+				// Keep navigating until we find an enabled menu item
+				do
+				{
+					cursorPos.y = (cursorPos.y + 1) % menus[cursorPos.x].NumItems;
+				} while (!menus[cursorPos.x].IsItemEnabled(cursorPos.y));
+			}
+			else if (Input.GetKeyDown(KeyCode.UpArrow))
+			{
+				// Keep navigating until we find an enabled menu item
+				do
+				{
+					cursorPos.y = (menus[cursorPos.x].NumItems + cursorPos.y - 1) % menus[cursorPos.x].NumItems;
+				} while (!menus[cursorPos.x].IsItemEnabled(cursorPos.y));
+			}
+			else if (Input.GetKeyDown(KeyCode.LeftArrow))
+			{
+				// We don't do anything if the cursor is on the root menu
+				if (cursorPos.x == 0)
+					return;
 
-			// Providing the cursor is on the extra menu, navigate left and close
-			cursorPos.x -= 1;
-			menus[1].SetActive(false);
-		}
-		else if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.RightArrow))
-		{
-			menus[cursorPos.x].SelectItem(cursorPos.y);
+				// Providing the cursor is on the extra menu, navigate left and close
+				cursorPos.x -= 1;
+				menus[1].SetActive(false);
+			}
+			else if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.RightArrow))
+			{
+				menus[cursorPos.x].SelectItem(cursorPos.y);
+			}
 		}
 	}
 
@@ -541,11 +562,18 @@ public class PlayerMenuController : MonoBehaviour
 			AbilityData ability = heroAbilityLists[currHeroID][1][i];
 			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
 			{
+				// Store the selected ability to be cast when the player
+				// selects their target
+				selectedAbility = new AbilityData(ability);
+
+				// Transition to target selection
+				selectingTarget = true;
+
 				// TODO: Determine which enemy index to cast ability on
-				battleController.DebugAttack();
+				//battleController.DebugAttack();
 
 				// Let BattleController know turn has finished
-				battleController.WaitingOnPlayerTurn = false;
+				//battleController.WaitingOnPlayerTurn = false;
 			})));
 		}
 
