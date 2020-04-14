@@ -92,10 +92,10 @@ public class BattleController : MonoBehaviour
 	/// <summary>
 	/// The index for the current combatant in <see cref="TurnOrderCombatants"/>
 	/// </summary>
-	private int TurnOrderIndex
+	public int TurnOrderIndex
 	{
 		get;
-		set;
+		private set;
 	}
 
 	/// <summary>
@@ -107,6 +107,36 @@ public class BattleController : MonoBehaviour
 		{
 			return Combatants[TurnOrderCombatantIDs[TurnOrderIndex]];
 		}
+	}
+
+	/// <summary>
+	/// Flag raised once auras have been resolved for this turn. This is
+	/// required for player turns as they can take an indefinite number of
+	/// update cycles before actually executing.
+	/// </summary>
+	private bool ResolvedAurasThisTurn
+	{
+		get;
+		set;
+	}
+
+	/// <summary>
+	/// Flag raised once the current combatant has incremented their respective
+	/// NumTurns entry.
+	/// </summary>
+	private bool IncrementedTurnCounterThisTurn
+	{
+		get;
+		set;
+	}
+
+	/// <summary>
+	/// Keeps track of the number of turns each combatant has had.
+	/// </summary>
+	private Dictionary<int, int> NumTurns
+	{
+		get;
+		set;
 	}
 
 
@@ -182,24 +212,6 @@ public class BattleController : MonoBehaviour
 		set;
 	}
 
-	/// <summary>
-	/// Flag raised once auras have been resolved for this turn. This is
-	/// required for player turns as they can take an indefinite number of
-	/// update cycles before actually executing.
-	/// </summary>
-	private bool ResolvedAurasThisTurn
-	{
-		get;
-		set;
-	}
-
-	/// <summary>
-	/// Keeps track of the number of turns each combatant has had.
-	/// </summary>
-	private Dictionary<int,int> NumTurns{
-		get;
-		set;
-	}
 
 
 
@@ -248,6 +260,13 @@ public class BattleController : MonoBehaviour
 			ResolvedAurasThisTurn = true;
 		}
 
+		// Increment their NumTurns entry
+		if (!IncrementedTurnCounterThisTurn)
+		{
+			NumTurns[CurrCombatantID] += 1;
+			IncrementedTurnCounterThisTurn = true;
+		}
+
 		if (CurrCombatant.Allegiance == Allegiance.ENEMY)
 		{
 			// For enemies, execute their turn straight away
@@ -278,7 +297,7 @@ public class BattleController : MonoBehaviour
 			State = BattleState.ENEMYCHOICE;
 			WaitingOnPlayerTurn = false;
 		}
-		NumTurns[CurrCombatant.BattleID] += 1;
+		
 		ResolvedAurasThisTurn = false;
 		if (TurnOrderIndex == 0)
 		{
@@ -396,12 +415,12 @@ public class BattleController : MonoBehaviour
 		return Combatants[combatantID].MaxHP;
 	}
 
-	public List<string> GetCombatantNames()
+	public List<string> GetOrderedCombatantNames()
 	{
 		List<string> names = new List<string>(Combatants.Count);
-		foreach (CombatantController combatant in Combatants)
+		for (var i = TurnOrderIndex; i < TurnOrderCombatantIDs.Count; i++)
 		{
-			names.Add(combatant.Name);
+			names.Add(Combatants[TurnOrderCombatantIDs[i]].Name);
 		}
 
 		return names;
@@ -622,7 +641,8 @@ public class BattleController : MonoBehaviour
 		}
 	}
 
-	public void ChangeTurnOrder(){
+	public void ChangeTurnOrder()
+	{
 		TurnOrderCombatantIDs = new List<int>();
 		TurnOrderIndex = 0;
 
