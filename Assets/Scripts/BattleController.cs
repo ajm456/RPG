@@ -431,6 +431,11 @@ public class BattleController : MonoBehaviour
 		return Combatants.Count;
 	}
 
+	public int GetNumTurnsPerRound()
+	{
+		return TurnOrderCombatantIDs.Count;
+	}
+
 	/// <summary>
 	/// Fetches the number of hero combatants.
 	/// </summary>

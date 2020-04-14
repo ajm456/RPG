@@ -122,7 +122,7 @@ public class TurnOrderUIController : MonoBehaviour
 	/// </summary>
 	private void InitialiseTurnOrderEntries()
 	{
-		if (battleController.GetOrderedCombatantNames().Count != entryObjects.Count)
+		if (battleController.GetNumTurnsPerRound() != entryObjects.Count)
 		{
 			Debug.Log("Ordered combatant ID and entry object list counts not identical!");
 			Debug.Break();
