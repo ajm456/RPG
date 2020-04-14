@@ -643,19 +643,30 @@ public class BattleController : MonoBehaviour
 		TurnOrderCombatantIDs = new List<int>();
 		TurnOrderIndex = 0;
 
+		// Tracks the lowest agility among all combatants.
+		float lowestAgility = Combatants[0].Agility;
+
 		// For each combatant, store a copy of their faction, index, and agility
 		// stat (just to make sorting easier)
 		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
 		for (int i = 0; i < Combatants.Count; ++i)
 		{
-			int TurnsTaken = NumTurns[Combatants[i].BattleID];
+
+			// Update lowest agility if needed.
+			if (Combatants[i].Agility < lowestAgility)
+			{
+				lowestAgility = Combatants[i].Agility;
+			}
+
+			float TurnsTaken = NumTurns[Combatants[i].BattleID];
+
 			if (TurnsTaken == 0)
 			{
 				factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Combatants[i].Allegiance, i, Combatants[i].Agility));
 			} 
 			else 
 			{
-				factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Combatants[i].Allegiance, i, Combatants[i].Agility / 2 * TurnsTaken));
+				factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Combatants[i].Allegiance, i, Combatants[i].Agility / 2f * TurnsTaken));
 			}
 
 		}
@@ -663,8 +674,6 @@ public class BattleController : MonoBehaviour
 		// Sort list by agility descending
 		factionIndexAgilityList.Sort((x, y) => y.Item3.CompareTo(x.Item3));
 
-		// Find the lowest agility in this battle
-		float lowestAgility = factionIndexAgilityList[factionIndexAgilityList.Count - 1].Item3;
 		
 		while (factionIndexAgilityList.Count > 0)
 		{
