@@ -2,7 +2,7 @@
     "name" : "frog",
     "maxHp" : 300,
     "strength" : 10,
-    "agility" : 4,
+    "agility" : 7,
     "behaviourIndex" : 0,
     "abilityNames" : [
         "Rend"
