@@ -24,13 +24,13 @@ public class HeroOverworldMovement : MonoBehaviour
             if(Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1f){
                 anim.SetFloat("turnHoriz", Input.GetAxisRaw("Horizontal"));
                 anim.SetFloat("turnVert", 0);
-                if(!Physics2D.OverlapCircle(movePoint.position + new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f), 0.2f, collisionDetector))
+                if(!Physics2D.OverlapCircle(movePoint.position + new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f), 0f, collisionDetector))
                 movePoint.position += new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f);
                 }
             else if (Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1f){
                 anim.SetFloat("turnHoriz", 0);
                 anim.SetFloat("turnVert", Input.GetAxisRaw("Vertical"));
-                if(!Physics2D.OverlapCircle(movePoint.position + new Vector3(Input.GetAxisRaw("Vertical"), 0f, 0f), 0.2f, collisionDetector)){
+                if(!Physics2D.OverlapCircle(movePoint.position + new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f), 0f, collisionDetector)){
                 movePoint.position += new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
                 }
             }
