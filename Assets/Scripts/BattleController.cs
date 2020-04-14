@@ -80,16 +80,6 @@ public class BattleController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// An turn-ordered list of the turns of each combatant. This will be valid
-	/// until a combatant dies or agility stats change.
-	/// </summary>
-	private List<int> TurnOrderCombatantIDs
-	{
-		get;
-		set;
-	}
-
-	/// <summary>
 	/// The index for the current combatant in <see cref="TurnOrderCombatants"/>
 	/// </summary>
 	public int TurnOrderIndex
@@ -137,6 +127,17 @@ public class BattleController : MonoBehaviour
 	{
 		get;
 		set;
+	}
+
+
+	/// <summary>
+	/// An turn-ordered list of the turns of each combatant. This will be valid
+	/// until a combatant dies or agility stats change.
+	/// </summary>
+	public List<int> TurnOrderCombatantIDs
+	{
+		get;
+		private set;
 	}
 
 

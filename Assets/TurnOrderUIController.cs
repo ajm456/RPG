@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -16,17 +17,24 @@ public class TurnOrderUIController : MonoBehaviour
 	/// </summary>
 	private List<GameObject> entryObjects;
 
+	private int numActiveEntries;
+
 	/// <summary>
 	/// A cache of the last turn order index value we read from the battle
 	/// controller.
 	/// </summary>
 	private int currTurnOrderIndex;
 
+	private List<int> currTurnOrderedCombatantIDs;
+
 	protected void Start()
 	{
 		// Initialise prefab entries
-		entryObjects = new List<GameObject>(battleController.GetNumCombatants());
-		ConstructTurnOrderEntries();
+		ConstructEntryObjects();
+		InitialiseTurnOrderEntries();
+
+		currTurnOrderedCombatantIDs = new List<int>(battleController.TurnOrderCombatantIDs);
+
 		currTurnOrderIndex = 0;
 	}
 
@@ -37,43 +45,67 @@ public class TurnOrderUIController : MonoBehaviour
 		{
 			currTurnOrderIndex = battleController.TurnOrderIndex;
 
-			// Pop the left-most entry
-			Destroy(entryObjects[0]);
-			entryObjects.RemoveAt(0);
+			// We need to check if the turn ordered combatant IDs list has
+			// changed due to an agility (de)buff
+			bool orderChanged = currTurnOrderedCombatantIDs.Except(battleController.TurnOrderCombatantIDs).Any()
+					|| battleController.TurnOrderCombatantIDs.Except(currTurnOrderedCombatantIDs).Any();
 
-			if (currTurnOrderIndex != 0)
+			if (orderChanged)
 			{
-				// If it's not the end of the round, we just need to shift the
-				// remaining entries left
-				foreach (GameObject obj in entryObjects)
-				{
-					RectTransform transform = obj.GetComponent<RectTransform>();
-					transform.localPosition -= new Vector3(transform.sizeDelta.x, 0f);
-				}
+				// No choice but to do a full rebuild
+				ConstructEntryObjects();
+				InitialiseTurnOrderEntries();
 			}
 			else
 			{
-				// It's the start of a new round so we need to reconstruct the
-				// entries
-				ConstructTurnOrderEntries();
+				// If the order didn't change, adjusting the turn order entries
+				// is a lot simpler
+
+				if (currTurnOrderIndex == 0)
+				{
+					// This is a new round so reinitialise
+					InitialiseTurnOrderEntries();
+				}
+				else
+				{
+					// This isn't a new round, so we just need to adjust the
+					// text of each entry object
+
+					// Hide the rightmost entry
+					entryObjects[numActiveEntries - 1].SetActive(false);
+					--numActiveEntries;
+				
+					// The text of each entry becomes the text of its right
+					// neighbour's
+					for (var i = 0; i < numActiveEntries; ++i)
+					{
+						entryObjects[i].GetComponent<TextMeshProUGUI>().text = entryObjects[i + 1].GetComponent<TextMeshProUGUI>().text;
+					}
+				}
 			}
 		}
 	}
 
-	/// <summary>
-	/// Instantiates and initialises turn order entry game objects for each
-	/// combatant in the current battle.
-	/// </summary>
-	private void ConstructTurnOrderEntries()
+	private void ConstructEntryObjects()
 	{
+		// Clear entryObjects if it was previously populated
+		if (entryObjects != null)
+		{
+			foreach (GameObject obj in entryObjects)
+			{
+				Destroy(obj);
+			}
+		}
+		
+		entryObjects = new List<GameObject>(battleController.GetNumCombatants());
+
 		// Used to keep track of where we placed the last entry; subsequent
 		// entries must be placed to the right of it
 		Vector3? lastPos = null;
 		
-		foreach (string name in battleController.GetOrderedCombatantNames())
+		for (var i = 0; i < battleController.TurnOrderCombatantIDs.Count; ++i)
 		{
 			GameObject nameObject = Instantiate(nameEntryPrefab, container.transform);
-			nameObject.GetComponent<TextMeshProUGUI>().SetText(name);
 			// lastPos is null when we initialise the first entry
 			if (lastPos != null)
 			{
@@ -82,5 +114,27 @@ public class TurnOrderUIController : MonoBehaviour
 			lastPos = nameObject.GetComponent<RectTransform>().localPosition;
 			entryObjects.Add(nameObject);
 		}
+	}
+
+	/// <summary>
+	/// Instantiates and initialises turn order entry game objects for each
+	/// combatant in the current battle.
+	/// </summary>
+	private void InitialiseTurnOrderEntries()
+	{
+		if (battleController.GetOrderedCombatantNames().Count != entryObjects.Count)
+		{
+			Debug.Log("Ordered combatant ID and entry object list counts not identical!");
+			Debug.Break();
+		}
+
+		List<string> orderedCombatantNames = battleController.GetOrderedCombatantNames();
+		for (var i = 0; i < entryObjects.Count; ++i)
+		{
+			entryObjects[i].GetComponent<TextMeshProUGUI>().SetText(orderedCombatantNames[i]);
+			entryObjects[i].SetActive(true);
+		}
+
+		numActiveEntries = entryObjects.Count;
 	}
 }
