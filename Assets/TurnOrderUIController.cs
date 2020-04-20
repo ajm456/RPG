@@ -29,13 +29,13 @@ public class TurnOrderUIController : MonoBehaviour
 
 	protected void Start()
 	{
+		currTurnOrderedCombatantIDs = new List<int>(battleController.TurnOrderCombatantIDs);
+		currTurnOrderIndex = 0;
+		numActiveEntries = currTurnOrderedCombatantIDs.Count;
+
 		// Initialise prefab entries
 		ConstructEntryObjects();
 		InitialiseTurnOrderEntries();
-
-		currTurnOrderedCombatantIDs = new List<int>(battleController.TurnOrderCombatantIDs);
-
-		currTurnOrderIndex = 0;
 	}
 
 	protected void Update()
@@ -47,14 +47,15 @@ public class TurnOrderUIController : MonoBehaviour
 
 			// We need to check if the turn ordered combatant IDs list has
 			// changed due to an agility (de)buff
-			bool orderChanged = currTurnOrderedCombatantIDs.Except(battleController.TurnOrderCombatantIDs).Any()
-					|| battleController.TurnOrderCombatantIDs.Except(currTurnOrderedCombatantIDs).Any();
+			bool orderChanged = !currTurnOrderedCombatantIDs.SequenceEqual(battleController.TurnOrderCombatantIDs);
 
 			if (orderChanged)
 			{
 				// No choice but to do a full rebuild
+				Debug.Log("TURN ORDER CHANGED! Re-initialising UI");
 				ConstructEntryObjects();
 				InitialiseTurnOrderEntries();
+				currTurnOrderedCombatantIDs = new List<int>(battleController.TurnOrderCombatantIDs);
 			}
 			else
 			{
@@ -113,6 +114,12 @@ public class TurnOrderUIController : MonoBehaviour
 			}
 			lastPos = nameObject.GetComponent<RectTransform>().localPosition;
 			entryObjects.Add(nameObject);
+
+			// Disable any hidden entries for turns already taken
+			if (i >= battleController.TurnOrderCombatantIDs.Count - battleController.TurnOrderIndex)
+			{
+				nameObject.SetActive(false);
+			}
 		}
 	}
 
@@ -129,7 +136,7 @@ public class TurnOrderUIController : MonoBehaviour
 		}
 
 		List<string> orderedCombatantNames = battleController.GetOrderedCombatantNames();
-		for (var i = 0; i < entryObjects.Count; ++i)
+		for (var i = 0; i < numActiveEntries; ++i)
 		{
 			entryObjects[i].GetComponent<TextMeshProUGUI>().SetText(orderedCombatantNames[i]);
 			entryObjects[i].SetActive(true);

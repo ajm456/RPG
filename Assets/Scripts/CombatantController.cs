@@ -216,14 +216,13 @@ public abstract class CombatantController : MonoBehaviour
 			// Apply the effect
 			HP += magnitude;
 		}
-
 		else if (statStr == "agility")
-		 {
+		{
 		 	int magnitude = effect.amount;
 
 		 	Agility += magnitude;
 
-		 	battleController.ChangeTurnOrder();
+		 	battleController.OrderCombatantList();
 		}
 		
 		else

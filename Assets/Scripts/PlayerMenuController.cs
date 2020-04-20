@@ -461,6 +461,7 @@ public class PlayerMenuController : MonoBehaviour
 			if (Input.GetKeyDown(KeyCode.Space))
 			{
 				battleController.ExecuteTurnWithAbilityOnRandomTarget(selectedAbility);
+				battleController.WaitingOnPlayerTurn = false;
 			}
 		}
 		else

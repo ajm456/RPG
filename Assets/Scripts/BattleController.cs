@@ -300,6 +300,7 @@ public class BattleController : MonoBehaviour
 		}
 		
 		ResolvedAurasThisTurn = false;
+		IncrementedTurnCounterThisTurn = false;
 		if (TurnOrderIndex == 0)
 		{
 			InitTurnOrder();
@@ -594,6 +595,101 @@ public class BattleController : MonoBehaviour
 		}
 	}
 
+	private int CompareAgilityIDEntries(Tuple<Allegiance, int, float> x, Tuple<Allegiance, int, float> y)
+	{
+		// First try sorting by agility descending
+		var result = y.Item3.CompareTo(x.Item3);
+
+		if (result == 0)
+		{
+			// The agility stats are identical; next sort by allegiance
+			// (player > enemy)
+			if (x.Item1 == y.Item1)
+			{
+				// If the allegiances are the same, we're forced to sort by ID
+				result = x.Item2.CompareTo(y.Item2);
+			}
+			else
+			{
+				// Favour player allegiance over enemy allegiance
+				if (x.Item1 == Allegiance.PLAYER)
+				{
+					result = -1;
+				}
+				else
+				{
+					result = 1;
+				}
+			}
+		}
+
+		if (result == 0)
+		{
+			Debug.Log("Failed to sort turn order! Something went wrong...");
+			Debug.Break();
+		}
+
+		return result;
+	}
+
+	public void OrderCombatantList()
+	{
+		if (TurnOrderIndex + 1 == TurnOrderCombatantIDs.Count)
+		{
+			// This is the last turn this round, so we don't need to shift anything
+			return;
+		}
+		
+		// We only consider turns after the current one
+		TurnOrderCombatantIDs.RemoveRange(TurnOrderIndex + 1, TurnOrderCombatantIDs.Count - (TurnOrderIndex + 1));
+
+		// For each combatant, store a copy of their faction, index, and agility
+		// stat (just to make sorting easier)
+		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
+		float lowestAgility = -1f;
+		foreach (CombatantController combatant in Combatants)
+		{
+			// Keep track of the lowest true (not halved per turn taken) agility stat
+			if (lowestAgility < 0f || combatant.Agility < lowestAgility)
+			{
+				lowestAgility = combatant.Agility;
+			}
+
+			// Halve their agility stat for each turn taken this round
+			float effectiveAgility = NumTurns[combatant.BattleID] == 0 ? combatant.Agility : combatant.Agility / (2f * NumTurns[combatant.BattleID]);
+
+			factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(combatant.Allegiance, combatant.BattleID, effectiveAgility));
+		}
+
+		// Sort list
+		factionIndexAgilityList.Sort(CompareAgilityIDEntries);
+
+		// Keep halving agilities and assigning turn order until everyone's
+		// turns have been assigned
+		while (factionIndexAgilityList.Count > 0)
+		{
+			// Sort by agility
+			factionIndexAgilityList.Sort(CompareAgilityIDEntries);
+			// Add the highest agility combatant to the turn list
+			var candidate = factionIndexAgilityList[0];
+			// Their effective agility may already be less than the lowest due to turns taken
+			// halving their actual agility
+			if (candidate.Item3 < lowestAgility)
+			{
+				factionIndexAgilityList.RemoveAt(0);
+				continue;
+			}
+			TurnOrderCombatantIDs.Add(Combatants[candidate.Item2].BattleID);
+			// Halve their agility stat
+			factionIndexAgilityList[0] = new Tuple<Allegiance, int, float>(candidate.Item1, candidate.Item2, candidate.Item3 / 2f);
+			// Remove them if their agility has dropped below the lowest
+			if (factionIndexAgilityList[0].Item3 < lowestAgility)
+			{
+				factionIndexAgilityList.RemoveAt(0);
+			}
+		}
+	}
+
 	/// <summary>
 	/// Set the initial turn order for the combatants in this battle. Details of how
 	/// this is calculated can be found in the GDD.
@@ -614,7 +710,7 @@ public class BattleController : MonoBehaviour
 		}
 
 		// Sort list by agility descending
-		factionIndexAgilityList.Sort((x, y) => y.Item3.CompareTo(x.Item3));
+		factionIndexAgilityList.Sort(CompareAgilityIDEntries);
 
 		// Find the lowest agility in this battle
 		float lowestAgility = factionIndexAgilityList[factionIndexAgilityList.Count - 1].Item3;
@@ -624,7 +720,7 @@ public class BattleController : MonoBehaviour
 		while (factionIndexAgilityList.Count > 0)
 		{
 			// Sort by agility
-			factionIndexAgilityList.Sort((x, y) => y.Item3.CompareTo(x.Item3));
+			factionIndexAgilityList.Sort(CompareAgilityIDEntries);
 			// Add the highest agility combatant to the turn list
 			var candidate = factionIndexAgilityList[0];
 			TurnOrderCombatantIDs.Add(Combatants[candidate.Item2].BattleID);
@@ -640,6 +736,7 @@ public class BattleController : MonoBehaviour
 
 	public void ChangeTurnOrder()
 	{
+		Debug.Log("Reordering - previously was " + String.Join(", ", TurnOrderCombatantIDs));
 		TurnOrderCombatantIDs = new List<int>();
 		TurnOrderIndex = 0;
 
@@ -690,6 +787,8 @@ public class BattleController : MonoBehaviour
 				factionIndexAgilityList.RemoveAt(0);
 			}
 		}
+
+		Debug.Log("Done! - now " + String.Join(", ", TurnOrderCombatantIDs));
 	}
 
 	/// <summary>
