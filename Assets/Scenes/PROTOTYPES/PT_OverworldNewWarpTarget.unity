@@ -706,6 +706,7 @@ MonoBehaviour:
   spawnCell: {x: 0, y: 0}
   tilemapCollider: {fileID: 166587732}
   triggerMapper: {fileID: 125004411}
+  levelChanger: {fileID: 235720414}
 --- !u!212 &281886830
 SpriteRenderer:
   m_ObjectHideFlags: 0
