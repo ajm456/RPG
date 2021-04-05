@@ -11,4 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PROTOTYPES/PT_MainMenu.unity
     guid: f616737b89b83f443868cebee08b6274
+  - enabled: 1
+    path: Assets/Scenes/PROTOTYPES/PT_OverworldNewWarpTarget.unity
+    guid: 6e825f3c313df4d47a711869fda5fa7a
+  - enabled: 1
+    path: Assets/Scenes/PROTOTYPES/PT_OverworldNew.unity
+    guid: 8415b294a6efad94aaad11c011586e9e
   m_configObjects: {}

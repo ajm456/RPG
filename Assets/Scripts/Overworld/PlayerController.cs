@@ -48,6 +48,9 @@ public class PlayerController : MonoBehaviour
 	[SerializeField]
 	private TileTriggerMapper triggerMapper;
 
+	[SerializeField]
+	private LevelChanger levelChanger;
+
 
 	/// <summary>
 	/// The offset from grid line intersection points the player occupies.
@@ -87,7 +90,7 @@ public class PlayerController : MonoBehaviour
 
 	void Update()
 	{
-		if (state == MovementState.IDLE)
+		if (state == MovementState.IDLE && !levelChanger.InputLocked)
 		{
 			float hInput = Input.GetAxisRaw("Horizontal");
 			float vInput = Input.GetAxisRaw("Vertical");
@@ -141,7 +144,7 @@ public class PlayerController : MonoBehaviour
 				}
 			}
 		}
-		else
+		else if (state != MovementState.IDLE)
 		{
 			// We're currently in a MOVING_... state, so move the sprite
 			Vector3 vel;
