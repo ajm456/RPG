@@ -42,6 +42,12 @@ public class PlayerController : MonoBehaviour
 	[SerializeField]
 	private TilemapCollider2D tilemapCollider;
 
+	/// <summary>
+	/// The cell trigger map for this scene.
+	/// </summary>
+	[SerializeField]
+	private TileTriggerMapper triggerMapper;
+
 
 	/// <summary>
 	/// The offset from grid line intersection points the player occupies.
@@ -168,6 +174,8 @@ public class PlayerController : MonoBehaviour
 				transform.position = movementTarget;
 				cellPos = grid.WorldToCell(transform.position);
 				state = MovementState.IDLE;
+				// If this cell is a trigger, execute it
+				triggerMapper.DoTriggerForCell(cellPos.x, cellPos.y);
 			}
 		}
 	}
