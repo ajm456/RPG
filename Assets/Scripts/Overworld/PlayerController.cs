@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -6,15 +7,36 @@ using UnityEngine.Tilemaps;
 public class PlayerController : MonoBehaviour
 {
 	/// <summary>
+	/// Bitmask to simplify storing inputs.
+	/// </summary>
+	[Flags]
+	private enum InputDir
+	{
+		NONE = 0,
+		LEFT = 1,
+		RIGHT = 2,
+		UP = 4,
+		DOWN = 8
+	}
+
+	/// <summary>
 	/// Represents the current movement state the player sprite is in.
 	/// </summary>
-	private enum MovementState
+	private enum PlayerState
 	{
 		IDLE,
-		MOVING_LEFT,
-		MOVING_RIGHT,
-		MOVING_UP,
-		MOVING_DOWN
+		MOVING
+	}
+
+	/// <summary>
+	/// Represents the direction the player is currently facing.
+	/// </summary>
+	private enum PlayerDirection
+	{
+		UP,
+		DOWN,
+		LEFT,
+		RIGHT
 	}
 
 
@@ -29,6 +51,13 @@ public class PlayerController : MonoBehaviour
 	/// </summary>
 	[SerializeField]
 	private float speed;
+
+	/// <summary>
+	/// How long should the player have to hold down a movement button before
+	/// they start moving (as opposed to simply facing the direction).
+	/// </summary>
+	[SerializeField]
+	private int moveFrameDelay;
 
 	/// <summary>
 	/// The x,y of the grid cell the player should spawn in on this scene.
@@ -48,6 +77,9 @@ public class PlayerController : MonoBehaviour
 	[SerializeField]
 	private TileTriggerMapper triggerMapper;
 
+	/// <summary>
+	/// Game object responsible for transitioning between different scenes.
+	/// </summary>
 	[SerializeField]
 	private LevelChanger levelChanger;
 
@@ -76,110 +108,324 @@ public class PlayerController : MonoBehaviour
 	private Vector3 movementOrigin;
 
 	/// <summary>
+	/// The input object from the last frame. Used to see if the player is
+	/// holding down a button.
+	/// </summary>
+	private InputDir lastInput;
+
+	/// <summary>
+	/// Keeps track of for how many frames the player has held the same input.
+	/// </summary>
+	private int sameInputFrameCount;
+
+	/// <summary>
+	/// Flag for when the player sprite arrives at its movement destination.
+	/// </summary>
+	private bool playerArrived;
+
+	/// <summary>
 	/// The current movement state of the player sprite.
 	/// </summary>
-	private MovementState state;
+	private PlayerState state;
+
+	/// <summary>
+	/// The direction the player sprite is currently facing.
+	/// </summary>
+	private PlayerDirection faceDirection;
+
+	/// <summary>
+	/// The component managing the player sprite's animation.
+	/// </summary>
+	private Animator animController;
 
 	private void Start()
 	{
 		cellPos = new Vector3Int(spawnCell.x, spawnCell.y, 0);
 		cellOffset = grid.cellSize / 2f;
 		transform.position = grid.CellToWorld(new Vector3Int(spawnCell.x, spawnCell.y, 0)) + cellOffset;
-		state = MovementState.IDLE;
+		lastInput = InputDir.NONE;
+		sameInputFrameCount = 0;
+		playerArrived = true;
+		state = PlayerState.IDLE;
+		faceDirection = PlayerDirection.DOWN;
+		animController = GetComponent<Animator>();
 	}
 
 	void Update()
 	{
-		if (state == MovementState.IDLE && !levelChanger.InputLocked)
+		// If the player's reached their destination, force them into the idle
+		// state
+		if (playerArrived)
 		{
-			float hInput = Input.GetAxisRaw("Horizontal");
-			float vInput = Input.GetAxisRaw("Vertical");
+			state = PlayerState.IDLE;
+		}
 
-			// Left
-			if (hInput < 0f)
+		InputDir input = InputDir.NONE;
+		if (!levelChanger.InputLocked)
+		{
+			input = GetInputDir();
+		}
+
+		if (state == PlayerState.IDLE)
+		{
+			SetInputTarget(input);
+		}
+		
+		if (state == PlayerState.MOVING)
+		{
+			MovePlayer();
+		}
+
+		ManageAnim();
+	}
+
+	/// <summary>
+	/// Gathers input information from the player and stores it in an InputDir
+	/// object, just to simplify input matters.
+	/// </summary>
+	/// <returns>An InputDir enum object holding the input information for
+	/// this frame.</returns>
+	private InputDir GetInputDir()
+	{
+		float hInput = Input.GetAxisRaw("Horizontal");
+		float vInput = Input.GetAxisRaw("Vertical");
+
+		InputDir input = InputDir.NONE;
+		if (hInput < 0f)
+		{
+			input |= InputDir.LEFT;
+		}
+		else if (hInput > 0f)
+		{
+			input |= InputDir.RIGHT;
+		}
+
+		if (vInput > 0f)
+		{
+			input |= InputDir.UP;
+		}
+		else if (vInput < 0f)
+		{
+			input |= InputDir.DOWN;
+		}
+
+		// Check if the player has been holding down the same buttons for
+		// multiple frames
+		if (input == lastInput)
+		{
+			sameInputFrameCount++;
+		}
+		else
+		{
+			sameInputFrameCount = 0;
+		}
+
+		lastInput = input;
+
+		return input;
+	}
+
+	/// <summary>
+	/// Translates input into an action target such as a movement destination.
+	/// </summary>
+	/// <param name="input">The InpurDir object from the current frame.</param>
+	private void SetInputTarget(InputDir input)
+	{
+		if ((state == PlayerState.IDLE || playerArrived)
+			&& !levelChanger.InputLocked)
+		{
+			// First handle direction change
+			if (input.HasFlag(InputDir.LEFT))
 			{
-				// Check the left-adjacent cell isn't blocked by collider
-				Vector3 potentialMovementTarget = grid.CellToWorld(new Vector3Int(cellPos.x - 1, cellPos.y, cellPos.z)) + cellOffset;
-				if (!tilemapCollider.OverlapPoint(potentialMovementTarget))
-				{
-					state = MovementState.MOVING_LEFT;
-					movementTarget = potentialMovementTarget;
-					movementOrigin = transform.position;
-				}
+				faceDirection = PlayerDirection.LEFT;
 			}
-			// Right
-			else if (hInput > 0f)
+			else if (input.HasFlag(InputDir.RIGHT))
 			{
-				// Check the right-adjacent cell isn't blocked by collider
-				Vector3 potentialMovementTarget = grid.CellToWorld(new Vector3Int(cellPos.x + 1, cellPos.y, cellPos.z)) + cellOffset;
-				if (!tilemapCollider.OverlapPoint(potentialMovementTarget))
-				{
-					state = MovementState.MOVING_RIGHT;
-					movementTarget = potentialMovementTarget;
-					movementOrigin = transform.position;
-				}
+				faceDirection = PlayerDirection.RIGHT;
 			}
-			// Up
-			else if (vInput > 0f)
+			else if (input.HasFlag(InputDir.UP))
 			{
-				// Check the up-adjacent cell isn't blocked by collider
-				Vector3 potentialMovementTarget = grid.CellToWorld(new Vector3Int(cellPos.x, cellPos.y + 1, cellPos.z)) + cellOffset;
-				if (!tilemapCollider.OverlapPoint(potentialMovementTarget))
-				{
-					state = MovementState.MOVING_UP;
-					movementTarget = potentialMovementTarget;
-					movementOrigin = transform.position;
-				}
+				faceDirection = PlayerDirection.UP;
 			}
-			// Down
-			else if (vInput < 0f)
+			else if (input.HasFlag(InputDir.DOWN))
 			{
-				// Check the down-adjacent cell isn't blocked by collider
-				Vector3 potentialMovementTarget = grid.CellToWorld(new Vector3Int(cellPos.x, cellPos.y - 1, cellPos.z)) + cellOffset;
-				if (!tilemapCollider.OverlapPoint(potentialMovementTarget))
+				faceDirection = PlayerDirection.DOWN;
+			}
+
+			// Now work out if we have held a button down long enough to start moving
+			if (sameInputFrameCount >= moveFrameDelay)
+			{
+				Vector3 potentialMovementTarget = transform.position;
+
+				if (input.HasFlag(InputDir.LEFT))
 				{
-					state = MovementState.MOVING_DOWN;
+					potentialMovementTarget = grid.CellToWorld(new Vector3Int(cellPos.x - 1, cellPos.y, cellPos.z)) + cellOffset;
+				}
+				else if (input.HasFlag(InputDir.RIGHT))
+				{
+					potentialMovementTarget = grid.CellToWorld(new Vector3Int(cellPos.x + 1, cellPos.y, cellPos.z)) + cellOffset;
+				}
+				else if (input.HasFlag(InputDir.UP))
+				{
+					potentialMovementTarget = grid.CellToWorld(new Vector3Int(cellPos.x, cellPos.y + 1, cellPos.z)) + cellOffset;
+				}
+				else if (input.HasFlag(InputDir.DOWN))
+				{
+					potentialMovementTarget = grid.CellToWorld(new Vector3Int(cellPos.x, cellPos.y - 1, cellPos.z)) + cellOffset;
+				}
+
+				// Check we're not trying to move into a collidable cell
+				if (!tilemapCollider.OverlapPoint(potentialMovementTarget)
+					&& potentialMovementTarget != transform.position)
+				{
 					movementTarget = potentialMovementTarget;
 					movementOrigin = transform.position;
+					state = PlayerState.MOVING;
+					playerArrived = false;
 				}
 			}
 		}
-		else if (state != MovementState.IDLE)
+	}
+
+	/// <summary>
+	/// Moves the player sprite to its target destination.
+	/// </summary>
+	private void MovePlayer()
+	{
+		// Move towards the target
+		Vector3 vel = Vector3.Normalize(movementTarget - transform.position) * speed;
+
+		transform.position += vel * Time.deltaTime;
+		
+		// Check if we've arrived at/past our destination
+		if (Vector3.Distance(movementOrigin, transform.position) > Vector3.Distance(movementTarget, movementOrigin))
 		{
-			// We're currently in a MOVING_... state, so move the sprite
-			Vector3 vel;
+			transform.position = movementTarget;
+			cellPos = grid.WorldToCell(transform.position);
+			playerArrived = true;
+		}
+	}
 
-			switch (state)
+	/// <summary>
+	/// Handles managing the player sprite's animation state.
+	/// </summary>
+	private void ManageAnim()
+	{
+		if (state == PlayerState.MOVING)
+		{
+			switch (faceDirection)
 			{
-				case MovementState.MOVING_LEFT:
-					vel = new Vector3(-speed, 0f);
+				case PlayerDirection.UP:
+					ExclusiveSetMoveAnimBool("up");
 					break;
-				case MovementState.MOVING_RIGHT:
-					vel = new Vector3(speed, 0f);
+				case PlayerDirection.DOWN:
+					ExclusiveSetMoveAnimBool("down");
 					break;
-				case MovementState.MOVING_UP:
-					vel = new Vector3(0f, speed);
+				case PlayerDirection.LEFT:
+					ExclusiveSetMoveAnimBool("left");
 					break;
-				case MovementState.MOVING_DOWN:
-					vel = new Vector3(0f, -speed);
-					break;
-				default:
-					vel = new Vector3();
-					Debug.Break();
+				case PlayerDirection.RIGHT:
+					ExclusiveSetMoveAnimBool("right");
 					break;
 			}
-
-			transform.position += vel * Time.deltaTime;
-
-			// Check if we've arrived at/past our destination
-			if (Vector3.Distance(movementOrigin, transform.position) > Vector3.Distance(movementTarget, movementOrigin))
+		}
+		else
+		{
+			switch (faceDirection)
 			{
-				transform.position = movementTarget;
-				cellPos = grid.WorldToCell(transform.position);
-				state = MovementState.IDLE;
-				// If this cell is a trigger, execute it
-				triggerMapper.DoTriggerForCell(cellPos.x, cellPos.y);
+				case PlayerDirection.UP:
+					ExclusiveSetFaceAnimBool("up");
+					break;
+				case PlayerDirection.DOWN:
+					ExclusiveSetFaceAnimBool("down");
+					break;
+				case PlayerDirection.LEFT:
+					ExclusiveSetFaceAnimBool("left");
+					break;
+				case PlayerDirection.RIGHT:
+					ExclusiveSetFaceAnimBool("right");
+					break;
 			}
+		}
+	}
+
+	/// <summary>
+	/// Sets a walk animation flag for the given direction, clearing flags for
+	/// all other directions.
+	/// </summary>
+	/// <param name="dir">The direction of the flag to raise.</param>
+	private void ExclusiveSetMoveAnimBool(string dir)
+	{
+		switch (dir.ToLower())
+		{
+			case "up":
+				animController.SetBool("walking_up", true);
+				animController.SetBool("walking_down", false);
+				animController.SetBool("walking_left", false);
+				animController.SetBool("walking_right", false);
+				break;
+			case "down":
+				animController.SetBool("walking_up", false);
+				animController.SetBool("walking_down", true);
+				animController.SetBool("walking_left", false);
+				animController.SetBool("walking_right", false);
+				break;
+			case "left":
+				animController.SetBool("walking_up", false);
+				animController.SetBool("walking_down", false);
+				animController.SetBool("walking_left", true);
+				animController.SetBool("walking_right", false);
+				break;
+			case "right":
+				animController.SetBool("walking_up", false);
+				animController.SetBool("walking_down", false);
+				animController.SetBool("walking_left", false);
+				animController.SetBool("walking_right", true);
+				break;
+			default:
+				Debug.Log("Unrecognised direction string when setting player walking animation bool");
+				Debug.Break();
+				break;
+		}
+	}
+
+	/// <summary>
+	/// Sets a facing animation flag for the given direction, clearing flags
+	/// for all other directions.
+	/// </summary>
+	/// <param name="dir">The direction of the flag to raise.</param>
+	private void ExclusiveSetFaceAnimBool(string dir)
+	{
+		switch (dir.ToLower())
+		{
+			case "up":
+				animController.SetBool("facing_up", true);
+				animController.SetBool("facing_down", false);
+				animController.SetBool("facing_left", false);
+				animController.SetBool("facing_right", false);
+				break;
+			case "down":
+				animController.SetBool("facing_up", false);
+				animController.SetBool("facing_down", true);
+				animController.SetBool("facing_left", false);
+				animController.SetBool("facing_right", false);
+				break;
+			case "left":
+				animController.SetBool("facing_up", false);
+				animController.SetBool("facing_down", false);
+				animController.SetBool("facing_left", true);
+				animController.SetBool("facing_right", false);
+				break;
+			case "right":
+				animController.SetBool("facing_up", false);
+				animController.SetBool("facing_down", false);
+				animController.SetBool("facing_left", false);
+				animController.SetBool("facing_right", true);
+				break;
+			default:
+				Debug.Log("Unrecognised direction string when setting player facing animation bool");
+				Debug.Break();
+				break;
 		}
 	}
 }

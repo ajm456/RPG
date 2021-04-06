@@ -40,40 +40,40 @@ TextureImporter:
     second: marnie_walk_right_2
   - first:
       213: 8282529167345542559
-    second: marnie_0
+    second: marnie_up_n
   - first:
       213: 5126691877402736780
-    second: marnie_1
+    second: marnie_up_r
   - first:
       213: -6156936212833917168
-    second: marnie_2
+    second: marnie_up_l
   - first:
       213: -2464533007557734305
-    second: marnie_3
+    second: marnie_down_n
   - first:
       213: 1482247686957598955
-    second: marnie_4
+    second: marnie_down_r
   - first:
       213: 8894904849569175520
-    second: marnie_5
+    second: marnie_down_l
   - first:
       213: 5859182586238577907
-    second: marnie_6
+    second: marnie_left_n
   - first:
       213: -8431549506644603333
-    second: marnie_7
+    second: marnie_left_l
   - first:
       213: -2460086106862969747
-    second: marnie_8
+    second: marnie_left_r
   - first:
       213: -3827226252793294224
-    second: marnie_9
+    second: marnie_right_n
   - first:
       213: -8136345703478229962
-    second: marnie_10
+    second: marnie_right_r
   - first:
       213: 7911096407789352538
-    second: marnie_11
+    second: marnie_right_l
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -178,7 +178,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: marnie_0
+      name: marnie_up_n
       rect:
         serializedVersion: 2
         x: 0
@@ -186,7 +186,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -199,7 +199,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: marnie_1
+      name: marnie_up_r
       rect:
         serializedVersion: 2
         x: 27
@@ -207,7 +207,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -220,7 +220,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: marnie_2
+      name: marnie_up_l
       rect:
         serializedVersion: 2
         x: 54
@@ -228,7 +228,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -241,7 +241,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: marnie_3
+      name: marnie_down_n
       rect:
         serializedVersion: 2
         x: 0
@@ -249,7 +249,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -262,7 +262,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: marnie_4
+      name: marnie_down_r
       rect:
         serializedVersion: 2
         x: 27
@@ -270,7 +270,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -283,7 +283,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: marnie_5
+      name: marnie_down_l
       rect:
         serializedVersion: 2
         x: 54
@@ -291,7 +291,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -304,7 +304,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: marnie_6
+      name: marnie_left_n
       rect:
         serializedVersion: 2
         x: 0
@@ -312,7 +312,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -325,7 +325,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: marnie_7
+      name: marnie_left_l
       rect:
         serializedVersion: 2
         x: 27
@@ -333,7 +333,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -346,7 +346,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: marnie_8
+      name: marnie_left_r
       rect:
         serializedVersion: 2
         x: 54
@@ -354,7 +354,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -367,7 +367,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: marnie_9
+      name: marnie_right_n
       rect:
         serializedVersion: 2
         x: 0
@@ -375,7 +375,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -388,7 +388,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: marnie_10
+      name: marnie_right_r
       rect:
         serializedVersion: 2
         x: 27
@@ -396,7 +396,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -409,7 +409,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: marnie_11
+      name: marnie_right_l
       rect:
         serializedVersion: 2
         x: 54
@@ -417,7 +417,7 @@ TextureImporter:
         width: 27
         height: 34
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
