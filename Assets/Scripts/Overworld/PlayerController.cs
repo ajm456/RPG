@@ -108,12 +108,6 @@ public class PlayerController : MonoBehaviour
 	private Vector3 movementOrigin;
 
 	/// <summary>
-	/// The input object from the last frame. Used to see if the player is
-	/// holding down a button.
-	/// </summary>
-	private InputDir lastInput;
-
-	/// <summary>
 	/// Keeps track of for how many frames the player has faced the current
 	/// direction.
 	/// </summary>
