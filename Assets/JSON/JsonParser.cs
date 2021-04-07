@@ -148,8 +148,10 @@ public class JsonParser
 	/// <returns>A list of EnemyData objects for each specified enemy.</returns>
 	public static List<EnemyData> LoadEnemies(List<string> enemyNames)
 	{
+		Dictionary<string, EnemyData> enemyEncyclopedia = new Dictionary<string, EnemyData>();
 		List<EnemyData> enemyList = new List<EnemyData>();
 
+		// Deserialize each unique enemy data file
 		foreach (string filename in Directory.EnumerateFiles(JSON_ENEMIES_ROOT))
 		{
 			// Watch out for Unity-generated .meta files
@@ -165,7 +167,13 @@ public class JsonParser
 
 			string json = File.ReadAllText(filename);
 			EnemyData enemy = new EnemyData(JsonUtility.FromJson<EnemyDataJsonWrapper>(json));
-			enemyList.Add(enemy);
+			enemyEncyclopedia.Add(enemy.name, enemy);
+		}
+
+		// Return enemy data for each name entry
+		foreach (string name in enemyNames)
+		{
+			enemyList.Add(enemyEncyclopedia[name]);
 		}
 
 		return enemyList;
