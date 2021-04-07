@@ -13,6 +13,8 @@ public class JsonParser
 	private const string JSON_ABILITIES_ROOT = "Assets/JSON/abilities/";
 	private const string JSON_HEROES_ROOT = "Assets/JSON/characters/heroes/";
 	private const string JSON_ENEMIES_ROOT = "Assets/JSON/characters/enemies/";
+	private const string JSON_PARTY_ROOT = "Assets/JSON/party/";
+	private const string JSON_PARTY_FILE = "current_party.txt";
 
 
 	public static List<EffectData> LoadAllEffects()
@@ -77,6 +79,17 @@ public class JsonParser
 		}
 
 		return abilityList;
+	}
+
+
+	/// <summary>
+	/// Fetches an ordered list of the current hero party members.
+	/// </summary>
+	/// <returns>An ordered list of strings containing the current party
+	/// members' names.</returns>
+	public static List<string> GetCurrentPartyNames()
+	{
+		return File.ReadLines(JSON_PARTY_ROOT + JSON_PARTY_FILE).ToList();
 	}
 	
 
