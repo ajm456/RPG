@@ -729,7 +729,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grid: {fileID: 582289625}
   speed: 2.5
-  moveFrameDelay: 3
+  moveFrameDelay: 4
   spawnCell: {x: 0, y: 0}
   tilemapCollider: {fileID: 166587732}
   triggerMapper: {fileID: 125004411}
