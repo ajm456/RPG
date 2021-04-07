@@ -223,9 +223,17 @@ public class BattleController : MonoBehaviour
 		State = BattleState.INIT;
 
 		// DEBUG - Set encounter data from inside scene
-		List<string> heroNames = new List<string>() { "jack", "marl", "elise" };
-		List<string> enemyNames = new List<string>() { "frog" };
-		EncounterDataStaticContainer.SetData(new EncounterData(heroNames, enemyNames));
+		if (Application.isEditor)
+		{
+			if (!EncounterDataStaticContainer.IsDataSet())
+			{
+				Debug.Log("Setting dummy data from inside BattleController - did you mean to do this?");
+				List<string> heroNames = new List<string>() { "marl", "jack", "elise" };
+				List<string> enemyNames = new List<string>() { "frog" };
+				EncounterDataStaticContainer.SetData(new EncounterData(heroNames, enemyNames));
+			}
+		}
+		
 		// Grab the encounter data (hopefully it was set before loading this scene)
 		InitEncounterData();
 
