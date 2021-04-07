@@ -138,7 +138,6 @@ public class PlayerController : MonoBehaviour
 		cellPos = new Vector3Int(spawnCell.x, spawnCell.y, 0);
 		cellOffset = grid.cellSize / 2f;
 		transform.position = grid.CellToWorld(new Vector3Int(spawnCell.x, spawnCell.y, 0)) + cellOffset;
-		lastInput = InputDir.NONE;
 		sameDirectionFrameCount = 0;
 		playerArrived = true;
 		state = PlayerState.IDLE;
