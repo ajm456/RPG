@@ -456,6 +456,11 @@ public class BattleController : MonoBehaviour
 		return num;
 	}
 
+	public int GetNumEnemies()
+	{
+		return GetNumCombatants() - GetNumHeroes();
+	}
+
 	/// <summary>
 	/// Fetches the battle ID for the nth hero combatant ordered by how
 	/// they're loaded.
