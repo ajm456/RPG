@@ -326,6 +326,9 @@ public class PlayerController : MonoBehaviour
 			transform.position = movementTarget;
 			cellPos = grid.WorldToCell(transform.position);
 			playerArrived = true;
+
+			// Handle any triggers this cell might have
+			triggerMapper.DoTriggerForCell(cellPos.x, cellPos.y);
 		}
 	}
 
