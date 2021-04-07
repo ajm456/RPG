@@ -66,4 +66,13 @@ public static class EncounterDataStaticContainer
 
 		return retval;
 	}
+
+	/// <summary>
+	/// Returns whether or not data has been set for this encounter.
+	/// </summary>
+	/// <returns></returns>
+	public static bool IsDataSet()
+	{
+		return isSet;
+	}
 }
