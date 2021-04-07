@@ -280,6 +280,10 @@ internal class MenuItem
 }
 
 
+/// <summary>
+/// Class responsible for managing player menu during battles. BattleController
+/// will wait for this class to execute player turns.
+/// </summary>
 public class PlayerMenuController : MonoBehaviour
 {
 	// Prefabs
@@ -294,7 +298,9 @@ public class PlayerMenuController : MonoBehaviour
 	private Menu[] menus = new Menu[2];
 
 
-	// Current cursor position in form [menu,item]
+	/// <summary>
+	/// Current cursor position in form [menu,item].
+	/// </summary>
 	private Vector2Int cursorPos;
 
 	/// <summary>
@@ -308,7 +314,13 @@ public class PlayerMenuController : MonoBehaviour
 	/// </summary>
 	private int currHeroID;
 
-	// Ability list for each hero (calm and strife)
+	/// <summary>
+	/// Ability list for each hero (calm and strife).
+	/// 
+	/// Outermost - list of heroes.
+	/// Middle - list of ability paradigms (calm or strife)
+	/// Innermost - list of abilities
+	/// </summary>
 	private List<List<List<AbilityData>>> heroAbilityLists;
 
 	/// <summary>
