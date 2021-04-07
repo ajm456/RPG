@@ -329,6 +329,11 @@ public class PlayerMenuController : MonoBehaviour
 	private bool selectingTarget;
 
 	/// <summary>
+	/// The ID of the combatant currently being targeted.
+	/// </summary>
+	private int targetID;
+
+	/// <summary>
 	/// AbilityData for the ability selected when a player starts choosing a
 	/// target.
 	/// </summary>
@@ -346,6 +351,7 @@ public class PlayerMenuController : MonoBehaviour
 		battleHeroNames = battleController.GetHeroNames();
 		currHeroID = -1;
 		cursorPos = new Vector2Int(0, 0);
+		targetID = -1;
 	}
 
 
@@ -470,10 +476,78 @@ public class PlayerMenuController : MonoBehaviour
 	{
 		if (selectingTarget)
 		{
-			if (Input.GetKeyDown(KeyCode.Space))
+			if (Input.GetKeyDown(KeyCode.DownArrow))
 			{
+				battleController.UnhighlightCombatant(targetID);
+				if (targetID < battleController.GetNumHeroes())
+				{
+					// We are targeting heroes
+					targetID = (targetID + 1) % battleController.GetNumHeroes();
+				}
+				else
+				{
+					// We are targeting enemies
+					targetID = battleController.GetNumHeroes() + ((targetID - battleController.GetNumHeroes() + 1) % battleController.GetNumEnemies());
+				}
+			}
+			else if (Input.GetKeyDown(KeyCode.UpArrow))
+			{
+				battleController.UnhighlightCombatant(targetID);
+				if (targetID < battleController.GetNumHeroes())
+				{
+					// We are targeting heroes
+					targetID = (battleController.GetNumHeroes() + targetID - 1) % battleController.GetNumHeroes();
+				}
+				else
+				{
+					// We are targeting enemies
+					targetID = battleController.GetNumHeroes() + ((battleController.GetNumEnemies() + targetID - battleController.GetNumHeroes() - 1) % battleController.GetNumEnemies());
+				}
+			}
+			else if (Input.GetKeyDown(KeyCode.LeftArrow))
+			{
+				battleController.UnhighlightCombatant(targetID);
+				if (targetID < battleController.GetNumHeroes())
+				{
+					// We are targeting heroes
+					targetID = (battleController.GetNumCombatants() + targetID - battleController.GetNumHeroes()) % battleController.GetNumCombatants();
+				}
+				else
+				{
+					// We are targeting enemies
+					targetID = (battleController.GetNumCombatants() + targetID - battleController.GetNumEnemies()) % battleController.GetNumCombatants();
+				}
+			}
+			else if (Input.GetKeyDown(KeyCode.RightArrow))
+			{
+				battleController.UnhighlightCombatant(targetID);
+				if (targetID < battleController.GetNumHeroes())
+				{
+					// We are targeting heroes
+					targetID = (targetID + battleController.GetNumHeroes()) % battleController.GetNumCombatants();
+				}
+				else
+				{
+					// We are targeting enemies
+					targetID = (targetID + battleController.GetNumEnemies()) % battleController.GetNumCombatants();
+				}
+			}
+
+			// Set the targeted enemy's sprite color to the hero's color
+			battleController.HighlightCombatant(targetID);
+
+			if (Input.GetKeyDown(KeyCode.Z))
+			{
+				//battleController.ExecuteTurnWithAbility()
 				battleController.ExecuteTurnWithAbilityOnRandomTarget(selectedAbility);
+				selectingTarget = false;
+				battleController.UnhighlightCombatant(targetID);
 				battleController.WaitingOnPlayerTurn = false;
+			}
+			else if (Input.GetKeyDown(KeyCode.X))
+			{
+				battleController.UnhighlightCombatant(targetID);
+				selectingTarget = false;
 			}
 		}
 		else
@@ -494,7 +568,7 @@ public class PlayerMenuController : MonoBehaviour
 					cursorPos.y = (menus[cursorPos.x].NumItems + cursorPos.y - 1) % menus[cursorPos.x].NumItems;
 				} while (!menus[cursorPos.x].IsItemEnabled(cursorPos.y));
 			}
-			else if (Input.GetKeyDown(KeyCode.LeftArrow))
+			else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.X))
 			{
 				// We don't do anything if the cursor is on the root menu
 				if (cursorPos.x == 0)
@@ -504,7 +578,7 @@ public class PlayerMenuController : MonoBehaviour
 				cursorPos.x -= 1;
 				menus[1].SetActive(false);
 			}
-			else if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.RightArrow))
+			else if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.RightArrow))
 			{
 				menus[cursorPos.x].SelectItem(cursorPos.y);
 			}
@@ -579,14 +653,12 @@ public class PlayerMenuController : MonoBehaviour
 				// selects their target
 				selectedAbility = new AbilityData(ability);
 
+				// Initial target for strife abilities is the topmost enemy
+				targetID = battleController.GetNumHeroes();
+
 				// Transition to target selection
 				selectingTarget = true;
-
-				// TODO: Determine which enemy index to cast ability on
-				//battleController.DebugAttack();
-
-				// Let BattleController know turn has finished
-				//battleController.WaitingOnPlayerTurn = false;
+				Debug.Log("Selecting target for ability " + ability.name + "...");
 			})));
 		}
 

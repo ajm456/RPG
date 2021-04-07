@@ -213,6 +213,12 @@ public class BattleController : MonoBehaviour
 		set;
 	}
 
+	private List<SpriteRenderer> CombatantSpriteRenderers
+	{
+		get;
+		set;
+	}
+
 
 
 
@@ -229,7 +235,7 @@ public class BattleController : MonoBehaviour
 			{
 				Debug.Log("Setting dummy data from inside BattleController - did you mean to do this?");
 				List<string> heroNames = new List<string>() { "marl", "jack", "elise" };
-				List<string> enemyNames = new List<string>() { "frog" };
+				List<string> enemyNames = new List<string>() { "frog", "frog" };
 				EncounterDataStaticContainer.SetData(new EncounterData(heroNames, enemyNames));
 			}
 		}
@@ -577,6 +583,9 @@ public class BattleController : MonoBehaviour
 		// Initialise the combatants list
 		Combatants = new List<CombatantController>();
 
+		// Initialise the list of sprite renderers
+		CombatantSpriteRenderers = new List<SpriteRenderer>();
+
 		// Keep track of the assigned IDs
 		int lastAssignedID = 0;
 
@@ -588,6 +597,7 @@ public class BattleController : MonoBehaviour
 		{
 			GameObject newHero = Instantiate(heroPrefab);
 			newHero.transform.localPosition = HERO_SPAWN_POSITIONS[i];
+			CombatantSpriteRenderers.Add(newHero.GetComponent<SpriteRenderer>());
 			HeroController heroController = newHero.GetComponent<HeroController>();
 			heroController.Init(heroes[i], this, lastAssignedID);
 			++lastAssignedID;
@@ -602,6 +612,7 @@ public class BattleController : MonoBehaviour
 		{
 			GameObject newEnemy = Instantiate(enemyPrefab);
 			newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[i];
+			CombatantSpriteRenderers.Add(newEnemy.GetComponent<SpriteRenderer>());
 			EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
 			enemyController.Init(enemies[i], this, lastAssignedID);
 			++lastAssignedID;
@@ -803,6 +814,20 @@ public class BattleController : MonoBehaviour
 		}
 
 		Debug.Log("Done! - now " + String.Join(", ", TurnOrderCombatantIDs));
+	}
+
+	public void HighlightCombatant(int combatantID)
+	{
+		// This should never be called when it's not a player turn
+		Debug.Assert(CurrCombatant.Allegiance == Allegiance.PLAYER);
+
+		Color c = ((HeroController)CurrCombatant).Color;
+		CombatantSpriteRenderers[combatantID].color = c;
+	}
+
+	public void UnhighlightCombatant(int combatantID)
+	{
+		CombatantSpriteRenderers[combatantID].color = Color.white;
 	}
 
 	/// <summary>
