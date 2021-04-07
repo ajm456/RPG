@@ -36,7 +36,13 @@ public class LevelChanger : MonoBehaviour
 	/// <param name="levelName">The name of the scene being loaded.</param>
 	public void LoadNextLevel(string levelName)
 	{
-		StartCoroutine(nameof(FadeOut), levelName);
+		StartCoroutine(FadeOut(Color.black, levelName));
+	}
+
+	public void LoadBattle(EncounterData data)
+	{
+		EncounterDataStaticContainer.SetData(data);
+		StartCoroutine(FadeOut(Color.white, "PT_BattleScene"));
 	}
 
 	/// <summary>
@@ -65,25 +71,30 @@ public class LevelChanger : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Fades in a screen-sized black cover. Used when de-loading the current
-	/// scene. Loads the specified next scene once fading is complete.
+	/// Fades in a screen-sized cover of the given color. Used when de-loading
+	/// the current scene. Loads the specified next scene once fading is
+	/// complete.
 	/// </summary>
+	/// <param name="color">The color being faded to.</param>
 	/// <param name="nextScene">The name of the next scene to be loaded.</param>
 	/// <returns></returns>
-	private IEnumerator FadeOut(string nextScene)
+	private IEnumerator FadeOut(Color color, string nextScene)
 	{
 		InputLocked = true;
-		Color initialColor = fadeable.color;
-		initialColor.a = 1f;
-		fadeable.color = initialColor;
+		color.a = 1f;
+		fadeable.color = color;
 
-		for (float ft = 0f; ft < 1f; ft += 2*Time.deltaTime)
+		for (float ft = 0f; ft <= 1f; ft += 2*Time.deltaTime)
 		{
 			Color c = fadeable.color;
 			c.a = ft;
 			fadeable.color = c;
 			yield return null;
 		}
+
+		Color cf = fadeable.color;
+		cf.a = 1f;
+		fadeable.color = cf;
 
 		SceneManager.LoadSceneAsync(nextScene);
 	}
