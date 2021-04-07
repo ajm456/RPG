@@ -25,7 +25,11 @@ public class PlayerController : MonoBehaviour
 	private enum PlayerState
 	{
 		IDLE,
-		MOVING
+		MOVING,
+		/// <summary>
+		/// Walking into a collidable e.g. wall
+		/// </summary>
+		KABEDON
 	}
 
 	/// <summary>
@@ -269,6 +273,7 @@ public class PlayerController : MonoBehaviour
 			// Prevent any kind of crazy overflow nonsense
 			sameDirectionFrameCount = Mathf.Clamp(sameDirectionFrameCount, 0, 1024);
 
+			// Move if we're able
 			if (sameDirectionFrameCount >= moveFrameDelay || (playerArrived && state == PlayerState.MOVING))
 			{
 				Vector3 potentialMovementTarget = transform.position;
@@ -298,6 +303,12 @@ public class PlayerController : MonoBehaviour
 					movementOrigin = transform.position;
 					state = PlayerState.MOVING;
 					playerArrived = false;
+				}
+				else
+				{
+					// Moving into a collidable should still be animated as
+					// walking on the spot
+					state = PlayerState.KABEDON;
 				}
 			}
 		}
@@ -330,8 +341,18 @@ public class PlayerController : MonoBehaviour
 	/// </summary>
 	private void ManageAnim()
 	{
-		if (state == PlayerState.MOVING)
+		if (state == PlayerState.MOVING || state == PlayerState.KABEDON)
 		{
+			if (state == PlayerState.KABEDON)
+			{
+				// Walking into a wall plays the animation at half speed
+				animController.speed = 0.5f;
+			}
+			else
+			{
+				animController.speed = 1f;
+			}
+
 			switch (faceDirection)
 			{
 				case PlayerDirection.UP:
@@ -348,7 +369,7 @@ public class PlayerController : MonoBehaviour
 					break;
 			}
 		}
-		else
+		else if (state == PlayerState.IDLE)
 		{
 			ClearMoveAnimBools();
 			switch (faceDirection)
