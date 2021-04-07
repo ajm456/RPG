@@ -6,7 +6,7 @@ public struct EncounterData
 	public List<string> heroNames;
 	public List<string> enemyNames;
 
-	public EncounterData(List<string> characterNames, List<string> enemyNames)
+	public EncounterData(List<string> heroNames, List<string> enemyNames)
 	{
 		this.heroNames = characterNames;
 		this.enemyNames = enemyNames;
