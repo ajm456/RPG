@@ -331,6 +331,7 @@ public class PlayerController : MonoBehaviour
 		}
 		else
 		{
+			ClearMoveAnimBools();
 			switch (faceDirection)
 			{
 				case PlayerDirection.UP:
@@ -427,5 +428,13 @@ public class PlayerController : MonoBehaviour
 				Debug.Break();
 				break;
 		}
+	}
+
+	private void ClearMoveAnimBools()
+	{
+		animController.SetBool("walking_up", false);
+		animController.SetBool("walking_down", false);
+		animController.SetBool("walking_left", false);
+		animController.SetBool("walking_right", false);
 	}
 }
