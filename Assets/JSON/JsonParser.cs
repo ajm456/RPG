@@ -87,7 +87,7 @@ public class JsonParser
 	/// <returns>A list of HeroData objects for each specified hero.</returns>
 	public static List<HeroData> LoadHeroes(List<string> heroNames)
 	{
-		List<HeroData> heroList = new List<HeroData>();
+		SortedList<int, HeroData> heroList = new SortedList<int, HeroData>(heroNames.Count);
 
 		foreach (string filename in Directory.EnumerateFiles(JSON_HEROES_ROOT))
 		{
@@ -105,10 +105,26 @@ public class JsonParser
 			string json = File.ReadAllText(filename);
 			HeroDataJsonWrapper wrapper = JsonUtility.FromJson<HeroDataJsonWrapper>(json);
 			HeroData character = new HeroData(JsonUtility.FromJson<HeroDataJsonWrapper>(json));
-			heroList.Add(character);
+
+			// Order correctly
+			bool found = false;
+			for (int i = 0; i < heroNames.Count; i++)
+			{
+				if (character.name.ToLowerInvariant() == heroNames[i].ToLowerInvariant())
+				{
+					heroList.Add(i, character);
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				Debug.Log("When trying to find which position hero " + character.name + " should go in, could not find an entry!");
+				Debug.Break();
+			}
 		}
 
-		return heroList;
+		return heroList.Values.ToList<HeroData>();
 	}
 
 
