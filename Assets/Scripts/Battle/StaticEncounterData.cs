@@ -8,7 +8,18 @@ public struct EncounterData
 
 	public EncounterData(List<string> heroNames, List<string> enemyNames)
 	{
-		this.heroNames = characterNames;
+		this.heroNames = heroNames;
+		this.enemyNames = enemyNames;
+	}
+
+	/// <summary>
+	/// Set the list of enemies for this encounter, using the current party as
+	/// the hero-side combatants.
+	/// </summary>
+	/// <param name="enemyNames">A list of names of the enemies to load.</param>
+	public EncounterData(List<string> enemyNames)
+	{
+		heroNames = JsonParser.GetCurrentPartyNames();
 		this.enemyNames = enemyNames;
 	}
 
