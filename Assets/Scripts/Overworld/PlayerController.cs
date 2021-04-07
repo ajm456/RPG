@@ -114,9 +114,10 @@ public class PlayerController : MonoBehaviour
 	private InputDir lastInput;
 
 	/// <summary>
-	/// Keeps track of for how many frames the player has held the same input.
+	/// Keeps track of for how many frames the player has faced the current
+	/// direction.
 	/// </summary>
-	private int sameInputFrameCount;
+	private int sameDirectionFrameCount;
 
 	/// <summary>
 	/// Flag for when the player sprite arrives at its movement destination.
@@ -144,7 +145,7 @@ public class PlayerController : MonoBehaviour
 		cellOffset = grid.cellSize / 2f;
 		transform.position = grid.CellToWorld(new Vector3Int(spawnCell.x, spawnCell.y, 0)) + cellOffset;
 		lastInput = InputDir.NONE;
-		sameInputFrameCount = 0;
+		sameDirectionFrameCount = 0;
 		playerArrived = true;
 		state = PlayerState.IDLE;
 		faceDirection = PlayerDirection.DOWN;
@@ -153,20 +154,13 @@ public class PlayerController : MonoBehaviour
 
 	void Update()
 	{
-		// If the player's reached their destination, force them into the idle
-		// state
-		if (playerArrived)
-		{
-			state = PlayerState.IDLE;
-		}
-
 		InputDir input = InputDir.NONE;
 		if (!levelChanger.InputLocked)
 		{
 			input = GetInputDir();
 		}
 
-		if (state == PlayerState.IDLE)
+		if (state == PlayerState.IDLE || playerArrived)
 		{
 			SetInputTarget(input);
 		}
@@ -209,19 +203,6 @@ public class PlayerController : MonoBehaviour
 			input |= InputDir.DOWN;
 		}
 
-		// Check if the player has been holding down the same buttons for
-		// multiple frames
-		if (input == lastInput)
-		{
-			sameInputFrameCount++;
-		}
-		else
-		{
-			sameInputFrameCount = 0;
-		}
-
-		lastInput = input;
-
 		return input;
 	}
 
@@ -231,29 +212,71 @@ public class PlayerController : MonoBehaviour
 	/// <param name="input">The InpurDir object from the current frame.</param>
 	private void SetInputTarget(InputDir input)
 	{
+		// If we've arrived at a movement target and no input is being given,
+		// force our state to idle
+		if (playerArrived && input == InputDir.NONE)
+		{
+			state = PlayerState.IDLE;
+			return;
+		}
+
 		if ((state == PlayerState.IDLE || playerArrived)
 			&& !levelChanger.InputLocked)
 		{
-			// First handle direction change
+			// Handle direction change
 			if (input.HasFlag(InputDir.LEFT))
 			{
-				faceDirection = PlayerDirection.LEFT;
+				if (faceDirection == PlayerDirection.LEFT)
+				{
+					sameDirectionFrameCount++;
+				}
+				else
+				{
+					sameDirectionFrameCount = 0;
+					faceDirection = PlayerDirection.LEFT;
+				}
 			}
 			else if (input.HasFlag(InputDir.RIGHT))
 			{
-				faceDirection = PlayerDirection.RIGHT;
+				if (faceDirection == PlayerDirection.RIGHT)
+				{
+					sameDirectionFrameCount++;
+				}
+				else
+				{
+					sameDirectionFrameCount = 0;
+					faceDirection = PlayerDirection.RIGHT;
+				}
 			}
 			else if (input.HasFlag(InputDir.UP))
 			{
-				faceDirection = PlayerDirection.UP;
+				if (faceDirection == PlayerDirection.UP)
+				{
+					sameDirectionFrameCount++;
+				}
+				else
+				{
+					sameDirectionFrameCount = 0;
+					faceDirection = PlayerDirection.UP;
+				}
 			}
 			else if (input.HasFlag(InputDir.DOWN))
 			{
-				faceDirection = PlayerDirection.DOWN;
+				if (faceDirection == PlayerDirection.DOWN)
+				{
+					sameDirectionFrameCount++;
+				}
+				else
+				{
+					sameDirectionFrameCount = 0;
+					faceDirection = PlayerDirection.DOWN;
+				}
 			}
 
-			// Now work out if we have held a button down long enough to start moving
-			if (sameInputFrameCount >= moveFrameDelay)
+			// Prevent any kind of crazy overflow nonsense
+			sameDirectionFrameCount = Mathf.Clamp(sameDirectionFrameCount, 0, 1024);
+
+			if (sameDirectionFrameCount >= moveFrameDelay || (playerArrived && state == PlayerState.MOVING))
 			{
 				Vector3 potentialMovementTarget = transform.position;
 
