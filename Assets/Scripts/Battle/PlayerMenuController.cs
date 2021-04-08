@@ -249,8 +249,7 @@ internal class MenuItem
 	/// <param name="enabled">Whether to enable or disable this menu item.</param>
 	internal void SetEnabled(bool enabled)
 	{
-		if (!enabled)
-			textMeshPro.alpha = 0.3f;
+		textMeshPro.alpha = enabled ? 1f : 0.3f;
 
 		this.enabled = enabled;
 	}
@@ -386,14 +385,8 @@ public class PlayerMenuController : MonoBehaviour
 				menus[1].SetActive(false);
 
 				// Disable menu items if we need to
-				if (battleController.CurrCombatantStrifeAbilities.Count == 0)
-				{
-					menus[0].SetItemEnabled(1, false);
-				}
-				if (battleController.CurrCombatantCalmAbilities.Count == 0)
-				{
-					menus[0].SetItemEnabled(2, false);
-				}
+				menus[0].SetItemEnabled(1, battleController.CurrCombatantStrifeAbilities.Count > 0);
+				menus[0].SetItemEnabled(2, battleController.CurrCombatantCalmAbilities.Count > 0);
 
 				// Since the hero's changed, the color of the highlighted menu item will change too
 				if (cursorPos.x == 0)
