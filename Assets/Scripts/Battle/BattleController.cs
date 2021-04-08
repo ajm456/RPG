@@ -280,7 +280,7 @@ public class BattleController : MonoBehaviour
 		{
 			NumTurns[CurrCombatantID] += 1;
 			IncrementedTurnCounterThisTurn = true;
-			Debug.Log(CurrCombatant.Name + "'s turn!");
+			Debug.Log(CurrCombatant.Name + "[" + CurrCombatantID + "]'s turn!");
 		}
 
 		if (CurrCombatant.Allegiance == Allegiance.ENEMY)
