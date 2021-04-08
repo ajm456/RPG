@@ -538,8 +538,7 @@ public class PlayerMenuController : MonoBehaviour
 
 			if (Input.GetKeyDown(KeyCode.Z))
 			{
-				//battleController.ExecuteTurnWithAbility()
-				battleController.ExecuteTurnWithAbilityOnRandomTarget(selectedAbility);
+				battleController.ExecuteTurnWithAbility(selectedAbility, battleController.CurrCombatantID, targetID);
 				selectingTarget = false;
 				battleController.UnhighlightCombatant(targetID);
 				battleController.WaitingOnPlayerTurn = false;

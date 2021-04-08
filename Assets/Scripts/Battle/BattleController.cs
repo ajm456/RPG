@@ -364,6 +364,14 @@ public class BattleController : MonoBehaviour
 		DoAttack(Combatants[sourceID], Combatants[targetID]);
 	}
 
+
+	public void ExecuteTurnWithAbility(AbilityData ability, int sourceID, int targetID)
+	{
+		// Try and execute the ability
+		DoAbility(ability, Combatants[sourceID], Combatants[targetID]);
+	}
+
+
 	/// <summary>
 	/// Executes a turn for the current combatant with the given ability.
 	/// </summary>
