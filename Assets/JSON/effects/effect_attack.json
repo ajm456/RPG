@@ -1,0 +1,7 @@
+{
+    "name" : "Attack",
+    "stat" : "HP",
+    "amount" : -1,
+    "strengthScaling" : 1,
+    "canCrit" : true
+}
