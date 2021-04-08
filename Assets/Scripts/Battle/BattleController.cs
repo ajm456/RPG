@@ -354,8 +354,9 @@ public class BattleController : MonoBehaviour
 		}
 	}
 
+
 	/// <summary>
-	/// Executes a turn from a give combatant by attacking a given target.
+	/// Executes a turn from a given combatant by attacking a given target.
 	/// </summary>
 	/// <param name="source">The combatant taking the turn.</param>
 	/// <param name="target">The combatant being attacked.</param>
