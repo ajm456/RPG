@@ -213,6 +213,10 @@ public class BattleController : MonoBehaviour
 		set;
 	}
 
+	/// <summary>
+	/// A list of SpriteRenderer objects for each combatant in this battle,
+	/// ordered by their ID.
+	/// </summary>
 	private List<SpriteRenderer> CombatantSpriteRenderers
 	{
 		get;
