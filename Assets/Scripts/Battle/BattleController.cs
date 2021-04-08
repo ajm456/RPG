@@ -364,7 +364,7 @@ public class BattleController : MonoBehaviour
 		// Check that it really is the turn of the combatant executing this turn
 		if (!VerifyCombatantTurn(sourceID))
 		{
-			Debug.Log("Someone tried to execute a turn when it wasn't their turn!");
+			Debug.Log("Someone tried to use an attack when it wasn't their turn!");
 			Debug.Break();
 			return;
 		}
@@ -376,6 +376,14 @@ public class BattleController : MonoBehaviour
 
 	public void ExecuteTurnWithAbility(AbilityData ability, int sourceID, int targetID)
 	{
+		// Check that it really is the turn of the combatant executing this turn
+		if (!VerifyCombatantTurn(sourceID))
+		{
+			Debug.Log("Someone tried to use an ability when it wasn't their turn!");
+			Debug.Break();
+			return;
+		}
+
 		// Try and execute the ability
 		DoAbility(ability, Combatants[sourceID], Combatants[targetID]);
 	}
