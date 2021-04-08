@@ -147,6 +147,7 @@ public abstract class CombatantController : MonoBehaviour
 	/// <param name="caster">The CombatantController object applying the aura.</param>
 	public void AddAura(AuraData aura, CombatantController caster)
 	{
+		Debug.Log("Adding aura " + aura.name + " to combatant " + Name + "[" + BattleID + "]");
 		ActiveAuraCasterPairs.Add(new KeyValuePair<CombatantController, AuraData>(caster, aura));
 	}
 
@@ -156,14 +157,14 @@ public abstract class CombatantController : MonoBehaviour
 	/// </summary>
 	public void ResolveAuras()
 	{
-		Debug.Log("Resolving combatant " + Name + "'s auras");
+		Debug.Log("Resolving combatant " + Name + "[" + BattleID + "]'s auras");
 
 		// Remove all expired auras
 		for (var i = ActiveAuraCasterPairs.Count - 1; i >= 0; --i)
 		{
 			if (ActiveAuraCasterPairs[i].Value.effectTurnIndex >= ActiveAuraCasterPairs[i].Value.effects.Count)
 			{
-				Debug.Log("Removing expired aura " + ActiveAuraCasterPairs[i].Value.name + " from combatant " + Name);
+				Debug.Log("Removing expired aura " + ActiveAuraCasterPairs[i].Value.name + " from combatant " + Name + "[" + BattleID + "]");
 
 				ActiveAuraCasterPairs.RemoveAt(i);
 			}
@@ -173,6 +174,7 @@ public abstract class CombatantController : MonoBehaviour
 		foreach (var pair in ActiveAuraCasterPairs)
 		{
 			EffectData effect = pair.Value.effects[pair.Value.effectTurnIndex];
+			Debug.Log("From aura " + pair.Value.name + "...");
 			ApplyEffect(effect, pair.Key);
 			pair.Value.effectTurnIndex += 1;
 		}
@@ -180,7 +182,7 @@ public abstract class CombatantController : MonoBehaviour
 
 	public void ApplyEffect(EffectData effect, CombatantController source)
 	{
-		Debug.Log("Applying effect " + effect.name + " to combatant " + Name);
+		Debug.Log("Applying effect " + effect.name + " to combatant " + Name + "[" + BattleID + "]");
 
 		string statStr = effect.stat.ToLowerInvariant();
 		if (statStr == "hp")
@@ -215,6 +217,15 @@ public abstract class CombatantController : MonoBehaviour
 			
 			// Apply the effect
 			HP += magnitude;
+			if (magnitude <= 0)
+			{
+				Debug.Log(Name + "[" + BattleID + "] took " + magnitude + " damage from " + effect.name);
+			}
+			else
+			{
+				Debug.Log(Name + "[" + BattleID + "] was healed by " + magnitude + " from " + effect.name);
+			}
+			Debug.Log("It now has HP " + HP + "/" + MaxHP);
 		}
 		else if (statStr == "agility")
 		{
