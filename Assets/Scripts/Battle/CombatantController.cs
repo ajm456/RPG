@@ -219,7 +219,7 @@ public abstract class CombatantController : MonoBehaviour
 			HP += magnitude;
 			if (magnitude <= 0)
 			{
-				Debug.Log(Name + "[" + BattleID + "] took " + magnitude + " damage from " + effect.name);
+				Debug.Log(Name + "[" + BattleID + "] took " + (-magnitude) + " damage from " + effect.name);
 			}
 			else
 			{
