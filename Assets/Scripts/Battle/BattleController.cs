@@ -375,6 +375,13 @@ public class BattleController : MonoBehaviour
 	}
 
 
+	/// <summary>
+	/// Executes a turn from a given combatant by using a given ability on a
+	/// given target.
+	/// </summary>
+	/// <param name="ability">The AbilityData object of the ability being used.</param>
+	/// <param name="sourceID">The combatant taking the turn.</param>
+	/// <param name="targetID">The combatant targeted by the ability.</param>
 	public void ExecuteTurnWithAbility(AbilityData ability, int sourceID, int targetID)
 	{
 		// Check that it really is the turn of the combatant executing this turn
