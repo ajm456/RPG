@@ -63,9 +63,13 @@ public class HeroData
 			if (wrapper.abilityNames.Contains(ability.name))
 			{
 				if (ability.isCalm)
+				{
 					calmAbilities.Add(ability);
+				}
 				else
+				{
 					strifeAbilities.Add(ability);
+				}
 			}
 		}
 	}

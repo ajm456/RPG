@@ -138,7 +138,7 @@ public class JsonParser
 			}
 		}
 
-		return heroList.Values.ToList<HeroData>();
+		return heroList.Values.ToList();
 	}
 
 
