@@ -1,0 +1,7 @@
+{
+    "name" : "Heal Minor",
+    "stat" : "HP",
+    "amount" : 10,
+    "strengthScaling" : 0.5,
+    "canCrit" : true
+}
