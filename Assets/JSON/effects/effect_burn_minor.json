@@ -1,7 +1,7 @@
 {
     "name" : "Burn Minor",
     "stat" : "HP",
-    "amount" : 8,
+    "amount" : -8,
     "strengthScaling" : 0.2,
     "canCrit" : true
 }
