@@ -13,7 +13,7 @@ public class HeroController : CombatantController
 		get;
 		set;
 	}
-	public int Discord
+	public int Strife
 	{
 		get;
 		set;
@@ -30,9 +30,9 @@ public class HeroController : CombatantController
 		Strength = data.strength;
 		Agility = data.agility;
 		CalmAbilities = data.calmAbilities;
-		StrifeAbilities = data.discordAbilities;
+		StrifeAbilities = data.strifeAbilities;
 		Calm = data.calm;
-		Discord = data.discord;
+		Strife = data.strife;
 		this.battleController = battleController;
 		AnimState = AnimationState.IDLE;
 		ActiveAuraCasterPairs = new List<KeyValuePair<CombatantController, AuraData>>();

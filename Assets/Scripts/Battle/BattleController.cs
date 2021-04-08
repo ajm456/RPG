@@ -589,7 +589,7 @@ public class BattleController : MonoBehaviour
 
 			// Calm abilities
 			List<AbilityData> calmAbilities = combatant.CalmAbilities;
-			// Discord abilities
+			// Strife abilities
 			List<AbilityData> strifeAbilities = combatant.StrifeAbilities;
 			// Group em up
 			List<List<AbilityData>> allAbilities = new List<List<AbilityData>> {

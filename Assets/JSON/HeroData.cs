@@ -11,10 +11,10 @@ public class HeroDataJsonWrapper
 {
 	public string name;
 	public List<int> color;
-	public int hp, maxHp, strength, agility, calm, discord;
+	public int hp, maxHp, strength, agility, calm, strife;
 	public List<string> abilityNames;
 
-	public HeroDataJsonWrapper(string name, List<int> color, int hp, int maxHp, int strength, int agility, int calm, int discord, List<string> abilityNames)
+	public HeroDataJsonWrapper(string name, List<int> color, int hp, int maxHp, int strength, int agility, int calm, int strife, List<string> abilityNames)
 	{
 		this.name = name;
 		this.color = color;
@@ -23,7 +23,7 @@ public class HeroDataJsonWrapper
 		this.strength = strength;
 		this.agility = agility;
 		this.calm = calm;
-		this.discord = discord;
+		this.strife = strife;
 		this.abilityNames = abilityNames;
 	}
 }
@@ -41,8 +41,8 @@ public class HeroData
 
 	public string name;
 	public Color color;
-	public int hp, maxHp, strength, agility, calm, discord;
-	public List<AbilityData> calmAbilities, discordAbilities;
+	public int hp, maxHp, strength, agility, calm, strife;
+	public List<AbilityData> calmAbilities, strifeAbilities;
 
 	public HeroData(HeroDataJsonWrapper wrapper)
 	{
@@ -53,11 +53,11 @@ public class HeroData
 		strength = wrapper.strength;
 		agility = wrapper.agility;
 		calm = wrapper.calm;
-		discord = wrapper.discord;
+		strife = wrapper.strife;
 
 		// Filter to find this hero's abilities
 		calmAbilities = new List<AbilityData>();
-		discordAbilities = new List<AbilityData>();
+		strifeAbilities = new List<AbilityData>();
 		foreach (AbilityData ability in allAbilities)
 		{
 			if (wrapper.abilityNames.Contains(ability.name))
@@ -65,7 +65,7 @@ public class HeroData
 				if (ability.isCalm)
 					calmAbilities.Add(ability);
 				else
-					discordAbilities.Add(ability);
+					strifeAbilities.Add(ability);
 			}
 		}
 	}

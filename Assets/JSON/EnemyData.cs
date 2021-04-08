@@ -33,7 +33,7 @@ public class EnemyData
 
 	public string name;
 	public int maxHp, strength, agility, behaviourIndex;
-	public List<AbilityData> calmAbilities, discordAbilities;
+	public List<AbilityData> calmAbilities, strifeAbilities;
 
 	public EnemyData(EnemyDataJsonWrapper wrapper)
 	{
@@ -45,7 +45,7 @@ public class EnemyData
 
 		// Filter to find this character's abilities
 		calmAbilities = new List<AbilityData>();
-		discordAbilities = new List<AbilityData>();
+		strifeAbilities = new List<AbilityData>();
 		foreach (AbilityData ability in allAbilities)
 		{
 			if (wrapper.abilityNames.Contains(ability.name))
@@ -53,7 +53,7 @@ public class EnemyData
 				if (ability.isCalm)
 					calmAbilities.Add(ability);
 				else
-					discordAbilities.Add(ability);
+					strifeAbilities.Add(ability);
 			}
 		}
 	}

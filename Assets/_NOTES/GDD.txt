@@ -232,7 +232,7 @@ UI:
 		- Attack
 		- Calm
 			- Opens a list of Calm abilities
-		- Discord
-			- Opens a list of Discord abilities
+		- Strife
+			- Opens a list of Strife abilities
 		- Guard
 			- <???>

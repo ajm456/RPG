@@ -103,7 +103,7 @@ public abstract class CombatantController : MonoBehaviour
 		set;
 	}
 	/// <summary>
-	/// All Discord abilities this combatant can use.
+	/// All Strife abilities this combatant can use.
 	/// </summary>
 	public List<AbilityData> StrifeAbilities
 	{
