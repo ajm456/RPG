@@ -223,6 +223,11 @@ public class BattleController : MonoBehaviour
 		set;
 	}
 
+	/// <summary>
+	/// The universal effect applied whenever a combatant uses attack.
+	/// </summary>
+	private EffectData attackEffect;
+
 
 
 
@@ -588,6 +593,8 @@ public class BattleController : MonoBehaviour
 	private void InitEncounterData()
 	{
 		data = EncounterDataStaticContainer.GetData();
+		// Pre-load the attack effect data
+		attackEffect = JsonParser.LoadAttackEffect();
 	}
 
 	private void SetupCombatants()
@@ -877,14 +884,8 @@ public class BattleController : MonoBehaviour
 	/// <param name="target">The combatant being attacked.</param>
 	private void DoAttack(CombatantController source, CombatantController target)
 	{
-		// Determine the damage of this attack
-		int damageMedian = source.Strength*3;
-		int damage = Random.Range((int)(damageMedian*0.75f), (int)(damageMedian*1.25f));
-		
-		// Deal the damage
-		target.HP -= damage;
-		target.HP = Mathf.Clamp(target.HP, 0, target.MaxHP);
-		Debug.Log(source.Name + " did " + damage + " damage to " + target.Name);
+		// Simply apply the attack effect
+		target.ApplyEffect(attackEffect, source);
 	}
 
 
