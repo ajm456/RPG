@@ -334,7 +334,8 @@ public class PlayerMenuController : MonoBehaviour
 
 	/// <summary>
 	/// AbilityData for the ability selected when a player starts choosing a
-	/// target.
+	/// target. Null selectedAbility indicates that a universal attack is being
+	/// executed.
 	/// </summary>
 	private AbilityData selectedAbility;
 
@@ -531,7 +532,16 @@ public class PlayerMenuController : MonoBehaviour
 
 			if (Input.GetKeyDown(KeyCode.Z))
 			{
-				battleController.ExecuteTurnWithAbility(selectedAbility, battleController.CurrCombatantID, targetID);
+				if (selectedAbility == null)
+				{
+					// Null selectedAbility implies we are doing an attack command
+					battleController.ExecuteTurnWithAttack(battleController.CurrCombatantID, targetID);
+				}
+				else
+				{
+					battleController.ExecuteTurnWithAbility(selectedAbility, battleController.CurrCombatantID, targetID);
+				}
+				
 				selectingTarget = false;
 				battleController.UnhighlightCombatant(targetID);
 				battleController.WaitingOnPlayerTurn = false;
@@ -614,12 +624,16 @@ public class PlayerMenuController : MonoBehaviour
 	/// </summary>
 	private void OnSelectAttack()
 	{
-		// TODO: Determine which enemy index to attack
-		battleController.DebugAttack();
-		//battleController.ExecuteTurnWithAttack(battleController.HeroCombatants[currHeroIndex], battleController.EnemyCombatants[0]);
+		// Set selectedAbility to null to indicate we are targeting with an
+		// attack, not an ability
+		selectedAbility = null;
 
-		// Let BattleController know we've finished taking our turn
-		battleController.WaitingOnPlayerTurn = false;
+		// Initial target for attacks is the topmost enemy
+		targetID = battleController.GetNumHeroes();
+
+		// Transition to target selection
+		selectingTarget = true;
+		Debug.Log("Selecting target for attack");
 	}
 
 
@@ -681,7 +695,16 @@ public class PlayerMenuController : MonoBehaviour
 			AbilityData ability = heroAbilityLists[currHeroID][0][i];
 			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
 			{
-				Debug.Log(ability.name);
+				// Store the selected ability to be cast when the player
+				// selects their target
+				selectedAbility = new AbilityData(ability);
+
+				// Initial target for strife abilities is the topmost enemy
+				targetID = 0;
+
+				// Transition to target selection
+				selectingTarget = true;
+				Debug.Log("Selecting target for ability " + ability.name + "...");
 			})));
 		}
 
