@@ -280,6 +280,8 @@ public class BattleController : MonoBehaviour
 		// Resolve all auras affecting the current combatant
 		if (!ResolvedAurasThisTurn)
 		{
+			Debug.Log("~~~~~~~~~~~");
+			Debug.Log(CurrCombatant.Name + "[" + CurrCombatantID + "]'s turn!");
 			CurrCombatant.ResolveAuras();
 			ResolvedAurasThisTurn = true;
 		}
@@ -289,7 +291,6 @@ public class BattleController : MonoBehaviour
 		{
 			NumTurns[CurrCombatantID] += 1;
 			IncrementedTurnCounterThisTurn = true;
-			Debug.Log(CurrCombatant.Name + "[" + CurrCombatantID + "]'s turn!");
 		}
 
 		if (CurrCombatant.Allegiance == Allegiance.ENEMY)
