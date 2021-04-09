@@ -53,6 +53,7 @@ public class BattleController : MonoBehaviour
 	/* MEMBERS */
 
 	[SerializeField] private GameObject heroPrefab, enemyPrefab;
+	[SerializeField] private List<string> debugHeroNames, debugEnemyNames;
 
 	/// <summary>
 	/// Current state of the battle.
@@ -243,9 +244,7 @@ public class BattleController : MonoBehaviour
 			if (!EncounterDataStaticContainer.IsDataSet())
 			{
 				Debug.Log("Setting dummy data from inside BattleController - did you mean to do this?");
-				List<string> heroNames = new List<string>() { "marl", "jack", "elise" };
-				List<string> enemyNames = new List<string>() { "frog", "frog" };
-				EncounterDataStaticContainer.SetData(new EncounterData(heroNames, enemyNames));
+				EncounterDataStaticContainer.SetData(new EncounterData(debugHeroNames, debugEnemyNames));
 			}
 		}
 		

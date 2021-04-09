@@ -583,6 +583,11 @@ MonoBehaviour:
     type: 3}
   enemyPrefab: {fileID: 2816715638143158512, guid: 4aef2a78bb75930428389d3567a645d0,
     type: 3}
+  debugHeroNames:
+  - marl
+  debugEnemyNames:
+  - frog
+  - frog
 --- !u!4 &2099869146
 Transform:
   m_ObjectHideFlags: 0
