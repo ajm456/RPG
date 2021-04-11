@@ -9,7 +9,9 @@ using UnityEngine;
 internal class Menu
 {
 	// The local distance between each menu item
-	private static readonly float ITEM_MARGIN = 10f;
+	internal static readonly float ITEM_MARGIN = 10f;
+	internal static readonly float MENU_MARGIN = 8f;
+	internal static readonly float MENU_H_PADDING = 15f;
 
 	private GameObject menu;
 	private List<MenuItem> items;
@@ -53,7 +55,7 @@ internal class Menu
 	internal void AddMenuItem(MenuItem item)
 	{
 		// Position it underneath all other menu items
-		item.transform.localPosition -= new Vector3(0f, items.Count * (item.rectTransform.sizeDelta.y + ITEM_MARGIN));
+		item.transform.localPosition += new Vector3(MENU_H_PADDING, items.Count * -(item.rectTransform.sizeDelta.y + ITEM_MARGIN));
 		items.Add(item);
 	}
 
@@ -294,18 +296,13 @@ public class PlayerMenuController : MonoBehaviour
 
 
 	// Root player menu that moves between heroes
-	private Menu[] menus = new Menu[2];
+	private readonly Menu[] menus = new Menu[2];
 
 
 	/// <summary>
 	/// Current cursor position in form [menu,item].
 	/// </summary>
 	private Vector2Int cursorPos;
-
-	/// <summary>
-	/// A list of names of all the heroes participating in this battle.
-	/// </summary>
-	private List<string> battleHeroNames;
 
 	/// <summary>
 	/// The ID of the hero combatant the menu is currently attached to (this
@@ -348,7 +345,6 @@ public class PlayerMenuController : MonoBehaviour
 		InitialiseHeroAbilityLists();
 		InitialiseRootMenu();
 		InitialiseExtraMenu();
-		battleHeroNames = battleController.GetHeroNames();
 		currHeroID = -1;
 		cursorPos = new Vector2Int(0, 0);
 		targetID = -1;
@@ -368,6 +364,7 @@ public class PlayerMenuController : MonoBehaviour
 			{
 				currHeroID = battleController.CurrCombatantID;
 
+				// Move the menu
 				menus[0].Transform.position = battleController.GetCombatantTransform(currHeroID).position;
 				menus[0].RectTransform.localPosition += new Vector3(menus[0].RectTransform.sizeDelta.x * 0.8f, 0f);
 
@@ -380,7 +377,7 @@ public class PlayerMenuController : MonoBehaviour
 
 				// Reposition the extra menu
 				menus[1].Transform.position = menus[0].Transform.position;
-				menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].RectTransform.sizeDelta.x, 0f);
+				menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].RectTransform.sizeDelta.x + Menu.MENU_MARGIN, 0f);
 
 				// Hide the extra menu
 				menus[1].SetActive(false);
@@ -421,10 +418,6 @@ public class PlayerMenuController : MonoBehaviour
 		GameObject rootMenuObj = Instantiate(menuPrefab, gameUI.transform);
 		menus[0] = new Menu(rootMenuObj);
 
-		// Position it
-		//menus[0].Transform.position = battleController.HeroCombatants[battleController.HeroTurnIndex].transform.position;
-		//menus[0].RectTransform.localPosition += new Vector3(menus[0].RectTransform.sizeDelta.x * 0.8f, 0f);
-
 		// Populate it with root level menu items
 		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "ATTACK", new Action(OnSelectAttack)));
 		menus[0].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[0].Transform), "STRIFE", new Action(OnSelectStrife)));
@@ -447,7 +440,10 @@ public class PlayerMenuController : MonoBehaviour
 
 		// Position it
 		menus[1].Transform.position = menus[0].Transform.position;
-		menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].RectTransform.sizeDelta.x, 0f);
+		menus[1].Transform.localPosition = menus[0].Transform.localPosition + new Vector3(menus[0].RectTransform.sizeDelta.x + Menu.MENU_MARGIN, 0f);
+
+		// Double the width
+		menus[1].RectTransform.sizeDelta += new Vector2(menus[1].RectTransform.sizeDelta.x, 0f);
 
 		// For now, hide the menu
 		menus[1].SetActive(false);
@@ -504,12 +500,12 @@ public class PlayerMenuController : MonoBehaviour
 				if (targetID < battleController.GetNumHeroes())
 				{
 					// We are targeting heroes
-					targetID = (battleController.GetNumCombatants() + targetID - battleController.GetNumHeroes()) % battleController.GetNumCombatants();
+					targetID = Mathf.Min(targetID + battleController.GetNumHeroes(), battleController.GetNumCombatants() - 1);
 				}
 				else
 				{
 					// We are targeting enemies
-					targetID = (battleController.GetNumCombatants() + targetID - battleController.GetNumEnemies()) % battleController.GetNumCombatants();
+					targetID = Mathf.Min(targetID - battleController.GetNumHeroes(), battleController.GetNumHeroes() - 1);
 				}
 			}
 			else if (Input.GetKeyDown(KeyCode.RightArrow))
@@ -518,12 +514,12 @@ public class PlayerMenuController : MonoBehaviour
 				if (targetID < battleController.GetNumHeroes())
 				{
 					// We are targeting heroes
-					targetID = (targetID + battleController.GetNumHeroes()) % battleController.GetNumCombatants();
+					targetID = Mathf.Min(targetID + battleController.GetNumHeroes(), battleController.GetNumCombatants() - 1);
 				}
 				else
 				{
 					// We are targeting enemies
-					targetID = (targetID + battleController.GetNumEnemies()) % battleController.GetNumCombatants();
+					targetID = Mathf.Min(targetID - battleController.GetNumHeroes(), battleController.GetNumHeroes() - 1);
 				}
 			}
 
@@ -570,7 +566,7 @@ public class PlayerMenuController : MonoBehaviour
 					cursorPos.y = (menus[cursorPos.x].NumItems + cursorPos.y - 1) % menus[cursorPos.x].NumItems;
 				} while (!menus[cursorPos.x].IsItemEnabled(cursorPos.y));
 			}
-			else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.X))
+			else if (Input.GetKeyDown(KeyCode.X))
 			{
 				// We don't do anything if the cursor is on the root menu
 				if (cursorPos.x == 0)
@@ -580,7 +576,7 @@ public class PlayerMenuController : MonoBehaviour
 				cursorPos.x -= 1;
 				menus[1].SetActive(false);
 			}
-			else if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.RightArrow))
+			else if (Input.GetKeyDown(KeyCode.Z))
 			{
 				menus[cursorPos.x].SelectItem(cursorPos.y);
 			}
