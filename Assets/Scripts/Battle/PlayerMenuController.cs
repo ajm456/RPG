@@ -11,6 +11,7 @@ internal class Menu
 	internal static readonly float ITEM_MARGIN = 10f;
 	internal static readonly float MENU_MARGIN = 8f;
 	internal static readonly float MENU_H_PADDING = 15f;
+	internal static readonly float COMB_MENU_H_GAP = 40f;
 
 	private GameObject menu;
 	private List<MenuItem> items;
@@ -365,7 +366,8 @@ public class PlayerMenuController : MonoBehaviour
 
 				// Move the menu
 				menus[0].Transform.position = battleController.GetCombatantTransform(currHeroID).position;
-				menus[0].RectTransform.localPosition += new Vector3(menus[0].RectTransform.sizeDelta.x * 0.8f, 0f);
+				// Push it slightly to the right of the current combatant
+				menus[0].RectTransform.localPosition += new Vector3(Menu.COMB_MENU_H_GAP, 0f);
 
 				// Destroy the old gameobjects and clear list data in the extra menu
 				foreach (GameObject item in menus[1].GetMenuItems())
