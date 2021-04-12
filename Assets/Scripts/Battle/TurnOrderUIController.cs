@@ -31,7 +31,6 @@ public class TurnOrderUIController : MonoBehaviour
 	{
 		currTurnOrderedCombatantIDs = new List<int>(battleController.TurnOrderCombatantIDs);
 		currTurnOrderIndex = 0;
-		numActiveEntries = currTurnOrderedCombatantIDs.Count;
 
 		// Initialise prefab entries
 		ConstructEntryObjects();
@@ -129,6 +128,8 @@ public class TurnOrderUIController : MonoBehaviour
 	/// </summary>
 	private void InitialiseTurnOrderEntries()
 	{
+		numActiveEntries = currTurnOrderedCombatantIDs.Count;
+
 		if (battleController.GetNumTurnsPerRound() != entryObjects.Count)
 		{
 			Debug.Log("Ordered combatant ID and entry object list counts not identical!");
