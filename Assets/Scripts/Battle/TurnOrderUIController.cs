@@ -112,6 +112,13 @@ public class TurnOrderUIController : MonoBehaviour
 				nameObject.GetComponent<RectTransform>().localPosition = lastPos.Value + new Vector3(nameObject.GetComponent<RectTransform>().sizeDelta.x, 0f);
 			}
 			lastPos = nameObject.GetComponent<RectTransform>().localPosition;
+
+			// Fade out every entry past the 3rd
+			if (i >= 3)
+			{
+				nameObject.GetComponent<TextMeshProUGUI>().canvasRenderer.SetAlpha(1f - (i - 3)*0.25f);
+			}
+
 			entryObjects.Add(nameObject);
 
 			// Disable any hidden entries for turns already taken
