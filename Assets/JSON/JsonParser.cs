@@ -161,20 +161,20 @@ public class JsonParser
 				continue;
 			}
 			// Only deserialize files in our list of character names
-			if (!enemyNames.Any(s => filename.Contains(s)))
+			if (!enemyNames.Any(s => filename.ToLowerInvariant().Contains(s.ToLowerInvariant())))
 			{
 				continue;
 			}
 
 			string json = File.ReadAllText(filename);
 			EnemyData enemy = new EnemyData(JsonUtility.FromJson<EnemyDataJsonWrapper>(json));
-			enemyEncyclopedia.Add(enemy.name, enemy);
+			enemyEncyclopedia.Add(enemy.name.ToLowerInvariant(), enemy);
 		}
 
 		// Return enemy data for each name entry
 		foreach (string name in enemyNames)
 		{
-			enemyList.Add(enemyEncyclopedia[name]);
+			enemyList.Add(enemyEncyclopedia[name.ToLowerInvariant()]);
 		}
 
 		return enemyList;
