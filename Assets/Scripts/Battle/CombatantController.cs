@@ -4,18 +4,6 @@ using System.Collections.Generic;
 public abstract class CombatantController : MonoBehaviour
 {
 	/// <summary>
-	/// Defines the current animation state of a combatant i.e. idle animation,
-	/// dead, moving towards an enemy, attack animation, etc.
-	/// </summary>
-	public enum AnimationState
-	{
-		IDLE,
-		ATTACKING,
-		DEAD,
-	}
-
-
-	/// <summary>
 	/// Defines whether this combatant is player- or enemy-allied.
 	/// </summary>
 	public enum CombatantAllegiance
@@ -34,6 +22,8 @@ public abstract class CombatantController : MonoBehaviour
 	protected BattleController battleController;
 	// TODO: Is this really necessary? It's kind of grim to have a reference to
 	// the entire battle controller, considering it has a reference to this.
+
+	protected Animator animator;
 
 	
 	/* Combatant properties */
@@ -117,26 +107,14 @@ public abstract class CombatantController : MonoBehaviour
 	}
 
 
-	/// <summary>
-	/// The current animation state of this combatant.
-	/// </summary>
-	public AnimationState AnimState
-	{
-		get;
-		set;
-	}
-
-
 
 	/* METHODS */
 
-	void Update()
+
+	private void Start()
 	{
-		// If we're dead, switch to the dead animation
-		if (HP <= 0)
-		{
-			AnimState = AnimationState.DEAD;
-		}
+		animator = GetComponent<Animator>();
+		animator.SetBool("idle", true);
 	}
 
 
@@ -241,5 +219,10 @@ public abstract class CombatantController : MonoBehaviour
 			Debug.Log("Unsupported effect type received!");
 			Debug.Break();
 		}
+	}
+
+	public void SetAnimBool(string name, bool value)
+	{
+		animator.SetBool(name, value);
 	}
 }

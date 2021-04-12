@@ -34,7 +34,6 @@ public class HeroController : CombatantController
 		Calm = data.calm;
 		Strife = data.strife;
 		this.battleController = battleController;
-		AnimState = AnimationState.IDLE;
 		ActiveAuraCasterPairs = new List<KeyValuePair<CombatantController, AuraData>>();
 	}
 }

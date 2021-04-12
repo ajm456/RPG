@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2816715638143158514}
   - component: {fileID: 2816715638143158513}
-  - component: {fileID: 2816715638143158515}
   - component: {fileID: 2816715638143158516}
+  - component: {fileID: -4929642700532382036}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -70,7 +70,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 86ca59b9bca0e409b9ba2784fbe69f01, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 54bcabc188c6640f1a298f013d4716df, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -81,32 +81,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &2816715638143158515
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2816715638143158512}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49d665d0ff7fc9b4dbcbc6c1719dcc10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  idleFrameArray:
-  - {fileID: 21300000, guid: 86ca59b9bca0e409b9ba2784fbe69f01, type: 3}
-  - {fileID: 21300000, guid: 116ac2caa16ad4f73af4539f8b07d019, type: 3}
-  - {fileID: 21300000, guid: 662ace939438646e7a4067a89ec54b9e, type: 3}
-  - {fileID: 21300000, guid: b0305a6bb0adb4f66b864290967ea22b, type: 3}
-  deathFrameArray:
-  - {fileID: 21300000, guid: 815f73f3585044a32811d21502d58770, type: 3}
-  - {fileID: 21300000, guid: 1c8013ef5a0c147a5a059fde439f12b6, type: 3}
-  - {fileID: 21300000, guid: eec3312b68dc24bacb68c6f19907ddcd, type: 3}
-  - {fileID: 21300000, guid: 662dde2f5e71c4d47aadb2a90334c7c8, type: 3}
-  - {fileID: 21300000, guid: 635cdc790083c4be9a6a4feb8d976afc, type: 3}
-  - {fileID: 21300000, guid: f2065fb3797f1427aa8b3fc04af35e35, type: 3}
-  idleCycleDuration: 0.8
-  deathCycleDuration: 0.6
 --- !u!114 &2816715638143158516
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119,6 +93,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c731cb170d1f37a45b9d89f5e7d6c06c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hpText: {fileID: 0}
-  calmText: {fileID: 0}
-  discordText: {fileID: 0}
+--- !u!95 &-4929642700532382036
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2816715638143158512}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6b333eef431af0e448cab3bf47988a7c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0

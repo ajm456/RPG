@@ -18,7 +18,6 @@ public class EnemyController : CombatantController
 		CalmAbilities = data.calmAbilities;
 		StrifeAbilities = data.strifeAbilities;
 		this.battleController = battleController;
-		AnimState = AnimationState.IDLE;
 		ActiveAuraCasterPairs = new List<KeyValuePair<CombatantController, AuraData>>();
 	}
 

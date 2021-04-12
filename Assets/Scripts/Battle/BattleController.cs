@@ -900,6 +900,9 @@ public class BattleController : MonoBehaviour
 	/// <param name="target">The combatant being attacked.</param>
 	private void DoAttack(CombatantController source, CombatantController target)
 	{
+		source.SetAnimBool("idle", false);
+		source.SetAnimBool("moving", true);
+
 		// Simply apply the attack effect
 		target.ApplyEffect(attackEffect, source);
 	}
