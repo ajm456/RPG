@@ -33,9 +33,9 @@ public class BattleController : MonoBehaviour
 	/// The spawn vectors for the heroes if there are 3 heroes combatants.
 	/// </summary>
 	private static readonly Vector2[] HERO_SPAWN_POSITIONS = new Vector2[] {
-		new Vector2(-0.66f, 0.35f),
-		new Vector2(-0.49f, -0.15f),
-		new Vector2(-0.87f, -0.59f)
+		new Vector2(-0.5f, 0.6f),
+		new Vector2(-0.35f, 0f),
+		new Vector2(-0.9f, -0.5f)
 	};
 
 	/// <summary>
