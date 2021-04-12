@@ -4,7 +4,8 @@ using System;
 public enum BehaviourIndex
 {
 	DO_NOTHING = 0,
-	RANDOM_ABILITY = 1
+	ATTACK_RANDOM = 1,
+	RANDOM_ABILITY = 2
 }
 
 public static class EnemyBehaviours
@@ -12,6 +13,11 @@ public static class EnemyBehaviours
 	public static void DoNothing(BattleController battleController, CombatantController source)
 	{
 		battleController.PassTurn();
+	}
+
+	public static void AttackRandom(BattleController battleController, CombatantController source)
+	{
+		battleController.ExecuteTurnWithAttack(source.BattleID, UnityEngine.Random.Range(0, battleController.GetNumHeroes()));
 	}
 
 	public static void RandomAbility(BattleController battleController, CombatantController source)
@@ -22,8 +28,9 @@ public static class EnemyBehaviours
 	}
 
 	public static Dictionary<BehaviourIndex, Action<BattleController, CombatantController>> behaviourDict = new Dictionary<BehaviourIndex, Action<BattleController, CombatantController>>() {
-		{ BehaviourIndex.RANDOM_ABILITY, RandomAbility },
-		{ BehaviourIndex.DO_NOTHING, DoNothing }
+		{ BehaviourIndex.DO_NOTHING, DoNothing },
+		{ BehaviourIndex.ATTACK_RANDOM, AttackRandom },
+		{ BehaviourIndex.RANDOM_ABILITY, RandomAbility }
 	};
 
 

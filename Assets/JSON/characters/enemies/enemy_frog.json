@@ -3,7 +3,7 @@
     "maxHp" : 50,
     "strength" : 10,
     "agility" : 7,
-    "behaviourIndex" : 0,
+    "behaviourIndex" : 1,
     "abilityNames" : [
         "Rend"
     ]
