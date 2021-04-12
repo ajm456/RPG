@@ -8,7 +8,6 @@ using UnityEngine;
 /// </summary>
 internal class Menu
 {
-	// The local distance between each menu item
 	internal static readonly float ITEM_MARGIN = 10f;
 	internal static readonly float MENU_MARGIN = 8f;
 	internal static readonly float MENU_H_PADDING = 15f;
