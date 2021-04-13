@@ -225,4 +225,26 @@ public abstract class CombatantController : MonoBehaviour
 	{
 		animator.SetBool(name, value);
 	}
+
+	/// <summary>
+	/// Get the duration in seconds of the animation associated with this
+	/// combatant with the given name, if one exists.
+	/// </summary>
+	/// <param name="name">The name of the animation being searched for.</param>
+	/// <returns>The duration in seconds of the given animation.</returns>
+	public float GetAnimDuration(string name)
+	{
+		AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+		foreach (AnimationClip clip in clips)
+		{
+			if (clip.name == name)
+			{
+				return clip.length;
+			}
+		}
+
+		Debug.Log("Could not find animation clip with name " + name);
+		Debug.Break();
+		return -1f;
+	}
 }

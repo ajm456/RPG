@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 using Allegiance = CombatantController.CombatantAllegiance;
+using System.Collections;
 
 /// <summary>
 /// Manages the overall state and actions in a battle.
@@ -230,6 +231,19 @@ public class BattleController : MonoBehaviour
 	private EffectData attackEffect;
 
 
+	/// <summary>
+	/// Holds the IDs of all combatants currently involved in a turn animation.
+	/// </summary>
+	private List<int> currentlyAnimatingCombatants;
+
+
+	/// <summary>
+	/// Holds a queue of all turn animations to be carried out, processed by
+	/// AnimCoroutineManager().
+	/// </summary>
+	private Queue<IEnumerator> animCoroutineQueue;
+
+
 
 
 	/* OVERRIDES */
@@ -257,7 +271,8 @@ public class BattleController : MonoBehaviour
 		// Discern the turn order
 		InitTurnOrder();
 
-
+		// Start the animation coroutine handler
+		StartCoroutine(AnimCoroutineManager());
 
 		// If we're going to have to wait on the player, raise our flag
 		if (CurrCombatant.Allegiance == Allegiance.PLAYER)
@@ -276,6 +291,26 @@ public class BattleController : MonoBehaviour
 
 	private void Update()
 	{
+		// If the combatant is involved in an animation currently, we have to
+		// wait for that to finish
+		if (!IncrementedTurnCounterThisTurn)
+		{
+			if (CurrCombatant.Allegiance == Allegiance.ENEMY)
+			{
+				if (currentlyAnimatingCombatants.Count > 0)
+				{
+					return;
+				}
+			}
+			else
+			{
+				if (currentlyAnimatingCombatants.Contains(CurrCombatantID))
+				{
+					return;
+				}
+			}
+		}
+
 		// Resolve all auras affecting the current combatant
 		if (!ResolvedAurasThisTurn)
 		{
@@ -371,7 +406,7 @@ public class BattleController : MonoBehaviour
 		}
 
 		// Execute attack
-		DoAttack(Combatants[sourceID], Combatants[targetID]);
+		animCoroutineQueue.Enqueue(DoAttack(Combatants[sourceID], Combatants[targetID]));
 	}
 
 
@@ -604,6 +639,21 @@ public class BattleController : MonoBehaviour
 	}
 
 
+	/// <summary>
+	/// Returns whether or not the combatant for the given ID is currently in an
+	/// animation.
+	/// </summary>
+	/// <param name="id">The battle ID of the combatant being queried for.</param>
+	/// <returns>
+	/// Whether or not the combatant with the given ID is currently
+	/// in an animation.
+	/// </returns>
+	public bool IsCombatantAnimating(int id)
+	{
+		return currentlyAnimatingCombatants.Contains(id);
+	}
+
+
 
 
 	private void InitEncounterData()
@@ -620,6 +670,12 @@ public class BattleController : MonoBehaviour
 
 		// Initialise the list of sprite renderers
 		CombatantSpriteRenderers = new List<SpriteRenderer>();
+
+		// Initialise the list of animating combatant IDs
+		currentlyAnimatingCombatants = new List<int>();
+
+		// Initialise the animation coroutine queue
+		animCoroutineQueue = new Queue<IEnumerator>();
 
 		// Keep track of the assigned IDs
 		int lastAssignedID = 0;
@@ -865,6 +921,25 @@ public class BattleController : MonoBehaviour
 		CombatantSpriteRenderers[combatantID].color = Color.white;
 	}
 
+
+	/// <summary>
+	/// Continuously processes turn animations in animCoroutineQueue
+	/// </summary>
+	/// <returns></returns>
+	private IEnumerator AnimCoroutineManager()
+	{
+		while (true)
+		{
+			while (animCoroutineQueue.Count > 0)
+			{
+				// Grab the next animation coroutine in the queue and start it
+				yield return StartCoroutine(animCoroutineQueue.Dequeue());
+			}
+
+			yield return null;
+		}
+	}
+
 	/// <summary>
 	/// Checks whether or not the given combatant ID should be allowed to take
 	/// a turn in the current BattleController state.
@@ -898,13 +973,52 @@ public class BattleController : MonoBehaviour
 	/// </summary>
 	/// <param name="source">The attacking combatant.</param>
 	/// <param name="target">The combatant being attacked.</param>
-	private void DoAttack(CombatantController source, CombatantController target)
+	private IEnumerator DoAttack(CombatantController source, CombatantController target)
 	{
-		source.SetAnimBool("idle", false);
-		source.SetAnimBool("moving", true);
+		// If these combatants are animating, wait for them to finish
+		while (currentlyAnimatingCombatants.Contains(source.BattleID)
+			|| currentlyAnimatingCombatants.Contains(target.BattleID))
+		{
+			Debug.Log("Waiting for combatants to finish animating!");
+			yield return null;
+		}
 
+		// Add the combatant IDs to the list of currently animating ones
+		// so they don't get involved in any future animations throughout this
+		// one
+		currentlyAnimatingCombatants.Add(source.BattleID);
+		currentlyAnimatingCombatants.Add(target.BattleID);
+
+		Vector3 moveTarget = target.transform.position;
+		if (target.Allegiance == Allegiance.PLAYER)
+		{
+			moveTarget += new Vector3(0.3f, 0f);
+		}
+		else
+		{
+			moveTarget += new Vector3(-0.3f, 0f);
+		}
+		Vector3 startPos = source.transform.position;
+		
+		// Move the combatant to "attack range" of its target
+		yield return MoveCombatantToPos(source, moveTarget, 0.5f);
+
+		source.SetAnimBool("idle", false);
+		source.SetAnimBool("attacking", true);
+
+		yield return new WaitForSeconds(source.GetAnimDuration("attacking"));
 		// Simply apply the attack effect
 		target.ApplyEffect(attackEffect, source);
+
+		source.SetAnimBool("idle", true);
+		source.SetAnimBool("attacking", false);
+
+		yield return MoveCombatantToPos(source, startPos, 0.5f);
+		
+		// These combatants are no longer animating, so remove them from the
+		// list so they can be involved in future animations
+		currentlyAnimatingCombatants.Remove(source.BattleID);
+		currentlyAnimatingCombatants.Remove(target.BattleID);
 	}
 
 
@@ -939,6 +1053,34 @@ public class BattleController : MonoBehaviour
 	private void DoEffect(EffectData effect, CombatantController source, CombatantController target)
 	{
 		target.ApplyEffect(effect, source);
+	}
+
+
+	/// <summary>
+	/// Smoothly moves a combatant's sprite to the given location in world space
+	/// over the given duration.
+	/// </summary>
+	/// <param name="source"></param>
+	/// <param name="target"></param>
+	/// <param name="duration"></param>
+	/// <returns></returns>
+	private IEnumerator MoveCombatantToPos(CombatantController source, Vector3 target, float duration)
+	{
+		source.SetAnimBool("idle", false);
+		source.SetAnimBool("moving", true);
+		
+		Vector3 startPos = source.transform.position;
+		float dt = 0f;
+		while (dt < duration)
+		{
+			dt += Time.smoothDeltaTime;
+			source.transform.position = Vector3.Lerp(startPos, target, dt / duration);
+			yield return null;
+		}
+		source.transform.position = target;
+
+		source.SetAnimBool("idle", true);
+		source.SetAnimBool("moving", false);
 	}
 
 

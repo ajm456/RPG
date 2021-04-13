@@ -361,7 +361,8 @@ public class PlayerMenuController : MonoBehaviour
 		if (battleController.State == BattleController.BattleState.PLAYERCHOICE)
 		{
 			// Check to see if we need to move the menu
-			if (currHeroID != battleController.CurrCombatantID)
+			if (currHeroID != battleController.CurrCombatantID
+				&& !battleController.IsCombatantAnimating(battleController.CurrCombatantID))
 			{
 				currHeroID = battleController.CurrCombatantID;
 
@@ -383,6 +384,8 @@ public class PlayerMenuController : MonoBehaviour
 
 				// Hide the extra menu
 				menus[1].SetActive(false);
+				// Show the root menu
+				menus[0].SetActive(true);
 
 				// Disable menu items if we need to
 				menus[0].SetItemEnabled(1, battleController.CurrCombatantStrifeAbilities.Count > 0);
@@ -530,6 +533,10 @@ public class PlayerMenuController : MonoBehaviour
 
 			if (Input.GetKeyDown(KeyCode.Z))
 			{
+				// Hide the menus whilst the animation is carried out
+				menus[0].SetActive(false);
+				menus[1].SetActive(false);
+
 				if (selectedAbility == null)
 				{
 					// Null selectedAbility implies we are doing an attack command

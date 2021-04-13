@@ -82,7 +82,8 @@ public class HeroStatusUIController : MonoBehaviour
 			menu.missingHealthBar.sizeDelta = new Vector2(newWidth, menu.missingHealthBar.sizeDelta.y);
 
 			// Highlight this menu if it's the hero's turn
-			if (i == battleHeroNames.IndexOf(battleController.CurrCombatantName))
+			if (i == battleHeroNames.IndexOf(battleController.CurrCombatantName)
+				&& !battleController.IsCombatantAnimating(battleController.CurrCombatantID))
 			{
 				// Set the colours
 				menu.nameText.color = color;
