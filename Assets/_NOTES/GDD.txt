@@ -68,6 +68,20 @@ CHARACTERS:
 
 
 COMBAT:
+
+- Controls
+	- Players should not be forced to sit idly waiting for combat animations to
+		play out.
+		- Once a hero chooses their action for the turn, if the next combatant
+			is a hero too then the player should be able to immediately input
+			their action.
+			- If the combatant is interacting with a target already being
+				interacted with, they will have to block and wait, but if hero
+				1 attacks enemy 2, and next turn hero 2 attacks enemy 1, both
+				animations should play out simultaneously.
+		- Enemy turns are carried out in a traditional turn-based manner.
+			- They probably *won't* be executed if a player animation is
+				occurring as this might make things too confusing. Will test.
 	
 - Resource(s)
 	- Two resources: Strife and Calm
