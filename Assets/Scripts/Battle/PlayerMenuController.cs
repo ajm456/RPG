@@ -11,7 +11,7 @@ internal class Menu
 	internal static readonly float ITEM_MARGIN = 10f;
 	internal static readonly float MENU_MARGIN = 8f;
 	internal static readonly float MENU_H_PADDING = 15f;
-	internal static readonly float COMB_MENU_H_GAP = 40f;
+	internal static readonly float COMB_MENU_H_GAP = 70f;
 	internal static readonly float MENU_UP_SHIFT = 50f;
 
 	private GameObject menu;
