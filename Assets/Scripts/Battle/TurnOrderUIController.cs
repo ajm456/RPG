@@ -17,12 +17,16 @@ public class TurnOrderUIController : MonoBehaviour
 	[SerializeField]
 	private BattleController battleController;
 
+	[SerializeField]
+	private int numEntryObjects;
+
+	[SerializeField]
+	private string roundEndText;
+
 	/// <summary>
 	/// A list of each currently visible turn indicator game object.
 	/// </summary>
 	private List<GameObject> entryObjects;
-
-	private int numActiveEntries;
 
 	/// <summary>
 	/// A cache of the last turn order index value we read from the battle
@@ -32,10 +36,13 @@ public class TurnOrderUIController : MonoBehaviour
 
 	private List<int> currTurnOrderedCombatantIDs;
 
+	private List<string> entryTexts;
+
 	protected void Start()
 	{
 		currTurnOrderedCombatantIDs = new List<int>(battleController.TurnOrderCombatantIDs);
 		currTurnOrderIndex = 0;
+		entryTexts = new List<string>();
 
 		// Initialise prefab entries
 		ConstructEntryObjects();
@@ -57,7 +64,7 @@ public class TurnOrderUIController : MonoBehaviour
 			{
 				// No choice but to do a full rebuild
 				Debug.Log("TURN ORDER CHANGED! Re-initialising UI");
-				ConstructEntryObjects();
+				//ConstructEntryObjects();
 				InitialiseTurnOrderEntries();
 				currTurnOrderedCombatantIDs = new List<int>(battleController.TurnOrderCombatantIDs);
 			}
@@ -75,16 +82,12 @@ public class TurnOrderUIController : MonoBehaviour
 				{
 					// This isn't a new round, so we just need to adjust the
 					// text of each entry object
-
-					// Hide the rightmost entry
-					entryObjects[numActiveEntries - 1].SetActive(false);
-					--numActiveEntries;
 				
 					// The text of each entry becomes the text of its right
 					// neighbour's
-					for (var i = 0; i < numActiveEntries; ++i)
+					for (var i = 0; i < numEntryObjects; ++i)
 					{
-						entryObjects[i].GetComponent<TextMeshProUGUI>().text = entryObjects[i + 1].GetComponent<TextMeshProUGUI>().text;
+						entryObjects[i].GetComponent<TextMeshProUGUI>().text = entryTexts[currTurnOrderIndex + i];
 					}
 				}
 			}
@@ -101,14 +104,14 @@ public class TurnOrderUIController : MonoBehaviour
 				Destroy(obj);
 			}
 		}
-		
+
 		entryObjects = new List<GameObject>(battleController.GetNumCombatants());
 
 		// Used to keep track of where we placed the last entry; subsequent
 		// entries must be placed to the right of it
 		Vector3? lastPos = null;
 		
-		for (var i = 0; i < battleController.TurnOrderCombatantIDs.Count; ++i)
+		for (var i = 0; i < numEntryObjects; ++i)
 		{
 			GameObject nameObject = Instantiate(nameEntryPrefab, container.transform);
 			// lastPos is null when we initialise the first entry
@@ -125,36 +128,28 @@ public class TurnOrderUIController : MonoBehaviour
 			}
 
 			entryObjects.Add(nameObject);
-
-			// Disable any hidden entries for turns already taken
-			if (i >= battleController.TurnOrderCombatantIDs.Count - battleController.TurnOrderIndex)
-			{
-				nameObject.SetActive(false);
-			}
 		}
 	}
 
 	/// <summary>
-	/// Instantiates and initialises turn order entry game objects for each
-	/// combatant in the current battle.
+	/// Generates the list of combatant names for this and future rounds, and 
+	/// fills in the turn order entry objects with said names.
 	/// </summary>
 	private void InitialiseTurnOrderEntries()
 	{
-		numActiveEntries = currTurnOrderedCombatantIDs.Count;
+		entryTexts = battleController.GetOrderedCombatantNames();
+		// Add a marker for the end of the round
+		entryTexts.Add(roundEndText);
+		// Add entries for the next round
+		entryTexts.AddRange(battleController.GetOrderedCombatantNamesForNextRound());
+		// Add a marker for the end of the round
+		entryTexts.Add(roundEndText);
 
-		if (battleController.GetNumTurnsPerRound() != entryObjects.Count)
+		// Fill in the entry objects with as many names as we can
+		for (var i = 0; i < numEntryObjects; ++i)
 		{
-			Debug.Log("Ordered combatant ID and entry object list counts not identical!");
-			Debug.Break();
-		}
-
-		List<string> orderedCombatantNames = battleController.GetOrderedCombatantNames();
-		for (var i = 0; i < numActiveEntries; ++i)
-		{
-			entryObjects[i].GetComponent<TextMeshProUGUI>().SetText(orderedCombatantNames[i]);
+			entryObjects[i].GetComponent<TextMeshProUGUI>().SetText(entryTexts[i]);
 			entryObjects[i].SetActive(true);
 		}
-
-		numActiveEntries = entryObjects.Count;
 	}
 }

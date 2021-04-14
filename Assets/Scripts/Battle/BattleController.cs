@@ -502,6 +502,21 @@ public class BattleController : MonoBehaviour
 		return names;
 	}
 
+	/// <summary>
+	/// Gets the ordered list of combatants for the next round of combat.
+	/// </summary>
+	/// <returns>An ordered list of names of combatants in the next round.</returns>
+	public List<string> GetOrderedCombatantNamesForNextRound()
+	{
+		List<string> names = new List<string>(Combatants.Count);
+		for (var i = 0; i < TurnOrderCombatantIDs.Count; i++)
+		{
+			names.Add(Combatants[TurnOrderCombatantIDs[i]].Name);
+		}
+
+		return names;
+	}
+
 	public int GetNumCombatants()
 	{
 		return Combatants.Count;
