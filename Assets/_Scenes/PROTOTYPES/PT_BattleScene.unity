@@ -550,6 +550,8 @@ MonoBehaviour:
   nameEntryPrefab: {fileID: 5765803361648364037, guid: 9b218c0872d66ba4a81f936d451a6f7f,
     type: 3}
   battleController: {fileID: 2099869145}
+  numEntryObjects: 6
+  roundEndText: -END-
 --- !u!1 &2099869144
 GameObject:
   m_ObjectHideFlags: 0
