@@ -8,9 +8,14 @@ using UnityEngine;
 /// </summary>
 public class TurnOrderUIController : MonoBehaviour
 {
-	[SerializeField] private Transform container;
-	[SerializeField] private GameObject nameEntryPrefab;
-	[SerializeField] private BattleController battleController;
+	[SerializeField]
+	private Transform container;
+
+	[SerializeField]
+	private GameObject nameEntryPrefab;
+
+	[SerializeField]
+	private BattleController battleController;
 
 	/// <summary>
 	/// A list of each currently visible turn indicator game object.
