@@ -623,6 +623,21 @@ public class BattleController : MonoBehaviour
 		return color;
 	}
 
+	public int GetHeroCalm(int heroID)
+	{
+		return ((HeroController)Combatants[heroID]).Calm;
+	}
+
+	public int GetHeroStrife(int heroID)
+	{
+		return ((HeroController)Combatants[heroID]).Strife;
+	}
+
+	public int GetHeroResource(int heroID)
+	{
+		return ((HeroController)Combatants[heroID]).Strife - ((HeroController)Combatants[heroID]).Calm;
+	}
+
 	/// <summary>
 	/// Fetches a list of all hero combatant ability lists.
 	/// </summary>
@@ -719,7 +734,30 @@ public class BattleController : MonoBehaviour
 		for (var i = 0; i < enemies.Count; ++i)
 		{
 			GameObject newEnemy = Instantiate(enemyPrefab);
-			newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[i];
+			// The position depends on how many enemies there are:
+			// 1 enemy: middle
+			// 2 enemies: top, bottom
+			// 3 enemies: top, middle, bottom
+			if (enemies.Count == 1)
+			{
+				newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[1];
+			}
+			else if (enemies.Count == 2)
+			{
+				if (i == 0)
+				{
+					newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[0];
+				}
+				else if (i == 1)
+				{
+					newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[2];
+				}
+			}
+			else
+			{
+				newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[i];
+			}
+			
 			CombatantSpriteRenderers.Add(newEnemy.GetComponent<SpriteRenderer>());
 			EnemyController enemyController = newEnemy.GetComponent<EnemyController>();
 			enemyController.Init(enemies[i], this, lastAssignedID);
