@@ -22,9 +22,14 @@ public class HeroStatusUIController : MonoBehaviour
 	private const float ANIM_DELTA_X = 30f;
 	private const float ANIM_SPEED = ANIM_DELTA_X / ANIM_DURATION_FULL;
 
-	[SerializeField] private GameObject statusMenuPrefab;
-	[SerializeField] private Transform container;
-	[SerializeField] private BattleController battleController;
+	[SerializeField] 
+	private GameObject statusMenuPrefab;
+
+	[SerializeField] 
+	private Transform container;
+
+	[SerializeField] 
+	private BattleController battleController;
 
 	private List<StatusMenu> menus;
 	private List<string> battleHeroNames;
