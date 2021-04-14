@@ -1060,9 +1060,9 @@ public class BattleController : MonoBehaviour
 	/// Smoothly moves a combatant's sprite to the given location in world space
 	/// over the given duration.
 	/// </summary>
-	/// <param name="source"></param>
-	/// <param name="target"></param>
-	/// <param name="duration"></param>
+	/// <param name="source">The combatant moving.</param>
+	/// <param name="target">The location being moved to.</param>
+	/// <param name="duration">How long the combatant should be in motion for</param>
 	/// <returns></returns>
 	private IEnumerator MoveCombatantToPos(CombatantController source, Vector3 target, float duration)
 	{
