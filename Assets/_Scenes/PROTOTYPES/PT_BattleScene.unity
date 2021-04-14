@@ -415,6 +415,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a5788b576cd65048ba99675a0c84511, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  yOffset: 200
   statusMenuPrefab: {fileID: 2319579934093680061, guid: c8479d341f4ac7244af572da6357c3e6,
     type: 3}
   container: {fileID: 1490194539}
@@ -451,8 +452,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 140, y: -160}
-  m_SizeDelta: {x: 220, y: 280}
+  m_AnchoredPosition: {x: 140, y: -290}
+  m_SizeDelta: {x: 220, y: 511.9}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1514311405
 GameObject:
@@ -581,14 +582,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc7f515d5b5287446b03fe76ca791192, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  HERO_SPAWN_POSITIONS:
+  - {x: -0.5, y: 0.75}
+  - {x: -0.6, y: 0.1}
+  - {x: -0.7, y: -0.55}
   heroPrefab: {fileID: 5870172194825420681, guid: 40c16dca7a6fa7e4dacc642b647d31a4,
     type: 3}
   enemyPrefab: {fileID: 2816715638143158512, guid: 4aef2a78bb75930428389d3567a645d0,
     type: 3}
   debugHeroNames:
   - marl
+  - elise
+  - jack
   debugEnemyNames:
-  - frog
   - frog
 --- !u!4 &2099869146
 Transform:
