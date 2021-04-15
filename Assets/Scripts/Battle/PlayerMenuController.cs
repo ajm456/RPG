@@ -652,7 +652,7 @@ public class PlayerMenuController : MonoBehaviour
 		for (var i = 0; i < heroAbilityLists[currHeroID][1].Count; ++i)
 		{
 			AbilityData ability = heroAbilityLists[currHeroID][1][i];
-			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
+			MenuItem item = new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
 			{
 				// Store the selected ability to be cast when the player
 				// selects their target
@@ -664,7 +664,16 @@ public class PlayerMenuController : MonoBehaviour
 				// Transition to target selection
 				selectingTarget = true;
 				Debug.Log("Selecting target for ability " + ability.name + "...");
-			})));
+			}));
+
+			// If the player doesn't have enough resources for an ability,
+			// disable it
+			if (battleController.GetCombatantStrife(currHeroID) < ability.strifeReq)
+			{
+				item.SetEnabled(false);
+			}
+
+			menus[1].AddMenuItem(item);
 		}
 
 		// Move the cursor to the top of the list
@@ -692,7 +701,7 @@ public class PlayerMenuController : MonoBehaviour
 		for (var i = 0; i < heroAbilityLists[currHeroID][0].Count; ++i)
 		{
 			AbilityData ability = heroAbilityLists[currHeroID][0][i];
-			menus[1].AddMenuItem(new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
+			MenuItem item = new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
 			{
 				// Store the selected ability to be cast when the player
 				// selects their target
@@ -704,7 +713,16 @@ public class PlayerMenuController : MonoBehaviour
 				// Transition to target selection
 				selectingTarget = true;
 				Debug.Log("Selecting target for ability " + ability.name + "...");
-			})));
+			}));
+
+			// If the player doesn't have enough resources for an ability,
+			// disable it
+			if (battleController.GetCombatantCalm(currHeroID) < ability.calmReq)
+			{
+				item.SetEnabled(false);
+			}
+
+			menus[1].AddMenuItem(item);
 		}
 
 		// Move the cursor to the top of the list

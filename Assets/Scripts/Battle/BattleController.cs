@@ -489,6 +489,16 @@ public class BattleController : MonoBehaviour
 		return Combatants[combatantID].MaxHP;
 	}
 
+	public int GetCombatantCalm(int combatantID)
+	{
+		return ((HeroController)Combatants[combatantID]).Calm;
+	}
+
+	public int GetCombatantStrife(int combatantID)
+	{
+		return ((HeroController)Combatants[combatantID]).Strife;
+	}
+
 	public List<string> GetOrderedCombatantNames()
 	{
 		List<string> names = new List<string>(Combatants.Count);
