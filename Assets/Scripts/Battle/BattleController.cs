@@ -1109,11 +1109,37 @@ public class BattleController : MonoBehaviour
 			}
 			else
 			{
+				// Abilities which generate Calm and Strife exist, but should
+				// not be usable by anyone other than the protagonist
+				if (ability.calmGen != 0 && ability.strifeGen != 0)
+				{
+					Debug.LogError("Abilities which generate Calm and Strife should not be usable by non-protagonist!");
+					Debug.Break();
+				}
+
 				// Non-protagonists lose one resource when they gain another
-				heroSource.Calm += ability.calmGen;
-				heroSource.Calm -= ability.strifeGen;
-				heroSource.Strife += ability.strifeGen;
-				heroSource.Strife -= ability.calmGen;
+				if (ability.calmGen > 0)
+				{
+					if (heroSource.Strife > 0)
+					{
+						heroSource.Strife -= ability.calmGen;
+					}
+					else
+					{
+						heroSource.Calm += ability.calmGen;
+					}
+				}
+				else if (ability.strifeGen > 0)
+				{
+					if (heroSource.Calm > 0)
+					{
+						heroSource.Calm -= ability.strifeGen;
+					}
+					else
+					{
+						heroSource.Strife += ability.strifeGen;
+					}
+				}
 			}
 		}
 	}
