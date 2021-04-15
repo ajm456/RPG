@@ -19,9 +19,24 @@ public class HeroController : CombatantController
 		set;
 	}
 
+	/// <summary>
+	/// Is this hero the protagonist?
+	/// 
+	/// Required as the protagonist has some unique interactions with game
+	/// mechanics.
+	/// </summary>
+	public bool IsProtag
+	{
+		get;
+		private set;
+	}
+
 	public void Init(HeroData data, BattleController battleController, int battleID)
 	{
 		Name = data.name;
+		// Special combat rules apply to the protag, so flag the controller
+		IsProtag = Name.ToLower() == "jack";
+
 		BattleID = battleID;
 		Allegiance = CombatantAllegiance.PLAYER;
 		Color = data.color;
