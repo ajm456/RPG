@@ -1096,6 +1096,24 @@ public class BattleController : MonoBehaviour
 		{
 			target.AddAura(aura, source);
 		}
+
+		// Modify the caster's resource values
+		if (source.Allegiance == Allegiance.PLAYER)
+		{
+			HeroController heroSource = (HeroController)source;
+			if (heroSource.IsProtag)
+			{
+				heroSource.Calm += ability.calmGen;
+				heroSource.Strife += ability.strifeGen;
+			}
+			else
+			{
+				heroSource.Calm += ability.calmGen;
+				heroSource.Calm -= ability.strifeGen;
+				heroSource.Strife += ability.strifeGen;
+				heroSource.Strife -= ability.calmGen;
+			}
+		}
 	}
 
 
