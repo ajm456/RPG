@@ -1064,14 +1064,12 @@ public class BattleController : MonoBehaviour
 		// Move the combatant to "attack range" of its target
 		yield return MoveCombatantToPos(source, moveTarget, 0.5f);
 
-		source.SetAnimBool("idle", false);
 		source.SetAnimBool("attacking", true);
 
 		yield return new WaitForSeconds(source.GetAnimDuration("attacking"));
 		// Simply use the attack ability
 		DoAbility(attackAbility, source, target);
 
-		source.SetAnimBool("idle", true);
 		source.SetAnimBool("attacking", false);
 
 		yield return MoveCombatantToPos(source, startPos, 0.5f);
@@ -1161,7 +1159,6 @@ public class BattleController : MonoBehaviour
 	/// <returns></returns>
 	private IEnumerator MoveCombatantToPos(CombatantController source, Vector3 target, float duration)
 	{
-		source.SetAnimBool("idle", false);
 		source.SetAnimBool("moving", true);
 		
 		Vector3 startPos = source.transform.position;
@@ -1174,7 +1171,6 @@ public class BattleController : MonoBehaviour
 		}
 		source.transform.position = target;
 
-		source.SetAnimBool("idle", true);
 		source.SetAnimBool("moving", false);
 	}
 
