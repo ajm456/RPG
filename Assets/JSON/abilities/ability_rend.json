@@ -3,6 +3,8 @@
     "isCalm" : false,
     "calmReq" : 0,
     "discordReq" : 30,
+    "calmGen" : 0,
+    "strifeGen" : 8,
     "effectNames" : [
         "Burn Minor"
     ],

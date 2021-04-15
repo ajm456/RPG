@@ -3,6 +3,8 @@
     "isCalm" : false,
     "calmReq" : 0,
     "discordReq" : 0,
+    "calmGen" : 0,
+    "strifeGen" : 5,
     "effectNames" : [
         "Slow Minor"
     ],

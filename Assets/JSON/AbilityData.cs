@@ -10,16 +10,18 @@ public class AbilityDataJsonWrapper
 {
 	public string name;
 	public bool isCalm;
-	public int calmReq, strifeReq;
+	public int calmReq, strifeReq, calmGen, strifeGen;
 	public List<string> effectNames;
 	public List<string> auraNames;
 
-	public AbilityDataJsonWrapper(string name, bool isCalm, int calmReq, int strifeReq, List<string> effectNames, List<string> auraNames)
+	public AbilityDataJsonWrapper(string name, bool isCalm, int calmReq, int strifeReq, int calmGen, int strifeGen, List<string> effectNames, List<string> auraNames)
 	{
 		this.name = name;
 		this.isCalm = isCalm;
 		this.calmReq = calmReq;
 		this.strifeReq = strifeReq;
+		this.calmGen = calmGen;
+		this.strifeGen = strifeGen;
 		this.effectNames = effectNames;
 		this.auraNames = auraNames;
 	}
@@ -37,7 +39,7 @@ public class AbilityData
 
 	public string name;
 	public bool isCalm;
-	public int calmReq, strifeReq;
+	public int calmReq, strifeReq, calmGen, strifeGen;
 	public List<EffectData> effects;
 	public List<AuraData> auras;
 
@@ -47,6 +49,8 @@ public class AbilityData
 		isCalm = wrapper.isCalm;
 		calmReq = wrapper.calmReq;
 		strifeReq = wrapper.strifeReq;
+		calmGen = wrapper.calmGen;
+		strifeGen = wrapper.strifeGen;
 
 		// Filter to find this ability's effects
 		effects = new List<EffectData>();
@@ -73,6 +77,8 @@ public class AbilityData
 		isCalm = old.isCalm;
 		calmReq = old.calmReq;
 		strifeReq = old.strifeReq;
+		calmGen = old.calmGen;
+		strifeGen = old.strifeGen;
 		effects = new List<EffectData>(old.effects);
 		auras = new List<AuraData>(old.auras);
 	}

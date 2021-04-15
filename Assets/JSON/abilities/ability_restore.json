@@ -3,6 +3,8 @@
     "isCalm" : true,
     "calmReq" : 0,
     "discordReq" : 0,
+    "calmGen" : 10,
+    "strifeGen" : 0,
     "effectNames" : [
         "Heal Minor"
     ],
