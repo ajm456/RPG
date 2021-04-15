@@ -126,12 +126,14 @@ public class HeroStatusUIController : MonoBehaviour
 				if (currResource > 0)
 				{
 					menu.resourceVal.color = menu.strifeBar.GetComponent<Image>().color;
-					menu.resourceVal.rectTransform.localPosition = new Vector3(menu.strifeBar.rect.xMax, menu.resourceVal.rectTransform.localPosition.y);
+					float newXPos = menu.strifeBar.rect.width - menu.missingStrifeBar.rect.width;
+					menu.resourceVal.rectTransform.localPosition = new Vector3(newXPos, menu.resourceVal.rectTransform.localPosition.y);
 				}
 				else if (currResource < 0)
 				{
 					menu.resourceVal.color = menu.calmBar.GetComponent<Image>().color;
-					menu.resourceVal.rectTransform.localPosition = new Vector3(menu.calmBar.rect.xMin, menu.resourceVal.rectTransform.localPosition.y);
+					float newXPos = menu.missingCalmBar.rect.width - menu.calmBar.rect.width;
+					menu.resourceVal.rectTransform.localPosition = new Vector3(newXPos, menu.resourceVal.rectTransform.localPosition.y);
 				}
 				else
 				{
