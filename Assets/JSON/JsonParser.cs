@@ -9,7 +9,7 @@ using UnityEngine;
 public class JsonParser
 {
 	private const string JSON_EFFECTS_ROOT = "Assets/JSON/effects/";
-	private const string JSON_ATTACK_EFFECT_FILE = "effect_attack.json";
+	private const string JSON_ATTACK_ABILITY_FILE = "ability_attack.json";
 	private const string JSON_AURAS_ROOT = "Assets/JSON/auras/";
 	private const string JSON_ABILITIES_ROOT = "Assets/JSON/abilities/";
 	private const string JSON_HEROES_ROOT = "Assets/JSON/characters/heroes/";
@@ -182,14 +182,14 @@ public class JsonParser
 
 
 	/// <summary>
-	/// Loads the universal attack effect (applied when any enemy attacks) from
+	/// Loads the universal attack ability (used when any enemy attacks) from
 	/// JSON.
 	/// </summary>
-	/// <returns>EffectData object of the universal attack effect.</returns>
-	public static EffectData LoadAttackEffect()
+	/// <returns>AbilityData object of the universal attack ability.</returns>
+	public static AbilityData LoadAttackAbility()
 	{
-		string json = File.ReadAllText(JSON_EFFECTS_ROOT + JSON_ATTACK_EFFECT_FILE);
-		EffectData attackEffect = JsonUtility.FromJson<EffectData>(json);
-		return attackEffect;
+		string json = File.ReadAllText(JSON_ABILITIES_ROOT + JSON_ATTACK_ABILITY_FILE);
+		AbilityData attackAbility = new AbilityData(JsonUtility.FromJson<AbilityDataJsonWrapper>(json));
+		return attackAbility;
 	}
 }

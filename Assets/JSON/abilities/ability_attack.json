@@ -1,0 +1,12 @@
+{
+    "name" : "Attack",
+    "isCalm" : false,
+    "calmReq" : 0,
+    "discordReq" : 0,
+    "effectNames" : [
+        "Attack"
+    ],
+    "auraNames" : [
+        
+    ]
+}

@@ -228,9 +228,9 @@ public class BattleController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// The universal effect applied whenever a combatant uses attack.
+	/// The universal attack ability used whenever a combatant uses attack.
 	/// </summary>
-	private EffectData attackEffect;
+	private AbilityData attackAbility;
 
 
 	/// <summary>
@@ -691,8 +691,8 @@ public class BattleController : MonoBehaviour
 	private void InitEncounterData()
 	{
 		data = EncounterDataStaticContainer.GetData();
-		// Pre-load the attack effect data
-		attackEffect = JsonParser.LoadAttackEffect();
+		// Pre-load the attack ability data
+		attackAbility = JsonParser.LoadAttackAbility();
 	}
 
 	private void SetupCombatants()
@@ -1062,8 +1062,8 @@ public class BattleController : MonoBehaviour
 		source.SetAnimBool("attacking", true);
 
 		yield return new WaitForSeconds(source.GetAnimDuration("attacking"));
-		// Simply apply the attack effect
-		target.ApplyEffect(attackEffect, source);
+		// Simply use the attack ability
+		DoAbility(attackAbility, source, target);
 
 		source.SetAnimBool("idle", true);
 		source.SetAnimBool("attacking", false);
