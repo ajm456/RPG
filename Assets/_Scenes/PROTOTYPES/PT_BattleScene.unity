@@ -594,11 +594,11 @@ MonoBehaviour:
   - frog
   - frog
   - frog
-  HERO_SPAWN_POSITIONS:
+  heroSpawnPositions:
   - {x: -0.5, y: 0.75}
   - {x: -0.6, y: 0.1}
   - {x: -0.7, y: -0.55}
-  ENEMY_SPAWN_POSITIONS:
+  enemySpawnPositions:
   - {x: 1.1, y: 0.75}
   - {x: 1.2, y: 0.1}
   - {x: 1.3, y: -0.55}
