@@ -288,12 +288,14 @@ internal class MenuItem
 /// </summary>
 public class PlayerMenuController : MonoBehaviour
 {
+#pragma warning disable 0649
 	// Prefabs
 	[SerializeField] private GameObject menuPrefab, menuItemPrefab;
 
 	// Other scene components
 	[SerializeField] private BattleController battleController;
 	[SerializeField] private Canvas gameUI;
+#pragma warning restore 0649
 
 
 	// Root player menu that moves between heroes

@@ -6,8 +6,10 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class TileTriggerMapper : MonoBehaviour
 {
+#pragma warning disable 0649
 	[SerializeField]
 	private LevelChanger levelChanger;
+#pragma warning restore 0649
 
 	/// <summary>
 	/// Executes the behaviour for the given cell's trigger.

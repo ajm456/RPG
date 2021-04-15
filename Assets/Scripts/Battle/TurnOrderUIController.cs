@@ -8,6 +8,7 @@ using UnityEngine;
 /// </summary>
 public class TurnOrderUIController : MonoBehaviour
 {
+#pragma warning disable 0649
 	[SerializeField]
 	private Transform container;
 
@@ -22,6 +23,7 @@ public class TurnOrderUIController : MonoBehaviour
 
 	[SerializeField]
 	private string roundEndText;
+#pragma warning restore 0649
 
 	/// <summary>
 	/// A list of each currently visible turn indicator game object.

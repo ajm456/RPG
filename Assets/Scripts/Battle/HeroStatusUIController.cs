@@ -23,7 +23,8 @@ public class HeroStatusUIController : MonoBehaviour
 	private const float ANIM_DURATION_FULL = 0.4f;
 	private const float ANIM_DELTA_X = 30f;
 	private const float ANIM_SPEED = ANIM_DELTA_X / ANIM_DURATION_FULL;
-	
+
+#pragma warning disable 0649
 	[SerializeField]
 	private float yOffset;
 
@@ -35,6 +36,7 @@ public class HeroStatusUIController : MonoBehaviour
 
 	[SerializeField] 
 	private BattleController battleController;
+#pragma warning restore 0649
 
 	private List<StatusMenu> menus;
 	private List<string> battleHeroNames;

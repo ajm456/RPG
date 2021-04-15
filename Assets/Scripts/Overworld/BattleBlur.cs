@@ -5,8 +5,10 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class BattleBlur : MonoBehaviour
 {
+#pragma warning disable 0649
 	[SerializeField]
 	private float intensity;
+#pragma warning restore 0649
 
 	private Material material;
 	

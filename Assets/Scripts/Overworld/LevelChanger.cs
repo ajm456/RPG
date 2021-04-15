@@ -8,11 +8,13 @@ using UnityEngine.UI;
 /// </summary>
 public class LevelChanger : MonoBehaviour
 {
+#pragma warning disable 0649
 	/// <summary>
 	/// Black UI image used for fading in and out between transitions.
 	/// </summary>
 	[SerializeField]
 	private Image fadeable;
+#pragma warning restore 0649
 
 	/// <summary>
 	/// Property checked by PlayerController when reading input. Input is

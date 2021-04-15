@@ -44,6 +44,7 @@ public class PlayerController : MonoBehaviour
 	}
 
 
+#pragma warning disable 0649
 	/// <summary>
 	/// The Tilemap Grid object for this scene.
 	/// </summary>
@@ -86,6 +87,7 @@ public class PlayerController : MonoBehaviour
 	/// </summary>
 	[SerializeField]
 	private LevelChanger levelChanger;
+#pragma warning restore 0649
 
 
 	/// <summary>

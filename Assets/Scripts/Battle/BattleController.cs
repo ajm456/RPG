@@ -28,18 +28,7 @@ public class BattleController : MonoBehaviour
 
 
 
-	/* CONSTANTS */
 
-	/// <summary>
-	/// The spawn vectors for the heroes if there are 3 heroes combatants.
-	/// </summary>
-	//private static readonly Vector2[] HERO_SPAWN_POSITIONS = new Vector2[] {
-	//	new Vector2(-0.5f, 0.6f),
-	//	new Vector2(-0.35f, 0f),
-	//	new Vector2(-0.9f, -0.5f)
-	//};
-	[SerializeField]
-	private Vector2[] HERO_SPAWN_POSITIONS;
 
 	/// <summary>
 	/// The spawn vectors for enemies if there are 3 enemy combatants.
@@ -54,9 +43,16 @@ public class BattleController : MonoBehaviour
 
 
 	/* MEMBERS */
-
+#pragma warning disable 0649
 	[SerializeField] private GameObject heroPrefab, enemyPrefab;
 	[SerializeField] private List<string> debugHeroNames, debugEnemyNames;
+
+	/// <summary>
+	/// The spawn vectors for the heroes if there are 3 heroes combatants.
+	/// </summary>
+	[SerializeField]
+	private Vector2[] HERO_SPAWN_POSITIONS;
+#pragma warning restore 0649
 
 	/// <summary>
 	/// Current state of the battle.
