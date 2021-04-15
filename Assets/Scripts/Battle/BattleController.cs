@@ -27,21 +27,6 @@ public class BattleController : MonoBehaviour
 
 
 
-
-
-
-	/// <summary>
-	/// The spawn vectors for enemies if there are 3 enemy combatants.
-	/// </summary>
-	private static readonly Vector2[] ENEMY_SPAWN_POSITIONS = new Vector2[] {
-		new Vector2(0.7f, 0.6f),
-		new Vector2(0.85f, 0f),
-		new Vector2(1f, -0.6f)
-	};
-
-
-
-
 	/* MEMBERS */
 #pragma warning disable 0649
 	[SerializeField] private GameObject heroPrefab, enemyPrefab;
@@ -51,7 +36,13 @@ public class BattleController : MonoBehaviour
 	/// The spawn vectors for the heroes if there are 3 heroes combatants.
 	/// </summary>
 	[SerializeField]
-	private Vector2[] HERO_SPAWN_POSITIONS;
+	private Vector2[] heroSpawnPositions;
+
+	/// <summary>
+	/// The spawn vectors for enemies if there are 3 enemy combatants.
+	/// </summary>
+	[SerializeField]
+	private Vector2[] enemySpawnPositions;
 #pragma warning restore 0649
 
 	/// <summary>
@@ -725,7 +716,7 @@ public class BattleController : MonoBehaviour
 		for (var i = 0; i < heroes.Count; ++i)
 		{
 			GameObject newHero = Instantiate(heroPrefab);
-			newHero.transform.localPosition = HERO_SPAWN_POSITIONS[i];
+			newHero.transform.localPosition = heroSpawnPositions[i];
 			CombatantSpriteRenderers.Add(newHero.GetComponent<SpriteRenderer>());
 			HeroController heroController = newHero.GetComponent<HeroController>();
 			heroController.Init(heroes[i], this, lastAssignedID);
@@ -746,22 +737,22 @@ public class BattleController : MonoBehaviour
 			// 3 enemies: top, middle, bottom
 			if (enemies.Count == 1)
 			{
-				newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[1];
+				newEnemy.transform.localPosition = enemySpawnPositions[1];
 			}
 			else if (enemies.Count == 2)
 			{
 				if (i == 0)
 				{
-					newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[0];
+					newEnemy.transform.localPosition = enemySpawnPositions[0];
 				}
 				else if (i == 1)
 				{
-					newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[2];
+					newEnemy.transform.localPosition = enemySpawnPositions[2];
 				}
 			}
 			else
 			{
-				newEnemy.transform.localPosition = ENEMY_SPAWN_POSITIONS[i];
+				newEnemy.transform.localPosition = enemySpawnPositions[i];
 			}
 			
 			CombatantSpriteRenderers.Add(newEnemy.GetComponent<SpriteRenderer>());
