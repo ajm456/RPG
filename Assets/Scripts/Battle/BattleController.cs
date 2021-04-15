@@ -1103,11 +1103,13 @@ public class BattleController : MonoBehaviour
 			HeroController heroSource = (HeroController)source;
 			if (heroSource.IsProtag)
 			{
+				// Jack's Calm and Strife generation are not mutually exclusive
 				heroSource.Calm += ability.calmGen;
 				heroSource.Strife += ability.strifeGen;
 			}
 			else
 			{
+				// Non-protagonists lose one resource when they gain another
 				heroSource.Calm += ability.calmGen;
 				heroSource.Calm -= ability.strifeGen;
 				heroSource.Strife += ability.strifeGen;
