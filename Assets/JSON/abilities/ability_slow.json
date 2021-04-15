@@ -2,7 +2,7 @@
     "name" : "Lesser Slow",
     "isCalm" : false,
     "calmReq" : 0,
-    "discordReq" : 0,
+    "strifeReq" : 10,
     "calmGen" : 0,
     "strifeGen" : 5,
     "effectNames" : [

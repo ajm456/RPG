@@ -2,7 +2,7 @@
     "name" : "Restore",
     "isCalm" : true,
     "calmReq" : 0,
-    "discordReq" : 0,
+    "strifeReq" : 0,
     "calmGen" : 10,
     "strifeGen" : 0,
     "effectNames" : [

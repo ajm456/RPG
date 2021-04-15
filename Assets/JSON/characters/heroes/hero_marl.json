@@ -8,7 +8,7 @@
     "strength" : 6,
     "agility" : 7,
     "calm" : 0,
-    "discord" : 0,
+    "strife" : 0,
     "abilityNames" : [
         "Rend",
         "Restore"
