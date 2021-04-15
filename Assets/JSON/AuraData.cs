@@ -30,7 +30,9 @@ public class AuraData
 		// Filter to find this aura's effects
 		effects = new List<EffectData>();
 		foreach (string effectName in wrapper.effectNames)
+		{
 			effects.Add(allEffects.Find(d => d.name.ToUpperInvariant() == effectName.ToUpperInvariant()));
+		}
 		effectTurnIndex = 0;
 	}
 }
