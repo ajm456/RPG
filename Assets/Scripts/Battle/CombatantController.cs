@@ -13,6 +13,21 @@ public abstract class CombatantController : MonoBehaviour
 	}
 
 
+	/* CONSTANTS */
+
+	/// <summary>
+	/// The base percentage chance an effect has to crit.
+	/// </summary>
+	private static readonly float BASE_CRIT_CHANCE = 3f;
+
+	/// <summary>
+	/// The amount a combatant's agility is scaled by before being added to the
+	/// crit chance of an effect.
+	/// </summary>
+	private static readonly float CRIT_AGIL_SCALING = 0.3f;
+
+
+
 
 	/* MEMBERS */
 
@@ -181,7 +196,7 @@ public abstract class CombatantController : MonoBehaviour
 			if (effect.canCrit)
 			{
 				// Crit chance is a 3% base plus an amount based on agility
-				float critChance = 3.0f + 0.3f*source.Agility;
+				float critChance = BASE_CRIT_CHANCE + (CRIT_AGIL_SCALING * source.Agility);
 				critChance /= 100.0f;
 
 				// Roll and see if this effect is critting
