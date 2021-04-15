@@ -1146,18 +1146,6 @@ public class BattleController : MonoBehaviour
 
 
 	/// <summary>
-	/// Applies an effect to the given target combatant.
-	/// </summary>
-	/// <param name="effect">The effect being applied.</param>
-	/// <param name="source">The combatant who is casting the effect.</param>
-	/// <param name="target">The combatant the effect is affecting.</param>
-	private void DoEffect(EffectData effect, CombatantController source, CombatantController target)
-	{
-		target.ApplyEffect(effect, source);
-	}
-
-
-	/// <summary>
 	/// Smoothly moves a combatant's sprite to the given location in world space
 	/// over the given duration.
 	/// </summary>
