@@ -114,7 +114,6 @@ public abstract class CombatantController : MonoBehaviour
 	private void Start()
 	{
 		animator = GetComponent<Animator>();
-		animator.SetBool("idle", true);
 	}
 
 
