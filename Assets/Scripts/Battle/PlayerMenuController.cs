@@ -222,8 +222,8 @@ internal class MenuItem
 		}
 		else
 		{
-			Debug.LogWarning("Tried to highlight a disabled item!");
-			Debug.Break();
+			color.a = textMeshPro.alpha;
+			textMeshPro.color = color;
 		}
 	}
 
@@ -240,7 +240,8 @@ internal class MenuItem
 		}
 		else
 		{
-			Debug.LogWarning("Tried to unhighlight a disabled item!");
+			Color c = new Color(1f, 1f, 1f, textMeshPro.alpha);
+			textMeshPro.color = c;
 		}
 	}
 
@@ -273,11 +274,10 @@ internal class MenuItem
 	/// </summary>
 	internal void OnSelect()
 	{
-		Debug.Assert(enabled, "Trying to execute the select callback of a disabled menu item...?");
-		if (!enabled)
-			Debug.Break();
-
-		callback();
+		if (enabled)
+		{
+			callback();
+		}
 	}
 }
 
@@ -563,19 +563,11 @@ public class PlayerMenuController : MonoBehaviour
 		{
 			if (Input.GetKeyDown(KeyCode.DownArrow))
 			{
-				// Keep navigating until we find an enabled menu item
-				do
-				{
-					cursorPos.y = (cursorPos.y + 1) % menus[cursorPos.x].NumItems;
-				} while (!menus[cursorPos.x].IsItemEnabled(cursorPos.y));
+				cursorPos.y = (cursorPos.y + 1) % menus[cursorPos.x].NumItems;
 			}
 			else if (Input.GetKeyDown(KeyCode.UpArrow))
 			{
-				// Keep navigating until we find an enabled menu item
-				do
-				{
-					cursorPos.y = (menus[cursorPos.x].NumItems + cursorPos.y - 1) % menus[cursorPos.x].NumItems;
-				} while (!menus[cursorPos.x].IsItemEnabled(cursorPos.y));
+				cursorPos.y = (menus[cursorPos.x].NumItems + cursorPos.y - 1) % menus[cursorPos.x].NumItems;
 			}
 			else if (Input.GetKeyDown(KeyCode.X))
 			{
