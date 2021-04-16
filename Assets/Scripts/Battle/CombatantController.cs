@@ -208,7 +208,7 @@ public abstract class CombatantController : MonoBehaviour
 			}
 			
 			// Apply the effect
-			HP += magnitude;
+			HP = Mathf.Max(HP + magnitude, 0);
 			if (magnitude <= 0)
 			{
 				Debug.Log(Name + "[" + BattleID + "] took " + (-magnitude) + " damage from " + effect.name);
