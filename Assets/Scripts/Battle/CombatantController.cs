@@ -223,8 +223,23 @@ public abstract class CombatantController : MonoBehaviour
 		{
 		 	int magnitude = effect.amount;
 
-			// Cannot have negative agility
-		 	Agility = Mathf.Max(Agility + magnitude, 0);
+			// Calculate if it crit or not
+			if (effect.canCrit)
+			{
+				// Crit chance is a 3% base plus an amount based on agility
+				float critChance = BASE_CRIT_CHANCE + (CRIT_AGIL_SCALING * source.Agility);
+				critChance /= 100.0f;
+
+				// Roll and see if this effect is critting
+				if (Random.value >= 1.0f - critChance)
+				{
+					Debug.Log(source.Name + "'s " + effect.name + " effect crit!");
+					magnitude *= 2;
+				}
+			}
+
+			// Cannot have less than 1 agility
+		 	Agility = Mathf.Max(Agility + magnitude, 1);
 
 		 	battleController.OrderCombatantList();
 		}
