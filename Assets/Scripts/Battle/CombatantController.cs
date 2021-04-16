@@ -223,7 +223,8 @@ public abstract class CombatantController : MonoBehaviour
 		{
 		 	int magnitude = effect.amount;
 
-		 	Agility += magnitude;
+			// Cannot have negative agility
+		 	Agility = Mathf.Max(Agility + magnitude, 0);
 
 		 	battleController.OrderCombatantList();
 		}
