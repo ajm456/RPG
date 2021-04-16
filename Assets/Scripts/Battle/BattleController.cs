@@ -763,6 +763,14 @@ public class BattleController : MonoBehaviour
 		}
 	}
 
+
+	/// <summary>
+	/// Compares two [faction, ID, agility] tuples two determine how they
+	/// should be ordered relative to each other.
+	/// </summary>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <returns></returns>
 	private int CompareAgilityIDEntries(Tuple<Allegiance, int, float> x, Tuple<Allegiance, int, float> y)
 	{
 		// First try sorting by agility descending
@@ -800,6 +808,11 @@ public class BattleController : MonoBehaviour
 		return result;
 	}
 
+
+	/// <summary>
+	/// Sorts the TurnOrderCombatantIDs list from the current turn index. Used
+	/// for turn order changes mid-round.
+	/// </summary>
 	public void OrderCombatantList()
 	{
 		if (TurnOrderIndex + 1 == TurnOrderCombatantIDs.Count)
@@ -814,11 +827,11 @@ public class BattleController : MonoBehaviour
 		// For each combatant, store a copy of their faction, index, and agility
 		// stat (just to make sorting easier)
 		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
-		float lowestAgility = -1f;
+		float lowestAgility = float.MaxValue;
 		foreach (CombatantController combatant in Combatants)
 		{
 			// Keep track of the lowest true (not halved per turn taken) agility stat
-			if (lowestAgility < 0f || combatant.Agility < lowestAgility)
+			if (combatant.Agility < lowestAgility)
 			{
 				lowestAgility = combatant.Agility;
 			}
@@ -859,7 +872,7 @@ public class BattleController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// Set the initial turn order for the combatants in this battle. Details of how
+	/// Set the initial turn order for the combatants in this round. Details of how
 	/// this is calculated can be found in the GDD.
 	/// </summary>
 	private void InitTurnOrder()
