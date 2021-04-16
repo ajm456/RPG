@@ -73,11 +73,10 @@ COMBAT:
 	- Combat is made up of turns and rounds
 		- Every combatant has at least one turn per round; conversely,
 			there is no upper limit on turns per round
-		- Certain abilities have durations expressed in rounds
-			- For instance, an ability might give a character +Power for the
-				remainder of the round. This is useless if they only have one
-				turn this round, but becomes increasingly useful as their
-				Agility increases.
+		- Combat mechanics don't interact with rounds. If they did, you would
+			get very strange strategies from slowing the slowest enemy to give
+			everyone else on the field more turns per round. Although this kind
+			of sounds cool, it's also kind of dumb.
 
 - Controls
 	- Players should not be forced to sit idly waiting for combat animations to

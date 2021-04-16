@@ -139,13 +139,9 @@ public class TurnOrderUIController : MonoBehaviour
 	/// </summary>
 	private void InitialiseTurnOrderEntries()
 	{
+		// Grab the combatant names for a couple of rounds
 		entryTexts = battleController.GetOrderedCombatantNames();
-		// Add a marker for the end of the round
-		entryTexts.Add(roundEndText);
-		// Add entries for the next round
 		entryTexts.AddRange(battleController.GetOrderedCombatantNamesForNextRound());
-		// Add a marker for the end of the round
-		entryTexts.Add(roundEndText);
 
 		// Fill in the entry objects with as many names as we can
 		for (var i = 0; i < numEntryObjects; ++i)
