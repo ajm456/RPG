@@ -1094,13 +1094,13 @@ public class BattleController : MonoBehaviour
 	private void DoAbility(AbilityData ability, CombatantController source, CombatantController target)
 	{
 		// Apply any effects the ability has on the target
-		foreach(EffectData effect in ability.effects)
+		foreach (EffectData effect in ability.effects)
 		{
 			target.ApplyEffect(effect, source);
 		}
 
 		// Apply any auras the ability has on the target
-		foreach(AuraData aura in ability.auras)
+		foreach (AuraData aura in ability.auras)
 		{
 			target.AddAura(aura, source);
 		}
