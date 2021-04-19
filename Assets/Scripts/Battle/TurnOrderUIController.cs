@@ -87,9 +87,9 @@ public class TurnOrderUIController : MonoBehaviour
 				
 					// The text of each entry becomes the text of its right
 					// neighbour's
-					for (var i = 0; i < numEntryObjects; ++i)
+					for (var i = currTurnOrderIndex; i < entryObjects.Count; ++i)
 					{
-						entryObjects[i].GetComponent<TextMeshProUGUI>().text = entryTexts[currTurnOrderIndex + i];
+						entryObjects[i - currTurnOrderIndex].GetComponent<TextMeshProUGUI>().text = entryTexts[i];
 					}
 				}
 			}
@@ -107,7 +107,7 @@ public class TurnOrderUIController : MonoBehaviour
 			}
 		}
 
-		entryObjects = new List<GameObject>(battleController.GetNumCombatants());
+		entryObjects = new List<GameObject>(numEntryObjects);
 
 		// Used to keep track of where we placed the last entry; subsequent
 		// entries must be placed to the right of it
@@ -123,10 +123,10 @@ public class TurnOrderUIController : MonoBehaviour
 			}
 			lastPos = nameObject.GetComponent<RectTransform>().localPosition;
 
-			// Fade out every entry past the 3rd
-			if (i >= 3)
+			// Fade out every entry past the 5th
+			if (i >= 5)
 			{
-				nameObject.GetComponent<TextMeshProUGUI>().canvasRenderer.SetAlpha(1f - (i - 3)*0.25f);
+				nameObject.GetComponent<TextMeshProUGUI>().canvasRenderer.SetAlpha(1f - (i - 3)*0.15f);
 			}
 
 			entryObjects.Add(nameObject);
@@ -139,9 +139,14 @@ public class TurnOrderUIController : MonoBehaviour
 	/// </summary>
 	private void InitialiseTurnOrderEntries()
 	{
-		// Grab the combatant names for a couple of rounds
+		// Grab the combatant names for enough rounds to fill out
+		// the turn entry list and then some
 		entryTexts = battleController.GetOrderedCombatantNames();
-		entryTexts.AddRange(battleController.GetOrderedCombatantNamesForNextRound());
+		do
+		{
+			entryTexts.AddRange(battleController.GetOrderedCombatantNamesForNextRound());
+		}
+		while (entryTexts.Count <= numEntryObjects);
 
 		// Fill in the entry objects with as many names as we can
 		for (var i = 0; i < numEntryObjects; ++i)

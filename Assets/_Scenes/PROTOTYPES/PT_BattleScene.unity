@@ -236,7 +236,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 800, y: 85}
+  m_SizeDelta: {x: 1150, y: 85}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!1 &1126067243
 GameObject:
@@ -551,7 +551,7 @@ MonoBehaviour:
   nameEntryPrefab: {fileID: 5765803361648364037, guid: 9b218c0872d66ba4a81f936d451a6f7f,
     type: 3}
   battleController: {fileID: 2099869145}
-  numEntryObjects: 6
+  numEntryObjects: 12
   roundEndText: -END-
 --- !u!1 &2099869144
 GameObject:
