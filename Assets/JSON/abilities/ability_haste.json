@@ -1,0 +1,14 @@
+{
+    "name" : "Lesser Haste",
+    "isCalm" : true,
+    "calmReq" : 0,
+    "strifeReq" : 0,
+    "calmGen" : 5,
+    "strifeGen" : 0,
+    "effectNames" : [
+        "Hasten Minor"
+    ],
+    "auraNames" : [
+        
+    ]
+}

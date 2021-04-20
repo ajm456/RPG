@@ -11,6 +11,7 @@
     "strife" : 0,
     "abilityNames" : [
         "Rend",
-        "Restore"
+        "Restore",
+        "Lesser Haste"
     ]
 }
