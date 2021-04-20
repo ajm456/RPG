@@ -241,7 +241,8 @@ public abstract class CombatantController : MonoBehaviour
 			// Cannot have less than 1 agility
 		 	Agility = Mathf.Max(Agility + magnitude, 1);
 
-		 	battleController.OrderCombatantList();
+			// Since agility has changed, turn order may have too
+		 	battleController.RefreshTurnOrder();
 		}
 		
 		else

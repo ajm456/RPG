@@ -551,7 +551,7 @@ MonoBehaviour:
   nameEntryPrefab: {fileID: 5765803361648364037, guid: 9b218c0872d66ba4a81f936d451a6f7f,
     type: 3}
   battleController: {fileID: 2099869145}
-  numEntryObjects: 12
+  numEntryObjects: 10
   roundEndText: -END-
 --- !u!1 &2099869144
 GameObject:
@@ -586,6 +586,7 @@ MonoBehaviour:
     type: 3}
   enemyPrefab: {fileID: 2816715638143158512, guid: 4aef2a78bb75930428389d3567a645d0,
     type: 3}
+  turnController: {fileID: 1515922313}
   debugHeroNames:
   - marl
   - elise
@@ -602,6 +603,8 @@ MonoBehaviour:
   - {x: 1.1, y: 0.75}
   - {x: 1.2, y: 0.1}
   - {x: 1.3, y: -0.55}
+  turnQueueSize: 20
+  turnTimeBase: 20
 --- !u!4 &2099869146
 Transform:
   m_ObjectHideFlags: 0

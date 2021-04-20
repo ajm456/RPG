@@ -29,8 +29,20 @@ public class BattleController : MonoBehaviour
 
 	/* MEMBERS */
 #pragma warning disable 0649
-	[SerializeField] private GameObject heroPrefab, enemyPrefab;
-	[SerializeField] private List<string> debugHeroNames, debugEnemyNames;
+	[SerializeField] 
+	private GameObject heroPrefab;
+
+	[SerializeField]
+	private GameObject enemyPrefab;
+
+	[SerializeField]
+	private TurnOrderUIController turnController;
+
+	[SerializeField]
+	private List<string> debugHeroNames;
+
+	[SerializeField]
+	private List<string> debugEnemyNames;
 
 	/// <summary>
 	/// The spawn vectors for the heroes if there are 3 heroes combatants.
@@ -43,6 +55,19 @@ public class BattleController : MonoBehaviour
 	/// </summary>
 	[SerializeField]
 	private Vector2[] enemySpawnPositions;
+
+	/// <summary>
+	/// The size of the turn queue.
+	/// </summary>
+	[SerializeField]
+	private int turnQueueSize;
+
+	/// <summary>
+	/// The threshold value agilities are subtracted from to calculate turn
+	/// order.
+	/// </summary>
+	[SerializeField]
+	private int turnTimeBase;
 #pragma warning restore 0649
 
 	/// <summary>
@@ -71,22 +96,13 @@ public class BattleController : MonoBehaviour
 	}
 
 	/// <summary>
-	/// The index for the current combatant in <see cref="TurnOrderCombatants"/>
-	/// </summary>
-	public int TurnOrderIndex
-	{
-		get;
-		private set;
-	}
-
-	/// <summary>
 	/// Helper property for accessing the current combatant.
 	/// </summary>
 	private CombatantController CurrCombatant
 	{
 		get
 		{
-			return Combatants[TurnOrderCombatantIDs[TurnOrderIndex]];
+			return Combatants[CombatantTurnQueue.Peek()];
 		}
 	}
 
@@ -101,31 +117,38 @@ public class BattleController : MonoBehaviour
 		set;
 	}
 
-	/// <summary>
-	/// Flag raised once the current combatant has incremented their respective
-	/// NumTurns entry.
-	/// </summary>
-	private bool IncrementedTurnCounterThisTurn
-	{
-		get;
-		set;
-	}
-
-	/// <summary>
-	/// Keeps track of the number of turns each combatant has had.
-	/// </summary>
-	private Dictionary<int, int> NumTurns
-	{
-		get;
-		set;
-	}
-
 
 	/// <summary>
 	/// An turn-ordered list of the turns of each combatant. This will be valid
 	/// until a combatant dies or agility stats change.
 	/// </summary>
-	public List<int> TurnOrderCombatantIDs
+	//public List<int> TurnOrderCombatantIDs
+	//{
+	//	get;
+	//	private set;
+	//}
+
+	public Queue<int> CombatantTurnQueue
+	{
+		get;
+		private set;
+	}
+
+
+	private List<int> CombatantTurnTime
+	{
+		get;
+		set;
+	}
+
+
+	private Dictionary<int, List<int>> TurnTimeAtGivenTurn
+	{
+		get;
+		set;
+	}
+
+	public int TurnNum
 	{
 		get;
 		private set;
@@ -258,7 +281,8 @@ public class BattleController : MonoBehaviour
 		SetupCombatants();
 
 		// Discern the turn order
-		InitTurnOrder();
+		//InitTurnOrder();
+		InitialiseTurnOrder();
 
 		// Start the animation coroutine handler
 		StartCoroutine(AnimCoroutineManager());
@@ -282,7 +306,7 @@ public class BattleController : MonoBehaviour
 	{
 		// If the combatant is involved in an animation currently, we have to
 		// wait for that to finish
-		if (!IncrementedTurnCounterThisTurn)
+		if (!ResolvedAurasThisTurn)
 		{
 			if (CurrCombatant.Allegiance == Allegiance.ENEMY)
 			{
@@ -309,13 +333,6 @@ public class BattleController : MonoBehaviour
 			ResolvedAurasThisTurn = true;
 		}
 
-		// Increment their NumTurns entry
-		if (!IncrementedTurnCounterThisTurn)
-		{
-			NumTurns[CurrCombatantID] += 1;
-			IncrementedTurnCounterThisTurn = true;
-		}
-
 		if (CurrCombatant.Allegiance == Allegiance.ENEMY)
 		{
 			// For enemies, execute their turn straight away
@@ -335,7 +352,8 @@ public class BattleController : MonoBehaviour
 		}
 
 		// The turn has been executed; prepare for the next one
-		TurnOrderIndex = (TurnOrderIndex + 1) % TurnOrderCombatantIDs.Count;
+		CombatantTurnQueue.Dequeue();
+		++TurnNum;
 		if (CurrCombatant.Allegiance == Allegiance.PLAYER)
 		{
 			State = BattleState.PLAYERCHOICE;
@@ -348,11 +366,8 @@ public class BattleController : MonoBehaviour
 		}
 		
 		ResolvedAurasThisTurn = false;
-		IncrementedTurnCounterThisTurn = false;
-		if (TurnOrderIndex == 0)
-		{
-			InitTurnOrder();
-		}
+
+		GenerateNewTurnEntry();
 	}
 
 
@@ -492,25 +507,10 @@ public class BattleController : MonoBehaviour
 
 	public List<string> GetOrderedCombatantNames()
 	{
-		List<string> names = new List<string>(Combatants.Count);
-		for (var i = TurnOrderIndex; i < TurnOrderCombatantIDs.Count; i++)
+		List<string> names = new List<string>();
+		foreach (int id in CombatantTurnQueue)
 		{
-			names.Add(Combatants[TurnOrderCombatantIDs[i]].Name);
-		}
-
-		return names;
-	}
-
-	/// <summary>
-	/// Gets the ordered list of combatants for the next round of combat.
-	/// </summary>
-	/// <returns>An ordered list of names of combatants in the next round.</returns>
-	public List<string> GetOrderedCombatantNamesForNextRound()
-	{
-		List<string> names = new List<string>(Combatants.Count);
-		for (var i = 0; i < TurnOrderCombatantIDs.Count; i++)
-		{
-			names.Add(Combatants[TurnOrderCombatantIDs[i]].Name);
+			names.Add(Combatants[id].Name);
 		}
 
 		return names;
@@ -519,11 +519,6 @@ public class BattleController : MonoBehaviour
 	public int GetNumCombatants()
 	{
 		return Combatants.Count;
-	}
-
-	public int GetNumTurnsPerRound()
-	{
-		return TurnOrderCombatantIDs.Count;
 	}
 
 	/// <summary>
@@ -763,32 +758,77 @@ public class BattleController : MonoBehaviour
 		}
 	}
 
-
-	/// <summary>
-	/// Compares two [faction, ID, agility] tuples two determine how they
-	/// should be ordered relative to each other.
-	/// </summary>
-	/// <param name="x"></param>
-	/// <param name="y"></param>
-	/// <returns></returns>
-	private int CompareAgilityIDEntries(Tuple<Allegiance, int, float> x, Tuple<Allegiance, int, float> y)
+	private void InitialiseTurnOrder()
 	{
-		// First try sorting by agility descending
-		var result = y.Item3.CompareTo(x.Item3);
+		CombatantTurnQueue = new Queue<int>(turnQueueSize);
+		CombatantTurnTime = new List<int>(GetNumCombatants());
+		TurnTimeAtGivenTurn = new Dictionary<int, List<int>>();
+		TurnNum = 0;
+		
+		// Initialise ID-agility list and turn time dict
+		foreach (CombatantController comb in Combatants)
+		{
+			CombatantTurnTime.Add(turnTimeBase);
+		}
 
+		// Generate a full queue of turns
+		while (CombatantTurnQueue.Count < turnQueueSize)
+		{
+			GenerateNewTurnEntry();
+		}
+	}
+
+	private void GenerateNewTurnEntry()
+	{
+		// Save a list of IDs for combatants who have hit zero on their turn
+		// time threshold
+		List<Tuple<int, int>> idTurnTimePairs = new List<Tuple<int, int>>();
+
+		// Subtract combatant agilities from their turn time
+		for (int i = 0; i < CombatantTurnTime.Count; ++i)
+		{
+			CombatantTurnTime[i] -= Combatants[i].Agility;
+
+			// If their turn time has reached zero, they have a turn coming up
+			if (CombatantTurnTime[i] <= 0)
+			{
+				idTurnTimePairs.Add(new Tuple<int, int>(i, CombatantTurnTime[i]));
+
+				// Set their turn time appropriately for how much they've overspilled
+				CombatantTurnTime[i] = turnTimeBase + CombatantTurnTime[i] + Combatants[i].Agility;
+			}
+		}
+
+		// Sort the list of combatants who have reached zero (or less) turn
+		// time
+		idTurnTimePairs.Sort(CompareIDTurnTimePair);
+
+		// Add the IDs to the queue of turns
+		foreach (var pair in idTurnTimePairs)
+		{
+			CombatantTurnQueue.Enqueue(pair.Item1);
+			TurnTimeAtGivenTurn[TurnTimeAtGivenTurn.Keys.Count] = new List<int>(CombatantTurnTime);
+		}
+	}
+
+	private int CompareIDTurnTimePair(Tuple<int, int> p1, Tuple<int, int> p2)
+	{
+		// First try sorting by turn time (lower time = precedence)
+		var result = p1.Item2.CompareTo(p2.Item2);
+		
 		if (result == 0)
 		{
-			// The agility stats are identical; next sort by allegiance
-			// (player > enemy)
-			if (x.Item1 == y.Item1)
+			// If they have the same time remaining, sort favouring player
+			// over enemy
+			if (Combatants[p1.Item1].Allegiance == Combatants[p2.Item1].Allegiance)
 			{
-				// If the allegiances are the same, we're forced to sort by ID
-				result = x.Item2.CompareTo(y.Item2);
+				// If they are the same allegiance, sort by ID
+				result = p1.Item1.CompareTo(p2.Item1);
 			}
 			else
 			{
-				// Favour player allegiance over enemy allegiance
-				if (x.Item1 == Allegiance.PLAYER)
+				// Player characters get precedence
+				if (Combatants[p1.Item1].Allegiance == Allegiance.PLAYER)
 				{
 					result = -1;
 				}
@@ -799,177 +839,23 @@ public class BattleController : MonoBehaviour
 			}
 		}
 
-		if (result == 0)
-		{
-			Debug.Log("Failed to sort turn order! Something went wrong...");
-			Debug.Break();
-		}
-
 		return result;
 	}
 
-
-	/// <summary>
-	/// Sorts the TurnOrderCombatantIDs list from the current turn index. Used
-	/// for turn order changes mid-round.
-	/// </summary>
-	public void OrderCombatantList()
+	public void RefreshTurnOrder()
 	{
-		if (TurnOrderIndex + 1 == TurnOrderCombatantIDs.Count)
+		// Cache the current combatant ID as they should remain at the front
+		// of the queue until their turn actually ends (which is after this)
+		int currentId = CurrCombatantID;
+		CombatantTurnQueue = new Queue<int>(turnQueueSize);
+		CombatantTurnQueue.Enqueue(currentId);
+		CombatantTurnTime = TurnTimeAtGivenTurn[TurnNum];
+
+		// Generate a full queue of turns
+		while (CombatantTurnQueue.Count < turnQueueSize)
 		{
-			// This is the last turn this round, so we don't need to shift anything
-			return;
+			GenerateNewTurnEntry();
 		}
-		
-		// We only consider turns after the current one
-		TurnOrderCombatantIDs.RemoveRange(TurnOrderIndex + 1, TurnOrderCombatantIDs.Count - (TurnOrderIndex + 1));
-
-		// For each combatant, store a copy of their faction, index, and agility
-		// stat (just to make sorting easier)
-		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
-		float lowestAgility = float.MaxValue;
-		foreach (CombatantController combatant in Combatants)
-		{
-			// Keep track of the lowest true (not halved per turn taken) agility stat
-			if (combatant.Agility < lowestAgility)
-			{
-				lowestAgility = combatant.Agility;
-			}
-
-			// Halve their agility stat for each turn taken this round
-			float effectiveAgility = NumTurns[combatant.BattleID] == 0 ? combatant.Agility : combatant.Agility / (2f * NumTurns[combatant.BattleID]);
-
-			factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(combatant.Allegiance, combatant.BattleID, effectiveAgility));
-		}
-
-		// Sort list
-		factionIndexAgilityList.Sort(CompareAgilityIDEntries);
-
-		// Keep halving agilities and assigning turn order until everyone's
-		// turns have been assigned
-		while (factionIndexAgilityList.Count > 0)
-		{
-			// Sort by agility
-			factionIndexAgilityList.Sort(CompareAgilityIDEntries);
-			// Add the highest agility combatant to the turn list
-			var candidate = factionIndexAgilityList[0];
-			// Their effective agility may already be less than the lowest due to turns taken
-			// halving their actual agility
-			if (candidate.Item3 < lowestAgility)
-			{
-				factionIndexAgilityList.RemoveAt(0);
-				continue;
-			}
-			TurnOrderCombatantIDs.Add(Combatants[candidate.Item2].BattleID);
-			// Halve their agility stat
-			factionIndexAgilityList[0] = new Tuple<Allegiance, int, float>(candidate.Item1, candidate.Item2, candidate.Item3 / 2f);
-			// Remove them if their agility has dropped below the lowest
-			if (factionIndexAgilityList[0].Item3 < lowestAgility)
-			{
-				factionIndexAgilityList.RemoveAt(0);
-			}
-		}
-	}
-
-	/// <summary>
-	/// Set the initial turn order for the combatants in this round. Details of how
-	/// this is calculated can be found in the GDD.
-	/// </summary>
-	private void InitTurnOrder()
-	{
-		TurnOrderCombatantIDs = new List<int>();
-		TurnOrderIndex = 0;
-
-		// For each combatant, store a copy of their faction, index, and agility
-		// stat (just to make sorting easier)
-		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
-		NumTurns = new Dictionary<int, int>();
-		for (int i = 0; i < Combatants.Count; ++i)
-		{
-			factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Combatants[i].Allegiance, i, Combatants[i].Agility));
-			NumTurns.Add(Combatants[i].BattleID, 0);
-		}
-
-		// Sort list by agility descending
-		factionIndexAgilityList.Sort(CompareAgilityIDEntries);
-
-		// Find the lowest agility in this battle
-		float lowestAgility = factionIndexAgilityList[factionIndexAgilityList.Count - 1].Item3;
-		
-		// Keep halving agilities and assigning turn order until everyone's
-		// turns have been assigned
-		while (factionIndexAgilityList.Count > 0)
-		{
-			// Sort by agility
-			factionIndexAgilityList.Sort(CompareAgilityIDEntries);
-			// Add the highest agility combatant to the turn list
-			var candidate = factionIndexAgilityList[0];
-			TurnOrderCombatantIDs.Add(Combatants[candidate.Item2].BattleID);
-			// Halve their agility stat
-			factionIndexAgilityList[0] = new Tuple<Allegiance, int, float>(candidate.Item1, candidate.Item2, candidate.Item3 / 2f);
-			// Remove them if their agility has dropped below the lowest
-			if (factionIndexAgilityList[0].Item3 < lowestAgility)
-			{
-				factionIndexAgilityList.RemoveAt(0);
-			}
-		}
-	}
-
-	public void ChangeTurnOrder()
-	{
-		Debug.Log("Reordering - previously was " + String.Join(", ", TurnOrderCombatantIDs));
-		TurnOrderCombatantIDs = new List<int>();
-		TurnOrderIndex = 0;
-
-		// Tracks the lowest agility among all combatants.
-		float lowestAgility = Combatants[0].Agility;
-
-		// For each combatant, store a copy of their faction, index, and agility
-		// stat (just to make sorting easier)
-		List<Tuple<Allegiance, int, float>> factionIndexAgilityList = new List<Tuple<Allegiance, int, float>>();
-		for (int i = 0; i < Combatants.Count; ++i)
-		{
-
-			// Update lowest agility if needed.
-			if (Combatants[i].Agility < lowestAgility)
-			{
-				lowestAgility = Combatants[i].Agility;
-			}
-
-			float TurnsTaken = NumTurns[Combatants[i].BattleID];
-
-			if (TurnsTaken == 0)
-			{
-				factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Combatants[i].Allegiance, i, Combatants[i].Agility));
-			} 
-			else 
-			{
-				factionIndexAgilityList.Add(new Tuple<Allegiance, int, float>(Combatants[i].Allegiance, i, Combatants[i].Agility / 2f * TurnsTaken));
-			}
-
-		}
-
-		// Sort list by agility descending
-		factionIndexAgilityList.Sort((x, y) => y.Item3.CompareTo(x.Item3));
-
-		
-		while (factionIndexAgilityList.Count > 0)
-		{
-			// Sort by agility
-			factionIndexAgilityList.Sort((x, y) => y.Item3.CompareTo(x.Item3));
-			// Add the highest agility combatant to the turn list
-			var candidate = factionIndexAgilityList[0];
-			TurnOrderCombatantIDs.Add(Combatants[candidate.Item2].BattleID);
-			// Halve their agility stat
-			factionIndexAgilityList[0] = new Tuple<Allegiance, int, float>(candidate.Item1, candidate.Item2, candidate.Item3 / 2f);
-			// Remove them if their agility has dropped below the lowest
-			if (factionIndexAgilityList[0].Item3 < lowestAgility)
-			{
-				factionIndexAgilityList.RemoveAt(0);
-			}
-		}
-
-		Debug.Log("Done! - now " + String.Join(", ", TurnOrderCombatantIDs));
 	}
 
 	public void HighlightCombatant(int combatantID)
@@ -1190,7 +1076,7 @@ public class BattleController : MonoBehaviour
 		enemy.DoTurn();
 
 		// If the next turn is an enemy too, recursively execute their turn
-		TurnOrderIndex++;
+		CombatantTurnQueue.Dequeue();
 		if (CurrCombatant.Allegiance == Allegiance.ENEMY)
 		{
 			ExecuteEnemyTurn();

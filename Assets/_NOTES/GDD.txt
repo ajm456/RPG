@@ -170,6 +170,30 @@ COMBAT:
 
 	Marl's extra turn goes between Frog1 and Jack
 
+	Turn order is discerned by counting down from a particular value at a rate
+	proportional to each combatant's agility. For instance, say the value is
+	set at 20 and heroes A and B have agility stats 10 and 5 respectively:
+
+	Hero A		20	10	T	10	T	10
+	Hero B		20	15	10	5	T	15
+
+	The resulting turn order will start off as <A B A...>. The third interval
+	is a clash, and would be resolved according to the following precedence:
+
+	1) The lowest value after subtracting agility,
+	2) Players taking precedence over enemies,
+	3) The smallest battle ID
+
+	Assuming that hero A was the top-most hero, in this case they would take
+	their turn before B.
+
+	The turn-time values are saved for each generated turn to allow for re-generation
+	in case of agility stat chaning. For instance, if hero B were to double their agility
+	on their first turn, the resulting table would look something like this:
+
+	Hero A	T	10	T	10	T
+	Hero B	T	10	T	10	T
+
 
 
 

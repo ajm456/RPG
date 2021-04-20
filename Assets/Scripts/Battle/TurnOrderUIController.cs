@@ -20,9 +20,6 @@ public class TurnOrderUIController : MonoBehaviour
 
 	[SerializeField]
 	private int numEntryObjects;
-
-	[SerializeField]
-	private string roundEndText;
 #pragma warning restore 0649
 
 	/// <summary>
@@ -31,68 +28,28 @@ public class TurnOrderUIController : MonoBehaviour
 	private List<GameObject> entryObjects;
 
 	/// <summary>
-	/// A cache of the last turn order index value we read from the battle
+	/// A cache of the last current combatant ID we read from the battle
 	/// controller.
 	/// </summary>
-	private int currTurnOrderIndex;
-
-	private List<int> currTurnOrderedCombatantIDs;
-
-	private List<string> entryTexts;
+	private int currTurnNum;
 
 	protected void Start()
 	{
-		currTurnOrderedCombatantIDs = new List<int>(battleController.TurnOrderCombatantIDs);
-		currTurnOrderIndex = 0;
-		entryTexts = new List<string>();
+		currTurnNum = -1;
 
 		// Initialise prefab entries
 		ConstructEntryObjects();
-		InitialiseTurnOrderEntries();
+		PopulateTurnOrderEntries();
 	}
 
 	protected void Update()
 	{
-		// If the turn order index has changed, we need to update the entries
-		if (battleController.TurnOrderIndex != currTurnOrderIndex)
+		// If the current combatant ID has changed, we need to update the entries
+		if (battleController.TurnNum != currTurnNum)
 		{
-			currTurnOrderIndex = battleController.TurnOrderIndex;
+			currTurnNum = battleController.TurnNum;
 
-			// We need to check if the turn ordered combatant IDs list has
-			// changed due to an agility (de)buff
-			bool orderChanged = !currTurnOrderedCombatantIDs.SequenceEqual(battleController.TurnOrderCombatantIDs);
-
-			if (orderChanged)
-			{
-				// No choice but to do a full rebuild
-				Debug.Log("TURN ORDER CHANGED! Re-initialising UI");
-				//ConstructEntryObjects();
-				InitialiseTurnOrderEntries();
-				currTurnOrderedCombatantIDs = new List<int>(battleController.TurnOrderCombatantIDs);
-			}
-			else
-			{
-				// If the order didn't change, adjusting the turn order entries
-				// is a lot simpler
-
-				if (currTurnOrderIndex == 0)
-				{
-					// This is a new round so reinitialise
-					InitialiseTurnOrderEntries();
-				}
-				else
-				{
-					// This isn't a new round, so we just need to adjust the
-					// text of each entry object
-				
-					// The text of each entry becomes the text of its right
-					// neighbour's
-					for (var i = currTurnOrderIndex; i < entryObjects.Count; ++i)
-					{
-						entryObjects[i - currTurnOrderIndex].GetComponent<TextMeshProUGUI>().text = entryTexts[i];
-					}
-				}
-			}
+			PopulateTurnOrderEntries();
 		}
 	}
 
@@ -137,16 +94,11 @@ public class TurnOrderUIController : MonoBehaviour
 	/// Generates the list of combatant names for this and future rounds, and 
 	/// fills in the turn order entry objects with said names.
 	/// </summary>
-	private void InitialiseTurnOrderEntries()
+	private void PopulateTurnOrderEntries()
 	{
 		// Grab the combatant names for enough rounds to fill out
 		// the turn entry list and then some
-		entryTexts = battleController.GetOrderedCombatantNames();
-		do
-		{
-			entryTexts.AddRange(battleController.GetOrderedCombatantNamesForNextRound());
-		}
-		while (entryTexts.Count <= numEntryObjects);
+		List<string> entryTexts = battleController.GetOrderedCombatantNames();
 
 		// Fill in the entry objects with as many names as we can
 		for (var i = 0; i < numEntryObjects; ++i)
