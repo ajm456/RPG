@@ -308,10 +308,10 @@ public class PlayerMenuController : MonoBehaviour
 	private Vector2Int cursorPos;
 
 	/// <summary>
-	/// The ID of the hero combatant the menu is currently attached to (this
-	/// is not guaranteed to always be the same combatant as whose turn it is.)
+	/// A cache of the last turn number value we read from the battle
+	/// controller. Used to discern when the menus need updating.
 	/// </summary>
-	private int currHeroID;
+	private int currTurnNum;
 
 	/// <summary>
 	/// Ability list for each hero (calm and strife).
@@ -348,7 +348,7 @@ public class PlayerMenuController : MonoBehaviour
 		InitialiseHeroAbilityLists();
 		InitialiseRootMenu();
 		InitialiseExtraMenu();
-		currHeroID = -1;
+		currTurnNum = -1;
 		cursorPos = new Vector2Int(0, 0);
 		targetID = -1;
 	}
@@ -363,13 +363,14 @@ public class PlayerMenuController : MonoBehaviour
 		if (battleController.State == BattleController.BattleState.PLAYERCHOICE)
 		{
 			// Check to see if we need to move the menu
-			if (currHeroID != battleController.CurrCombatantID
-				&& !battleController.IsCombatantAnimating(battleController.CurrCombatantID))
+			if (currTurnNum != battleController.TurnNum
+				&& !battleController.IsCombatantAnimating(battleController.CurrCombatantID)
+				&& !battleController.IsCombatantInAnimQueue(battleController.CurrCombatantID))
 			{
-				currHeroID = battleController.CurrCombatantID;
+				currTurnNum = battleController.TurnNum;
 
 				// Move the menu
-				menus[0].Transform.position = battleController.GetCombatantTransform(currHeroID).position;
+				menus[0].Transform.position = battleController.GetCombatantTransform(battleController.CurrCombatantID).position;
 				// Push it slightly to the right of the current combatant and move it up
 				menus[0].RectTransform.localPosition += new Vector3(Menu.COMB_MENU_H_GAP, Menu.MENU_UP_SHIFT);
 
@@ -649,9 +650,9 @@ public class PlayerMenuController : MonoBehaviour
 		menus[1].ClearMenuItems();
 
 		// Create menu items for each of the hero's strife abilities
-		for (var i = 0; i < heroAbilityLists[currHeroID][1].Count; ++i)
+		for (var i = 0; i < heroAbilityLists[battleController.CurrCombatantID][1].Count; ++i)
 		{
-			AbilityData ability = heroAbilityLists[currHeroID][1][i];
+			AbilityData ability = heroAbilityLists[battleController.CurrCombatantID][1][i];
 			MenuItem item = new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
 			{
 				// Store the selected ability to be cast when the player
@@ -668,7 +669,7 @@ public class PlayerMenuController : MonoBehaviour
 
 			// If the player doesn't have enough resources for an ability,
 			// disable it
-			if (battleController.GetCombatantStrife(currHeroID) < ability.strifeReq)
+			if (battleController.GetCombatantStrife(battleController.CurrCombatantID) < ability.strifeReq)
 			{
 				item.SetEnabled(false);
 			}
@@ -698,9 +699,9 @@ public class PlayerMenuController : MonoBehaviour
 		menus[1].ClearMenuItems();
 
 		// Populate the list of available Calm abilities
-		for (var i = 0; i < heroAbilityLists[currHeroID][0].Count; ++i)
+		for (var i = 0; i < heroAbilityLists[battleController.CurrCombatantID][0].Count; ++i)
 		{
-			AbilityData ability = heroAbilityLists[currHeroID][0][i];
+			AbilityData ability = heroAbilityLists[battleController.CurrCombatantID][0][i];
 			MenuItem item = new MenuItem(Instantiate(menuItemPrefab, menus[1].Transform), ability.name.ToUpper(), new Action(() =>
 			{
 				// Store the selected ability to be cast when the player
@@ -717,7 +718,7 @@ public class PlayerMenuController : MonoBehaviour
 
 			// If the player doesn't have enough resources for an ability,
 			// disable it
-			if (battleController.GetCombatantCalm(currHeroID) < ability.calmReq)
+			if (battleController.GetCombatantCalm(battleController.CurrCombatantID) < ability.calmReq)
 			{
 				item.SetEnabled(false);
 			}

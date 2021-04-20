@@ -250,6 +250,12 @@ public class BattleController : MonoBehaviour
 
 
 	/// <summary>
+	/// A set of IDs of all combatants who are queued for a future animation.
+	/// </summary>
+	private HashSet<int> combatantsQueuedForAnim;
+
+
+	/// <summary>
 	/// Holds a queue of all turn animations to be carried out, processed by
 	/// AnimCoroutineManager().
 	/// </summary>
@@ -410,6 +416,8 @@ public class BattleController : MonoBehaviour
 		}
 
 		// Execute attack
+		combatantsQueuedForAnim.Add(sourceID);
+		combatantsQueuedForAnim.Add(targetID);
 		animCoroutineQueue.Enqueue(DoAttack(Combatants[sourceID], Combatants[targetID]));
 	}
 
@@ -678,6 +686,18 @@ public class BattleController : MonoBehaviour
 	}
 
 
+	/// <summary>
+	/// Returns whether or not the combatant for the given ID is queued for an
+	/// animation that is yet to take place.
+	/// </summary>
+	/// <param name="id">The battle ID of the combatant being queried for.</param>
+	/// <returns>Whether or not the combatant with the given ID is queued for a future animation.</returns>
+	public bool IsCombatantInAnimQueue(int id)
+	{
+		return combatantsQueuedForAnim.Contains(id);
+	}
+
+
 
 
 	private void InitEncounterData()
@@ -700,6 +720,9 @@ public class BattleController : MonoBehaviour
 
 		// Initialise the animation coroutine queue
 		animCoroutineQueue = new Queue<IEnumerator>();
+
+		// Initialise the set of animation-queued combatant IDs
+		combatantsQueuedForAnim = new HashSet<int>();
 
 		// Keep track of the assigned IDs
 		int lastAssignedID = 0;
@@ -933,6 +956,11 @@ public class BattleController : MonoBehaviour
 			Debug.Log("Waiting for combatants to finish animating!");
 			yield return null;
 		}
+
+		// These combatants are ready to animate, so remove them from the anim
+		// queue
+		combatantsQueuedForAnim.Remove(source.BattleID);
+		combatantsQueuedForAnim.Remove(target.BattleID);
 
 		// Add the combatant IDs to the list of currently animating ones
 		// so they don't get involved in any future animations throughout this
