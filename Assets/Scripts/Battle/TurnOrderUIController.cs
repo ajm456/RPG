@@ -103,7 +103,7 @@ public class TurnOrderUIController : MonoBehaviour
 		// Fill in the entry objects with as many names as we can
 		for (var i = 0; i < numEntryObjects; ++i)
 		{
-			entryObjects[i].GetComponent<TextMeshProUGUI>().SetText(entryTexts[i]);
+			entryObjects[i].GetComponent<TextMeshProUGUI>().SetText(entryTexts[i].ToUpper());
 			entryObjects[i].SetActive(true);
 		}
 	}
