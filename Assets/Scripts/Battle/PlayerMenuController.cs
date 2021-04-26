@@ -359,6 +359,14 @@ public class PlayerMenuController : MonoBehaviour
 	/// </summary>
 	void Update()
 	{
+		if (battleController.State == BattleController.BattleState.PLAYERWON
+			|| battleController.State == BattleController.BattleState.ENEMYWON)
+		{
+			menus[0].SetActive(false);
+			menus[1].SetActive(false);
+			gameObject.SetActive(false);
+		}
+
 		// If required, move the player menu to be next to the current hero
 		if (battleController.State == BattleController.BattleState.PLAYERCHOICE)
 		{

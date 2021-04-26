@@ -117,17 +117,6 @@ public class BattleController : MonoBehaviour
 		set;
 	}
 
-
-	/// <summary>
-	/// An turn-ordered list of the turns of each combatant. This will be valid
-	/// until a combatant dies or agility stats change.
-	/// </summary>
-	//public List<int> TurnOrderCombatantIDs
-	//{
-	//	get;
-	//	private set;
-	//}
-
 	public Queue<int> CombatantTurnQueue
 	{
 		get;
@@ -1132,9 +1121,41 @@ public class BattleController : MonoBehaviour
 		// Set their animation
 		target.SetAnimBool("dead", true);
 
-		// Refresh turn order
-		RefreshTurnOrder();
-		turnController.ForceRefreshTurnOrder();
+		// If all enemies or heroes are dead, end the battle
+		int numDeadHeroes = 0;
+		int numDeadEnemies = 0;
+		for (int i = 0; i < GetNumHeroes(); ++i)
+		{
+			if (Combatants[i].HP <= 0)
+			{
+				numDeadHeroes++;
+			}
+		}
+		for (int i = GetNumHeroes(); i < GetNumCombatants(); ++i)
+		{
+			if (Combatants[i].HP <= 0)
+			{
+				numDeadEnemies++;
+			}
+		}
+
+		// Check if the battle is over
+		if (numDeadHeroes == GetNumHeroes())
+		{
+			State = BattleState.ENEMYWON;
+			EndBattle();
+		}
+		else if (numDeadEnemies == GetNumEnemies())
+		{
+			State = BattleState.PLAYERWON;
+			EndBattle();
+		}
+		else
+		{
+			// Refresh turn order
+			RefreshTurnOrder();
+			turnController.ForceRefreshTurnOrder();
+		}
 	}
 
 
@@ -1160,5 +1181,14 @@ public class BattleController : MonoBehaviour
 			// PlayerMenuController to execute the turn
 			State = BattleState.PLAYERCHOICE;
 		}
+	}
+
+
+	/// <summary>
+	/// Marks the end of a battle for whatever reason.
+	/// </summary>
+	private void EndBattle()
+	{
+		animCoroutineQueue.Clear();
 	}
 }

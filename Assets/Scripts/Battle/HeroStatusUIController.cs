@@ -155,7 +155,8 @@ public class HeroStatusUIController : MonoBehaviour
 
 			// Highlight this menu if it's the hero's turn
 			if (i == battleHeroNames.IndexOf(battleController.CurrCombatantName)
-				&& !battleController.IsCombatantAnimating(battleController.CurrCombatantID))
+				&& !battleController.IsCombatantAnimating(battleController.CurrCombatantID)
+				&& battleController.State == BattleController.BattleState.PLAYERCHOICE)
 			{
 				// Set the colours
 				menu.nameText.color = color;

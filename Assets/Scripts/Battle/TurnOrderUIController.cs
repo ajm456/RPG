@@ -44,6 +44,17 @@ public class TurnOrderUIController : MonoBehaviour
 
 	protected void Update()
 	{
+		// If the battle is over, disable ourselves
+		if (battleController.State == BattleController.BattleState.PLAYERWON
+			|| battleController.State == BattleController.BattleState.ENEMYWON)
+		{
+			foreach (GameObject obj in entryObjects)
+			{
+				obj.SetActive(false);
+			}
+			gameObject.SetActive(false);
+		}
+
 		// If the current combatant ID has changed, we need to update the entries
 		if (battleController.TurnNum != currTurnNum)
 		{
