@@ -701,6 +701,21 @@ public class BattleController : MonoBehaviour
 	}
 
 
+	/// <summary>
+	/// Returns whether or not the combatant for the given ID is currently
+	/// alive.
+	/// </summary>
+	/// <param name="id">The battle ID of the combatant being queried for.</param>
+	/// <returns>
+	/// Whether or not the combatant with the given ID is currently
+	/// alive.
+	/// </returns>
+	public bool IsCombatantAlive(int id)
+	{
+		return Combatants[id].HP > 0;
+	}
+
+
 
 
 	private void InitEncounterData()

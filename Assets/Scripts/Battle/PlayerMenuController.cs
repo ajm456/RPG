@@ -474,24 +474,37 @@ public class PlayerMenuController : MonoBehaviour
 	{
 		if (selectingTarget)
 		{
+			bool targetingHeroes = targetID < battleController.GetNumHeroes();
+
+			if (!battleController.IsCombatantAlive(targetID) && !targetingHeroes)
+			{
+				// If the combatant we're targeting has died and is an enemy,
+				// scroll down
+				FindNextVerticalCombatant(false);
+				return;
+			}
+
 			if (Input.GetKeyDown(KeyCode.DownArrow))
 			{
 				battleController.UnhighlightCombatant(targetID);
-				if (targetID < battleController.GetNumHeroes())
+				if (targetingHeroes)
 				{
-					// We are targeting heroes
 					targetID = (targetID + 1) % battleController.GetNumHeroes();
 				}
 				else
 				{
-					// We are targeting enemies
-					targetID = battleController.GetNumHeroes() + ((targetID - battleController.GetNumHeroes() + 1) % battleController.GetNumEnemies());
+					// We cannot target dead enemies, so scroll past if we're
+					// trying to target one
+					do
+					{
+						targetID = battleController.GetNumHeroes() + ((targetID - battleController.GetNumHeroes() + 1) % battleController.GetNumEnemies());
+					} while (!battleController.IsCombatantAlive(targetID));
 				}
 			}
 			else if (Input.GetKeyDown(KeyCode.UpArrow))
 			{
 				battleController.UnhighlightCombatant(targetID);
-				if (targetID < battleController.GetNumHeroes())
+				if (targetingHeroes)
 				{
 					// We are targeting heroes
 					targetID = (battleController.GetNumHeroes() + targetID - 1) % battleController.GetNumHeroes();
@@ -499,13 +512,18 @@ public class PlayerMenuController : MonoBehaviour
 				else
 				{
 					// We are targeting enemies
-					targetID = battleController.GetNumHeroes() + ((battleController.GetNumEnemies() + targetID - battleController.GetNumHeroes() - 1) % battleController.GetNumEnemies());
+					// We cannot target dead enemies, so scroll past if we're
+					// trying to target one
+					do
+					{
+						targetID = battleController.GetNumHeroes() + ((battleController.GetNumEnemies() + targetID - battleController.GetNumHeroes() - 1) % battleController.GetNumEnemies());
+					} while (!battleController.IsCombatantAlive(targetID));
 				}
 			}
 			else if (Input.GetKeyDown(KeyCode.LeftArrow))
 			{
 				battleController.UnhighlightCombatant(targetID);
-				if (targetID < battleController.GetNumHeroes())
+				if (targetingHeroes)
 				{
 					// We are targeting heroes
 					targetID = Mathf.Min(targetID + battleController.GetNumHeroes(), battleController.GetNumCombatants() - 1);
@@ -519,7 +537,7 @@ public class PlayerMenuController : MonoBehaviour
 			else if (Input.GetKeyDown(KeyCode.RightArrow))
 			{
 				battleController.UnhighlightCombatant(targetID);
-				if (targetID < battleController.GetNumHeroes())
+				if (targetingHeroes)
 				{
 					// We are targeting heroes
 					targetID = Mathf.Min(targetID + battleController.GetNumHeroes(), battleController.GetNumCombatants() - 1);
@@ -584,6 +602,30 @@ public class PlayerMenuController : MonoBehaviour
 			{
 				menus[cursorPos.x].SelectItem(cursorPos.y);
 			}
+		}
+	}
+
+
+	/// <summary>
+	/// Changes the target to the next appropriate combatant. Used when a
+	/// currently targeted combatant dies.
+	/// </summary>
+	/// <param name="targetingHeroes">
+	/// Whether or not the current target is a hero or enemy.
+	/// </param>
+	private void FindNextVerticalCombatant(bool targetingHeroes)
+	{
+		if (targetingHeroes)
+		{
+			targetID = (targetID + 1) % battleController.GetNumHeroes();
+		}
+		else
+		{
+			do
+			{
+				battleController.UnhighlightCombatant(targetID);
+				targetID = battleController.GetNumHeroes() + ((targetID - battleController.GetNumHeroes() + 1) % battleController.GetNumEnemies());
+			} while (!battleController.IsCombatantAlive(targetID));
 		}
 	}
 
