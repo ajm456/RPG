@@ -107,4 +107,13 @@ public class TurnOrderUIController : MonoBehaviour
 			entryObjects[i].SetActive(true);
 		}
 	}
+
+
+	/// <summary>
+	/// Forces a refresh of the turn order labels.
+	/// </summary>
+	public void ForceRefreshTurnOrder()
+	{
+		PopulateTurnOrderEntries();
+	}
 }
