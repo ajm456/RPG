@@ -828,6 +828,12 @@ public class BattleController : MonoBehaviour
 		// Subtract combatant agilities from their turn time
 		for (int i = 0; i < CombatantTurnTime.Count; ++i)
 		{
+			// If the combatant is dead, don't consider them
+			if (!IsCombatantAlive(i))
+			{
+				continue;
+			}
+
 			CombatantTurnTime[i] -= Combatants[i].Agility;
 
 			// If their turn time has reached zero, they have a turn coming up
@@ -886,11 +892,15 @@ public class BattleController : MonoBehaviour
 	public void RefreshTurnOrder()
 	{
 		// Cache the current combatant ID as they should remain at the front
-		// of the queue until their turn actually ends (which is after this)
+		// of the queue until their turn actually ends (which is after this),
+		// as long as they are alive
 		int currentId = CurrCombatantID;
 		CombatantTurnQueue = new Queue<int>(turnQueueSize);
-		CombatantTurnQueue.Enqueue(currentId);
 		CombatantTurnTime = TurnTimeAtGivenTurn[TurnNum];
+		if (IsCombatantAlive(currentId))
+		{
+			CombatantTurnQueue.Enqueue(currentId);
+		}
 
 		// Generate a full queue of turns
 		while (CombatantTurnQueue.Count < turnQueueSize)
@@ -1009,6 +1019,12 @@ public class BattleController : MonoBehaviour
 		source.SetAnimBool("attacking", false);
 
 		yield return MoveCombatantToPos(source, startPos, 0.5f);
+
+		// If the target combatant died, set their animation state
+		if (target.HP <= 0)
+		{
+			KillCombatant(target);
+		}
 		
 		// These combatants are no longer animating, so remove them from the
 		// list so they can be involved in future animations
@@ -1108,6 +1124,17 @@ public class BattleController : MonoBehaviour
 		source.transform.position = target;
 
 		source.SetAnimBool("moving", false);
+	}
+
+
+	private void KillCombatant(CombatantController target)
+	{
+		// Set their animation
+		target.SetAnimBool("dead", true);
+
+		// Refresh turn order
+		RefreshTurnOrder();
+		turnController.ForceRefreshTurnOrder();
 	}
 
 
