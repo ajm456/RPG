@@ -691,7 +691,10 @@ public class BattleController : MonoBehaviour
 	/// animation that is yet to take place.
 	/// </summary>
 	/// <param name="id">The battle ID of the combatant being queried for.</param>
-	/// <returns>Whether or not the combatant with the given ID is queued for a future animation.</returns>
+	/// <returns>
+	/// Whether or not the combatant with the given ID is queued for a future
+	/// animation.
+	/// </returns>
 	public bool IsCombatantInAnimQueue(int id)
 	{
 		return combatantsQueuedForAnim.Contains(id);
