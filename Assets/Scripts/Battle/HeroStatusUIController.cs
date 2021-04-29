@@ -16,6 +16,11 @@ class StatusMenu
 	internal float startTime;
 	internal Vector3 startPos, endPos;
 	internal bool expanded;
+
+	internal void SetEnabled(bool enabled)
+	{
+		rootTransform.gameObject.SetActive(enabled);
+	}
 }
 
 public class HeroStatusUIController : MonoBehaviour
@@ -40,11 +45,13 @@ public class HeroStatusUIController : MonoBehaviour
 
 	private List<StatusMenu> menus;
 	private List<string> battleHeroNames;
+	private bool? menusEnabled;
 
 	void Start()
 	{
 		menus = new List<StatusMenu>(battleController.GetNumHeroes());
 		battleHeroNames = battleController.GetHeroNames();
+		menusEnabled = null;
 
 		// Instantiate a status menu for each hero in this battle
 		for (var i = 0; i < battleController.GetNumHeroes(); ++i)
@@ -88,6 +95,7 @@ public class HeroStatusUIController : MonoBehaviour
 			status.startPos = statusMenu.transform.localPosition;
 			status.endPos = statusMenu.transform.localPosition + new Vector3(ANIM_DELTA_X, 0f);
 			status.expanded = false;
+			status.SetEnabled(false);
 			menus.Add(status);
 
 			// Set the text to our hero name
@@ -97,6 +105,17 @@ public class HeroStatusUIController : MonoBehaviour
 
 	void Update()
 	{
+		if (battleController.UIEnabled != menusEnabled
+			|| menusEnabled == null)
+		{
+			for (var i = 0; i < menus.Count; ++i)
+			{
+				menus[i].SetEnabled(battleController.UIEnabled);
+			}
+
+			menusEnabled = battleController.UIEnabled;
+		}
+
 		// Update the contents of the UI elements
 		for (var i = 0; i < menus.Count; ++i)
 		{

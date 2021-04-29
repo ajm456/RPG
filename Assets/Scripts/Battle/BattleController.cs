@@ -39,6 +39,9 @@ public class BattleController : MonoBehaviour
 	private TurnOrderUIController turnController;
 
 	[SerializeField]
+	private CameraController cameraController;
+
+	[SerializeField]
 	private List<string> debugHeroNames;
 
 	[SerializeField]
@@ -55,6 +58,9 @@ public class BattleController : MonoBehaviour
 	/// </summary>
 	[SerializeField]
 	private Vector2[] enemySpawnPositions;
+
+	[SerializeField]
+	private bool skipIntro;
 
 	/// <summary>
 	/// The size of the turn queue.
@@ -74,6 +80,12 @@ public class BattleController : MonoBehaviour
 	/// Current state of the battle.
 	/// </summary>
 	public BattleState State
+	{
+		get;
+		set;
+	}
+
+	public bool UIEnabled
 	{
 		get;
 		set;
@@ -295,6 +307,17 @@ public class BattleController : MonoBehaviour
 		}
 
 		ResolvedAurasThisTurn = false;
+
+		// Start the camera animation
+		if (!skipIntro)
+		{
+			UIEnabled = false;
+			cameraController.PlayIntro();
+		}
+		else
+		{
+			UIEnabled = true;
+		}
 	}
 
 	private void Update()
