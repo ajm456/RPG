@@ -288,7 +288,6 @@ public class BattleController : MonoBehaviour
 		SetupCombatants();
 
 		// Discern the turn order
-		//InitTurnOrder();
 		InitialiseTurnOrder();
 
 		// Start the animation coroutine handler
