@@ -2,7 +2,7 @@
     "name" : "Rend",
     "isCalm" : false,
     "calmReq" : 0,
-    "strifeReq" : 30,
+    "strifeReq" : 0,
     "calmGen" : 0,
     "strifeGen" : 8,
     "effectNames" : [
@@ -10,5 +10,6 @@
     ],
     "auraNames" : [
         "Poison Minor"
-    ]
+    ],
+    "targetingMode" : "single"
 }

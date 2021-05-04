@@ -2,7 +2,7 @@
     "name" : "Lesser Slow",
     "isCalm" : false,
     "calmReq" : 0,
-    "strifeReq" : 10,
+    "strifeReq" : 0,
     "calmGen" : 0,
     "strifeGen" : 5,
     "effectNames" : [
@@ -10,5 +10,6 @@
     ],
     "auraNames" : [
         
-    ]
+    ],
+    "targetingMode" : "single"
 }

@@ -441,7 +441,7 @@ public class BattleController : MonoBehaviour
 	/// <param name="ability">The AbilityData object of the ability being used.</param>
 	/// <param name="sourceID">The combatant taking the turn.</param>
 	/// <param name="targetID">The combatant targeted by the ability.</param>
-	public void ExecuteTurnWithAbility(AbilityData ability, int sourceID, int targetID)
+	public void ExecuteTurnWithAbility(AbilityData ability, int sourceID, List<int> targetIDs)
 	{
 		// Check that it really is the turn of the combatant executing this turn
 		if (!VerifyCombatantTurn(sourceID))
@@ -452,7 +452,12 @@ public class BattleController : MonoBehaviour
 		}
 
 		// Try and execute the ability
-		DoAbility(ability, Combatants[sourceID], Combatants[targetID]);
+		List<CombatantController> targets = new List<CombatantController>(targetIDs.Count);
+		foreach (int id in targetIDs)
+		{
+			targets.Add(Combatants[id]);
+		}
+		DoAbility(ability, Combatants[sourceID], targets);
 	}
 
 
@@ -476,7 +481,7 @@ public class BattleController : MonoBehaviour
 		int targetID = possibleTargetIDs[Random.Range(0, possibleTargetIDs.Count)];
 
 		// Try and execute the ability
-		DoAbility(ability, Combatants[CurrCombatantID], Combatants[targetID]);
+		DoAbility(ability, Combatants[CurrCombatantID], new List<CombatantController>() { Combatants[targetID] });
 	}
 
 	/// <summary>
@@ -680,6 +685,36 @@ public class BattleController : MonoBehaviour
 		}
 
 		return heroAbilityLists;
+	}
+
+
+	/// <summary>
+	/// Generates a list of all hero battle IDs.
+	/// </summary>
+	public List<int> GetHeroIDs()
+	{
+		List<int> ids = new List<int>(GetNumHeroes());
+		for (int i = 0; i < GetNumHeroes(); ++i)
+		{
+			ids.Add(i);
+		}
+
+		return ids;
+	}
+
+
+	/// <summary>
+	/// Generates a list of all enemy battle IDs.
+	/// </summary>
+	public List<int> GetEnemyIDs()
+	{
+		List<int> ids = new List<int>(GetNumEnemies());
+		for (int i = GetNumHeroes(); i < GetNumCombatants(); ++i)
+		{
+			ids.Add(i);
+		}
+
+		return ids;
 	}
 
 
@@ -1026,7 +1061,7 @@ public class BattleController : MonoBehaviour
 
 		yield return new WaitForSeconds(source.GetAnimDuration("attacking"));
 		// Simply use the attack ability
-		DoAbility(attackAbility, source, target);
+		DoAbility(attackAbility, source, new List<CombatantController>() { target });
 
 		source.SetAnimBool("attacking", false);
 
@@ -1046,66 +1081,74 @@ public class BattleController : MonoBehaviour
 
 
 	/// <summary>
-	/// Executes an ability from a given combatant to a given target combatant.
+	/// Executes an ability from a given combatant to the given target combatants.
 	/// </summary>
 	/// <param name="ability">The Ability object being executed</param>
-	/// <param name="source"></param>
-	/// <param name="target"></param>
-	private void DoAbility(AbilityData ability, CombatantController source, CombatantController target)
+	/// <param name="source">The combatant using the ability.</param>
+	/// <param name="targets">A list of combatants being targeted by the ability.</param>
+	private void DoAbility(AbilityData ability, CombatantController source, List<CombatantController> targets)
 	{
-		// Apply any effects the ability has on the target
-		foreach (EffectData effect in ability.effects)
-		{
-			target.ApplyEffect(effect, source);
-		}
+		// Start the ability's animation
+		Debug.Log("TODO: Ability animations!");
 
-		// Apply any auras the ability has on the target
-		foreach (AuraData aura in ability.auras)
-		{
-			target.AddAura(aura, source);
-		}
 
-		// Modify the caster's resource values
-		if (source.Allegiance == Allegiance.PLAYER)
+		// Apply the ability to each target combatant
+		foreach (CombatantController target in targets)
 		{
-			HeroController heroSource = (HeroController)source;
-			if (heroSource.IsProtag)
+			// Apply any effects the ability has on the target
+			foreach (EffectData effect in ability.effects)
 			{
-				// Jack's Calm and Strife generation are not mutually exclusive
-				heroSource.Calm += ability.calmGen;
-				heroSource.Strife += ability.strifeGen;
+				target.ApplyEffect(effect, source);
 			}
-			else
-			{
-				// Abilities which generate Calm and Strife exist, but should
-				// not be usable by anyone other than the protagonist
-				if (ability.calmGen != 0 && ability.strifeGen != 0)
-				{
-					Debug.LogError("Abilities which generate Calm and Strife should not be usable by non-protagonist!");
-					Debug.Break();
-				}
 
-				// Non-protagonists lose one resource when they gain another
-				if (ability.calmGen > 0)
+			// Apply any auras the ability has on the target
+			foreach (AuraData aura in ability.auras)
+			{
+				target.AddAura(aura, source);
+			}
+
+			// Modify the caster's resource values
+			if (source.Allegiance == Allegiance.PLAYER)
+			{
+				HeroController heroSource = (HeroController)source;
+				if (heroSource.IsProtag)
 				{
-					if (heroSource.Strife > 0)
-					{
-						heroSource.Strife -= ability.calmGen;
-					}
-					else
-					{
-						heroSource.Calm += ability.calmGen;
-					}
+					// Jack's Calm and Strife generation are not mutually exclusive
+					heroSource.Calm += ability.calmGen;
+					heroSource.Strife += ability.strifeGen;
 				}
-				else if (ability.strifeGen > 0)
+				else
 				{
-					if (heroSource.Calm > 0)
+					// Abilities which generate Calm and Strife exist, but should
+					// not be usable by anyone other than the protagonist
+					if (ability.calmGen != 0 && ability.strifeGen != 0)
 					{
-						heroSource.Calm -= ability.strifeGen;
+						Debug.LogError("Abilities which generate Calm and Strife should not be usable by non-protagonist!");
+						Debug.Break();
 					}
-					else
+
+					// Non-protagonists lose one resource when they gain another
+					if (ability.calmGen > 0)
 					{
-						heroSource.Strife += ability.strifeGen;
+						if (heroSource.Strife > 0)
+						{
+							heroSource.Strife -= ability.calmGen;
+						}
+						else
+						{
+							heroSource.Calm += ability.calmGen;
+						}
+					}
+					else if (ability.strifeGen > 0)
+					{
+						if (heroSource.Calm > 0)
+						{
+							heroSource.Calm -= ability.strifeGen;
+						}
+						else
+						{
+							heroSource.Strife += ability.strifeGen;
+						}
 					}
 				}
 			}

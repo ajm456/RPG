@@ -1,15 +1,15 @@
 {
-    "name" : "Lesser Haste",
+    "name" : "Envelop",
     "isCalm" : true,
     "calmReq" : 0,
     "strifeReq" : 0,
-    "calmGen" : 5,
+    "calmGen" : 10,
     "strifeGen" : 0,
     "effectNames" : [
-        "Hasten Minor"
-    ],
-    "auraNames" : [
         
     ],
-    "targetingMode" : "single"
+    "auraNames" : [
+        "Renew"
+    ],
+    "targetingMode" : "party"
 }

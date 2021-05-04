@@ -482,134 +482,246 @@ public class PlayerMenuController : MonoBehaviour
 	{
 		if (selectingTarget)
 		{
-			bool targetingHeroes = targetID < battleController.GetNumHeroes();
-
-			if (!battleController.IsCombatantAlive(targetID) && !targetingHeroes)
+			if (selectedAbility == null
+				|| selectedAbility.targetingMode == AbilityData.TargetingMode.SINGLE)
 			{
-				// If the combatant we're targeting has died and is an enemy,
-				// scroll down
-				FindNextVerticalCombatant(false);
-				return;
+				NavigateSingleTargetSelection();
 			}
-
-			if (Input.GetKeyDown(KeyCode.DownArrow))
+			else if (selectedAbility.targetingMode == AbilityData.TargetingMode.PARTY)
 			{
-				battleController.UnhighlightCombatant(targetID);
-				if (targetingHeroes)
-				{
-					targetID = (targetID + 1) % battleController.GetNumHeroes();
-				}
-				else
-				{
-					// We cannot target dead enemies, so scroll past if we're
-					// trying to target one
-					do
-					{
-						targetID = battleController.GetNumHeroes() + ((targetID - battleController.GetNumHeroes() + 1) % battleController.GetNumEnemies());
-					} while (!battleController.IsCombatantAlive(targetID));
-				}
+				NavigatePartyTargetSelection();
 			}
-			else if (Input.GetKeyDown(KeyCode.UpArrow))
+			else if (selectedAbility.targetingMode == AbilityData.TargetingMode.OPPOSITION)
 			{
-				battleController.UnhighlightCombatant(targetID);
-				if (targetingHeroes)
-				{
-					// We are targeting heroes
-					targetID = (battleController.GetNumHeroes() + targetID - 1) % battleController.GetNumHeroes();
-				}
-				else
-				{
-					// We are targeting enemies
-					// We cannot target dead enemies, so scroll past if we're
-					// trying to target one
-					do
-					{
-						targetID = battleController.GetNumHeroes() + ((battleController.GetNumEnemies() + targetID - battleController.GetNumHeroes() - 1) % battleController.GetNumEnemies());
-					} while (!battleController.IsCombatantAlive(targetID));
-				}
-			}
-			else if (Input.GetKeyDown(KeyCode.LeftArrow))
-			{
-				battleController.UnhighlightCombatant(targetID);
-				if (targetingHeroes)
-				{
-					// We are targeting heroes
-					targetID = Mathf.Min(targetID + battleController.GetNumHeroes(), battleController.GetNumCombatants() - 1);
-				}
-				else
-				{
-					// We are targeting enemies
-					targetID = Mathf.Min(targetID - battleController.GetNumHeroes(), battleController.GetNumHeroes() - 1);
-				}
-			}
-			else if (Input.GetKeyDown(KeyCode.RightArrow))
-			{
-				battleController.UnhighlightCombatant(targetID);
-				if (targetingHeroes)
-				{
-					// We are targeting heroes
-					targetID = Mathf.Min(targetID + battleController.GetNumHeroes(), battleController.GetNumCombatants() - 1);
-				}
-				else
-				{
-					// We are targeting enemies
-					targetID = Mathf.Min(targetID - battleController.GetNumHeroes(), battleController.GetNumHeroes() - 1);
-				}
-			}
-
-			// Set the targeted enemy's sprite color to the hero's color
-			battleController.HighlightCombatant(targetID);
-
-			if (Input.GetKeyDown(KeyCode.Z))
-			{
-				// Hide the menus whilst the animation is carried out
-				menus[0].SetActive(false);
-				menus[1].SetActive(false);
-
-				if (selectedAbility == null)
-				{
-					// Null selectedAbility implies we are doing an attack command
-					battleController.ExecuteTurnWithAttack(battleController.CurrCombatantID, targetID);
-				}
-				else
-				{
-					battleController.ExecuteTurnWithAbility(selectedAbility, battleController.CurrCombatantID, targetID);
-				}
-				
-				selectingTarget = false;
-				battleController.UnhighlightCombatant(targetID);
-				battleController.WaitingOnPlayerTurn = false;
-			}
-			else if (Input.GetKeyDown(KeyCode.X))
-			{
-				battleController.UnhighlightCombatant(targetID);
-				selectingTarget = false;
+				NavigateOppositionTargetSelection();
 			}
 		}
 		else
 		{
-			if (Input.GetKeyDown(KeyCode.DownArrow))
-			{
-				cursorPos.y = (cursorPos.y + 1) % menus[cursorPos.x].NumItems;
-			}
-			else if (Input.GetKeyDown(KeyCode.UpArrow))
-			{
-				cursorPos.y = (menus[cursorPos.x].NumItems + cursorPos.y - 1) % menus[cursorPos.x].NumItems;
-			}
-			else if (Input.GetKeyDown(KeyCode.X))
-			{
-				// We don't do anything if the cursor is on the root menu
-				if (cursorPos.x == 0)
-					return;
+			NavigateRootMenu();
+		}
+	}
 
-				// Providing the cursor is on the extra menu, navigate left and close
-				cursorPos.x -= 1;
-				menus[1].SetActive(false);
-			}
-			else if (Input.GetKeyDown(KeyCode.Z))
+
+	/// <summary>
+	/// Handles navigation of the root menu.
+	/// </summary>
+	private void NavigateRootMenu()
+	{
+		if (Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			cursorPos.y = (cursorPos.y + 1) % menus[cursorPos.x].NumItems;
+		}
+		else if (Input.GetKeyDown(KeyCode.UpArrow))
+		{
+			cursorPos.y = (menus[cursorPos.x].NumItems + cursorPos.y - 1) % menus[cursorPos.x].NumItems;
+		}
+		else if (Input.GetKeyDown(KeyCode.X))
+		{
+			// We don't do anything if the cursor is on the root menu
+			if (cursorPos.x == 0)
+				return;
+
+			// Providing the cursor is on the extra menu, navigate left and close
+			cursorPos.x -= 1;
+			menus[1].SetActive(false);
+		}
+		else if (Input.GetKeyDown(KeyCode.Z))
+		{
+			menus[cursorPos.x].SelectItem(cursorPos.y);
+		}
+	}
+
+
+	/// <summary>
+	/// Handles cursor navigation when targeting with a single-target ability.
+	/// </summary>
+	private void NavigateSingleTargetSelection()
+	{
+		bool targetingHeroes = targetID < battleController.GetNumHeroes();
+
+		if (!battleController.IsCombatantAlive(targetID) && !targetingHeroes)
+		{
+			// If the combatant we're targeting has died and is an enemy,
+			// scroll down
+			FindNextVerticalCombatant(false);
+			return;
+		}
+
+		if (Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			battleController.UnhighlightCombatant(targetID);
+			if (targetingHeroes)
 			{
-				menus[cursorPos.x].SelectItem(cursorPos.y);
+				targetID = (targetID + 1) % battleController.GetNumHeroes();
 			}
+			else
+			{
+				// We cannot target dead enemies, so scroll past if we're
+				// trying to target one
+				do
+				{
+					targetID = battleController.GetNumHeroes() + ((targetID - battleController.GetNumHeroes() + 1) % battleController.GetNumEnemies());
+				} while (!battleController.IsCombatantAlive(targetID));
+			}
+		}
+		else if (Input.GetKeyDown(KeyCode.UpArrow))
+		{
+			battleController.UnhighlightCombatant(targetID);
+			if (targetingHeroes)
+			{
+				// We are targeting heroes
+				targetID = (battleController.GetNumHeroes() + targetID - 1) % battleController.GetNumHeroes();
+			}
+			else
+			{
+				// We are targeting enemies
+				// We cannot target dead enemies, so scroll past if we're
+				// trying to target one
+				do
+				{
+					targetID = battleController.GetNumHeroes() + ((battleController.GetNumEnemies() + targetID - battleController.GetNumHeroes() - 1) % battleController.GetNumEnemies());
+				} while (!battleController.IsCombatantAlive(targetID));
+			}
+		}
+		else if (Input.GetKeyDown(KeyCode.LeftArrow))
+		{
+			battleController.UnhighlightCombatant(targetID);
+			if (targetingHeroes)
+			{
+				// We are targeting heroes
+				targetID = Mathf.Min(targetID + battleController.GetNumHeroes(), battleController.GetNumCombatants() - 1);
+			}
+			else
+			{
+				// We are targeting enemies
+				targetID = Mathf.Min(targetID - battleController.GetNumHeroes(), battleController.GetNumHeroes() - 1);
+			}
+		}
+		else if (Input.GetKeyDown(KeyCode.RightArrow))
+		{
+			battleController.UnhighlightCombatant(targetID);
+			if (targetingHeroes)
+			{
+				// We are targeting heroes
+				targetID = Mathf.Min(targetID + battleController.GetNumHeroes(), battleController.GetNumCombatants() - 1);
+			}
+			else
+			{
+				// We are targeting enemies
+				targetID = Mathf.Min(targetID - battleController.GetNumHeroes(), battleController.GetNumHeroes() - 1);
+			}
+		}
+
+		// Set the targeted enemy's sprite color to the hero's color
+		battleController.HighlightCombatant(targetID);
+
+		if (Input.GetKeyDown(KeyCode.Z))
+		{
+			// Hide the menus whilst the animation is carried out
+			menus[0].SetActive(false);
+			menus[1].SetActive(false);
+
+			if (selectedAbility == null)
+			{
+				// Null selectedAbility implies we are doing an attack command
+				battleController.ExecuteTurnWithAttack(battleController.CurrCombatantID, targetID);
+			}
+			else
+			{
+				battleController.ExecuteTurnWithAbility(selectedAbility, battleController.CurrCombatantID, new List<int>() { targetID });
+			}
+				
+			selectingTarget = false;
+			battleController.UnhighlightCombatant(targetID);
+			battleController.WaitingOnPlayerTurn = false;
+		}
+		else if (Input.GetKeyDown(KeyCode.X))
+		{
+			battleController.UnhighlightCombatant(targetID);
+			selectingTarget = false;
+		}
+	}
+
+
+	/// <summary>
+	/// Handles cursor navigation when targeting with a party-wide ability.
+	/// </summary>
+	private void NavigatePartyTargetSelection()
+	{
+		if (Input.GetKeyDown(KeyCode.Z))
+		{
+			// Hide the menus whilst the animation is carried out
+			menus[0].SetActive(false);
+			menus[1].SetActive(false);
+
+			if (selectedAbility == null)
+			{
+				// Null selectedAbility implies we are doing an attack command
+				battleController.ExecuteTurnWithAttack(battleController.CurrCombatantID, targetID);
+			}
+			else
+			{
+				List<int> heroIDs = battleController.GetHeroIDs();
+				battleController.ExecuteTurnWithAbility(selectedAbility, battleController.CurrCombatantID, heroIDs);
+			}
+				
+			selectingTarget = false;
+			for (int i = 0; i < battleController.GetNumHeroes(); ++i)
+			{
+				battleController.UnhighlightCombatant(i);
+			}
+			battleController.WaitingOnPlayerTurn = false;
+		}
+		else if (Input.GetKeyDown(KeyCode.X))
+		{
+			for (int i = 0; i < battleController.GetNumHeroes(); ++i)
+			{
+				battleController.UnhighlightCombatant(i);
+			}
+			selectingTarget = false;
+		}
+	}
+
+
+	/// <summary>
+	/// Handles cursor navigation when targeting with an opposition-wide
+	/// ability.
+	/// </summary>
+	private void NavigateOppositionTargetSelection()
+	{
+		if (Input.GetKeyDown(KeyCode.Z))
+		{
+			// Hide the menus whilst the animation is carried out
+			menus[0].SetActive(false);
+			menus[1].SetActive(false);
+
+			if (selectedAbility == null)
+			{
+				// Attack is never party-wide
+				Debug.LogError("Trying to use attack action in opposition target selection!");
+				Debug.Break();
+			}
+			else
+			{
+				List<int> targetIDs = battleController.GetEnemyIDs();
+				battleController.ExecuteTurnWithAbility(selectedAbility, battleController.CurrCombatantID, targetIDs);
+			}
+				
+			selectingTarget = false;
+			for (int i = battleController.GetNumHeroes(); i < battleController.GetNumCombatants(); ++i)
+			{
+				battleController.UnhighlightCombatant(i);
+			}
+			battleController.WaitingOnPlayerTurn = false;
+		}
+		else if (Input.GetKeyDown(KeyCode.X))
+		{
+			for (int i = battleController.GetNumHeroes(); i < battleController.GetNumCombatants(); ++i)
+			{
+				battleController.UnhighlightCombatant(i);
+			}
+			selectingTarget = false;
 		}
 	}
 
@@ -714,6 +826,22 @@ public class PlayerMenuController : MonoBehaviour
 
 				// Transition to target selection
 				selectingTarget = true;
+				// Highlight appropriate combatants
+				if (ability.targetingMode == AbilityData.TargetingMode.PARTY)
+				{
+					for (int i = 0; i < battleController.GetNumHeroes(); ++i)
+					{
+						battleController.HighlightCombatant(i);
+					}
+				}
+				else if (ability.targetingMode == AbilityData.TargetingMode.OPPOSITION)
+				{
+					for (int i = battleController.GetNumHeroes(); i < battleController.GetNumCombatants(); ++i)
+					{
+						battleController.HighlightCombatant(i);
+					}
+				}
+				
 				Debug.Log("Selecting target for ability " + ability.name + "...");
 			}));
 
@@ -763,6 +891,21 @@ public class PlayerMenuController : MonoBehaviour
 
 				// Transition to target selection
 				selectingTarget = true;
+				// Highlight appropriate combatants
+				if (ability.targetingMode == AbilityData.TargetingMode.PARTY)
+				{
+					for (int i = 0; i < battleController.GetNumHeroes(); ++i)
+					{
+						battleController.HighlightCombatant(i);
+					}
+				}
+				else if (ability.targetingMode == AbilityData.TargetingMode.OPPOSITION)
+				{
+					for (int i = battleController.GetNumHeroes(); i < battleController.GetNumCombatants(); ++i)
+					{
+						battleController.HighlightCombatant(i);
+					}
+				}
 				Debug.Log("Selecting target for ability " + ability.name + "...");
 			}));
 

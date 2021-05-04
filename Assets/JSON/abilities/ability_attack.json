@@ -10,5 +10,6 @@
     ],
     "auraNames" : [
         
-    ]
+    ],
+    "targetingMode" : "single"
 }
