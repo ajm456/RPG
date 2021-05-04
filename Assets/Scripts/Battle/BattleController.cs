@@ -1065,12 +1065,6 @@ public class BattleController : MonoBehaviour
 		source.SetAnimBool("attacking", false);
 
 		yield return MoveCombatantToPos(source, startPos, 0.5f);
-
-		// If the target combatant died, set their animation state
-		if (target.HP <= 0)
-		{
-			KillCombatant(target);
-		}
 		
 		// These combatants are no longer animating, so remove them from the
 		// list so they can be involved in future animations
@@ -1098,6 +1092,12 @@ public class BattleController : MonoBehaviour
 			foreach (EffectData effect in ability.effects)
 			{
 				target.ApplyEffect(effect, source);
+			}
+
+			// If the target combatant died, set their animation state
+			if (target.HP <= 0)
+			{
+				KillCombatant(target);
 			}
 
 			// Apply any auras the ability has on the target
