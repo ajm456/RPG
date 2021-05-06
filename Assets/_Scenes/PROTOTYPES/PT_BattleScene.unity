@@ -587,6 +587,7 @@ GameObject:
   - component: {fileID: 1410080326}
   - component: {fileID: 1410080325}
   - component: {fileID: 1410080324}
+  - component: {fileID: 1410080328}
   m_Layer: 0
   m_Name: StaticSceneScripts
   m_TagString: Untagged
@@ -678,6 +679,7 @@ MonoBehaviour:
     type: 3}
   turnController: {fileID: 1410080324}
   cameraController: {fileID: 537963599}
+  floatingTextController: {fileID: 1410080328}
   debugHeroNames:
   - marl
   - elise
@@ -697,6 +699,23 @@ MonoBehaviour:
   skipIntro: 1
   turnQueueSize: 20
   turnTimeBase: 20
+--- !u!114 &1410080328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410080322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3a0e98895cad4944977d4b6dbfd5320, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textPrefab: {fileID: 3296835751979730804, guid: c97daab2049db254087491b408e41793,
+    type: 3}
+  gameUI: {fileID: 1126067246}
+  floatDuration: 3
+  floatHeight: 1
 --- !u!1 &1490194538
 GameObject:
   m_ObjectHideFlags: 0

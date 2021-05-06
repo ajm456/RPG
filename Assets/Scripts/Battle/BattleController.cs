@@ -42,6 +42,9 @@ public class BattleController : MonoBehaviour
 	private CameraController cameraController;
 
 	[SerializeField]
+	private FloatingTextController floatingTextController;
+
+	[SerializeField]
 	private List<string> debugHeroNames;
 
 	[SerializeField]
@@ -1092,6 +1095,8 @@ public class BattleController : MonoBehaviour
 			foreach (EffectData effect in ability.effects)
 			{
 				target.ApplyEffect(effect, source);
+				// Generate any floating combat text if required
+				floatingTextController.PlayTextForEffect(effect, GetCombatantTransform(target.BattleID));
 			}
 
 			// If the target combatant died, set their animation state
