@@ -714,8 +714,8 @@ MonoBehaviour:
   textPrefab: {fileID: 3296835751979730804, guid: c97daab2049db254087491b408e41793,
     type: 3}
   gameUI: {fileID: 1126067246}
-  floatDuration: 3
-  floatHeight: 1
+  floatDuration: 1
+  floatHeight: 0.3
 --- !u!1 &1490194538
 GameObject:
   m_ObjectHideFlags: 0
