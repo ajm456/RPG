@@ -1,7 +1,7 @@
 {
-    "name" : "Slow Minor",
+    "name" : "Hasten",
     "stat" : "Agility",
-    "amount" : -5,
+    "amount" : 5,
     "strengthScaling" : 0.0,
     "canCrit" : false
 }
