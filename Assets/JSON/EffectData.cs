@@ -9,6 +9,11 @@ public class EffectData
 	public float strengthScaling;
 	public bool canCrit;
 
+	public bool IsEmpty()
+	{
+		return name == "Empty";
+	}
+
 	public EffectData(string name, string stat, int amount, float strengthScaling, bool canCrit)
 	{
 		this.name = name;
