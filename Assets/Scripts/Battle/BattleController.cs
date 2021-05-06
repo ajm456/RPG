@@ -1099,13 +1099,15 @@ public class BattleController : MonoBehaviour
 			{
 				KillCombatant(target);
 			}
-
-			// Apply any auras the ability has on the target
-			foreach (AuraData aura in ability.auras)
+			else
 			{
-				target.AddAura(aura, source);
+				// Apply any auras the ability has on the target
+				foreach (AuraData aura in ability.auras)
+				{
+					target.AddAura(aura, source);
+				}
 			}
-
+			
 			// Modify the caster's resource values
 			if (source.Allegiance == Allegiance.PLAYER)
 			{
