@@ -1,0 +1,7 @@
+{
+    "name" : "Empty",
+    "stat" : "HP",
+    "amount" : 0,
+    "strengthScaling" : 0,
+    "canCrit" : false
+}
