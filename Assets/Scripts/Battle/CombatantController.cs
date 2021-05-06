@@ -174,6 +174,12 @@ public abstract class CombatantController : MonoBehaviour
 
 	public void ApplyEffect(EffectData effect, CombatantController source)
 	{
+		if (effect.IsEmpty())
+		{
+			Debug.Log("Empty effect - skipping");
+			return;
+		}
+
 		Debug.Log("Applying effect " + effect.name + " to combatant " + Name + "[" + BattleID + "]");
 
 		string statStr = effect.stat.ToLowerInvariant();
