@@ -1,12 +1,12 @@
 {
-    "name" : "Lesser Slow",
+    "name" : "Slow",
     "isCalm" : false,
     "calmReq" : 0,
     "strifeReq" : 0,
     "calmGen" : 0,
     "strifeGen" : 5,
     "effectNames" : [
-        "Slow Minor"
+        "Slow"
     ],
     "auraNames" : [
         
