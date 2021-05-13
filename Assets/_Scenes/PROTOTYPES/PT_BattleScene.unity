@@ -681,9 +681,9 @@ MonoBehaviour:
   cameraController: {fileID: 537963599}
   floatingTextController: {fileID: 1410080328}
   debugHeroNames:
+  - jack
   - marl
   - elise
-  - jack
   debugEnemyNames:
   - frog
   - frog
