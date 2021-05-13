@@ -397,24 +397,6 @@ public class BattleController : MonoBehaviour
 	/* METHODS */
 
 	/// <summary>
-	/// Debug attack implementation to be called by HeroControllers which
-	/// attacks the first enemy found in Combatants.
-	/// </summary>
-	public void DebugAttack()
-	{
-		// DEBUG: Find the first enemy combatant and use the attack on that
-		foreach (CombatantController combatant in Combatants)
-		{
-			if (combatant.Allegiance == Allegiance.ENEMY)
-			{
-				ExecuteTurnWithAttack(CurrCombatantID, combatant.BattleID);
-				break;
-			}
-		}
-	}
-
-
-	/// <summary>
 	/// Executes a turn from a given combatant by attacking a given target.
 	/// </summary>
 	/// <param name="source">The combatant taking the turn.</param>
