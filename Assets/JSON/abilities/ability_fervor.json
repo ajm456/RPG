@@ -1,0 +1,15 @@
+{
+    "name" : "Fervor",
+    "isCalm" : true,
+    "calmReq" : 10,
+    "strifeReq" : 0,
+    "calmGen" : 10,
+    "strifeGen" : 0,
+    "effectNames" : [
+        "Hasten+"
+    ],
+    "auraNames" : [
+        "Hasten+"
+    ],
+    "targetingMode" : "party"
+}

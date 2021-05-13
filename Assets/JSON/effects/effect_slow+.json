@@ -1,0 +1,7 @@
+{
+    "name" : "Slow+",
+    "stat" : "Agility",
+    "amount" : -10,
+    "strengthScaling" : 0.0,
+    "canCrit" : false
+}
