@@ -934,5 +934,6 @@ public class PlayerMenuController : MonoBehaviour
 	private void OnSelectGuard()
 	{
 		Debug.Log("Selected guard!");
+		battleController.WaitingOnPlayerTurn = false;
 	}
 }
