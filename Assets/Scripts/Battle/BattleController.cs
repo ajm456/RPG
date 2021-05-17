@@ -703,6 +703,26 @@ public class BattleController : MonoBehaviour
 
 
 	/// <summary>
+	/// Get the ID of a random target of the given allegiance.
+	/// </summary>
+	/// <param name="allegiance">
+	/// The allegiance of the target to be randomly
+	/// chosen.</param>
+	/// <returns>The target's battle ID.</returns>
+	public int GetRandomTargetID(Allegiance allegiance)
+	{
+		if (allegiance == Allegiance.PLAYER)
+		{
+			return (int)(Random.value * GetNumHeroes());
+		}
+		else
+		{
+			return (int)(GetNumHeroes() + (Random.value * GetNumEnemies()));
+		}
+	}
+
+
+	/// <summary>
 	/// Returns whether or not the combatant for the given ID is currently in an
 	/// animation.
 	/// </summary>
