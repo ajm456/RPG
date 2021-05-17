@@ -76,7 +76,7 @@ public class BattleController : MonoBehaviour
 	/// order.
 	/// </summary>
 	[SerializeField]
-	private int turnTimeBase;
+	private int turnClockStartVal;
 #pragma warning restore 0649
 
 	/// <summary>
@@ -139,14 +139,17 @@ public class BattleController : MonoBehaviour
 	}
 
 
-	private List<int> CombatantTurnTime
+	/// <summary>
+	/// A list of turn clocks for each combatant.
+	/// </summary>
+	private List<int> CombatantTurnClocks
 	{
 		get;
 		set;
 	}
 
 
-	private Dictionary<int, List<int>> TurnTimeAtGivenTurn
+	private Dictionary<int, List<int>> TurnClocksAtGivenTurn
 	{
 		get;
 		set;
@@ -853,14 +856,14 @@ public class BattleController : MonoBehaviour
 	private void InitialiseTurnOrder()
 	{
 		CombatantTurnQueue = new Queue<int>(turnQueueSize);
-		CombatantTurnTime = new List<int>(GetNumCombatants());
-		TurnTimeAtGivenTurn = new Dictionary<int, List<int>>();
+		CombatantTurnClocks = new List<int>(GetNumCombatants());
+		TurnClocksAtGivenTurn = new Dictionary<int, List<int>>();
 		TurnNum = 0;
 		
-		// Initialise ID-agility list and turn time dict
+		// Initialise ID-agility list and turn clock dict
 		foreach (CombatantController comb in Combatants)
 		{
-			CombatantTurnTime.Add(turnTimeBase);
+			CombatantTurnClocks.Add(turnClockStartVal);
 		}
 
 		// Generate a full queue of turns
@@ -872,46 +875,72 @@ public class BattleController : MonoBehaviour
 
 	private void GenerateNewTurnEntry()
 	{
-		// Save a list of IDs for combatants who have hit zero on their turn
-		// time threshold
-		List<Tuple<int, int>> idTurnTimePairs = new List<Tuple<int, int>>();
+		bool turnAssigned = false;
 
-		// Subtract combatant agilities from their turn time
-		for (int i = 0; i < CombatantTurnTime.Count; ++i)
+		while (!turnAssigned)
 		{
-			// If the combatant is dead, don't consider them
-			if (!IsCombatantAlive(i))
+			// First check if any combatants' clocks are already below zero
+			List<Tuple<int, int>> subZeroClockIDs = new List<Tuple<int, int>>();
+			for (int i = 0; i < CombatantTurnClocks.Count; ++i)
 			{
-				continue;
+				// If the combatant is dead, don't consider them
+				if (!IsCombatantAlive(i))
+				{
+					continue;
+				}
+
+				if (CombatantTurnClocks[i] <= 0)
+				{
+					subZeroClockIDs.Add(new Tuple<int, int>(i, CombatantTurnClocks[i]));
+				}
 			}
-
-			CombatantTurnTime[i] -= Combatants[i].Agility;
-
-			// If their turn time has reached zero, they have a turn coming up
-			if (CombatantTurnTime[i] <= 0)
+		
+			if (subZeroClockIDs.Count > 0)
 			{
-				idTurnTimePairs.Add(new Tuple<int, int>(i, CombatantTurnTime[i]));
+				// If there are combatants below zero on their clocks, one of them will
+				// have the next turn
 
-				// Set their turn time appropriately for how much they've overspilled
-				CombatantTurnTime[i] = turnTimeBase + CombatantTurnTime[i] + Combatants[i].Agility;
+				// Find which ID has precedence
+				subZeroClockIDs.Sort(CompareIDTurnClockPair);
+				int idOfNextTurnTaker = subZeroClockIDs[0].Item1;
+
+				// Set their turn clock appropriately for how much they've overspilled
+				CombatantTurnClocks[idOfNextTurnTaker] = turnClockStartVal + CombatantTurnClocks[idOfNextTurnTaker] + Combatants[idOfNextTurnTaker].Agility;
+
+				// Add them to the turn queue
+				CombatantTurnQueue.Enqueue(idOfNextTurnTaker);
+
+				// Store the turn clocks at this turn
+				TurnClocksAtGivenTurn[TurnClocksAtGivenTurn.Keys.Count] = new List<int>(CombatantTurnClocks);
+
+				// A turn has been assigned - we can exit the loop
+				turnAssigned = true;
 			}
-		}
+			else
+			{
+				// If there aren't any combatants below zero on their clocks,
+				// subtract agilities and check again
+				for (int i = 0; i < CombatantTurnClocks.Count; ++i)
+				{
+					// If the combatant is dead, don't consider them
+					if (!IsCombatantAlive(i))
+					{
+						continue;
+					}
 
-		// Sort the list of combatants who have reached zero (or less) turn
-		// time
-		idTurnTimePairs.Sort(CompareIDTurnTimePair);
+					CombatantTurnClocks[i] -= Combatants[i].Agility;
+				}
 
-		// Add the IDs to the queue of turns
-		foreach (var pair in idTurnTimePairs)
-		{
-			CombatantTurnQueue.Enqueue(pair.Item1);
-			TurnTimeAtGivenTurn[TurnTimeAtGivenTurn.Keys.Count] = new List<int>(CombatantTurnTime);
+				// We'll need to run the loop again to check if anyone's clock
+				// has hit zero
+				turnAssigned = false;
+			}
 		}
 	}
 
-	private int CompareIDTurnTimePair(Tuple<int, int> p1, Tuple<int, int> p2)
+	private int CompareIDTurnClockPair(Tuple<int, int> p1, Tuple<int, int> p2)
 	{
-		// First try sorting by turn time (lower time = precedence)
+		// First try sorting by turn clock (lower time = precedence)
 		var result = p1.Item2.CompareTo(p2.Item2);
 		
 		if (result == 0)
@@ -947,7 +976,7 @@ public class BattleController : MonoBehaviour
 		// as long as they are alive
 		int currentId = CurrCombatantID;
 		CombatantTurnQueue = new Queue<int>(turnQueueSize);
-		CombatantTurnTime = TurnTimeAtGivenTurn[TurnNum];
+		CombatantTurnClocks = TurnClocksAtGivenTurn[TurnNum];
 		if (IsCombatantAlive(currentId))
 		{
 			CombatantTurnQueue.Enqueue(currentId);
