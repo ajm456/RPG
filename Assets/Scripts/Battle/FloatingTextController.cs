@@ -19,13 +19,26 @@ public class FloatingTextController : MonoBehaviour
 	private float floatHeight;
 #pragma warning restore 0649
 
-	public void PlayTextForEffect(EffectData effect, CombatantController source, Transform target)
+	public void PlayTextForEffect(EffectData effect, Transform target)
 	{
 		int value = Mathf.Abs(effect.amount);
 
 		GameObject textObj = Instantiate(textPrefab, gameUI.transform);
 		TextMeshProUGUI tmp = textObj.GetComponent<TextMeshProUGUI>();
-		tmp.SetText(value.ToString());
+
+		// Determine how to show the text
+		switch (effect.stat.ToLower())
+		{
+			case "hp":
+				tmp.SetText(value.ToString());
+				tmp.color = effect.amount > 0 ? Color.green : Color.white;
+				break;
+			case "agility":
+				tmp.SetText(effect.amount > 0 ? "+Agi" : "-Agi");
+				tmp.color = effect.amount > 0 ? Color.green : Color.red;
+				break;
+		}
+		
 		textObj.transform.position = target.position;
 
 		StartCoroutine(AnimateFloatingText(textObj));
