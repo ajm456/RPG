@@ -167,12 +167,14 @@ public abstract class CombatantController : MonoBehaviour
 		{
 			EffectData effect = pair.Value.effects[pair.Value.effectTurnIndex];
 			Debug.Log("From aura " + pair.Value.name + "...");
-			ApplyEffect(effect, pair.Key);
+			// TODO: Floating text for resolving auras
+			string floatingText = "";
+			ApplyEffect(effect, pair.Key, ref floatingText);
 			pair.Value.effectTurnIndex += 1;
 		}
 	}
 
-	public void ApplyEffect(EffectData effect, CombatantController source)
+	public void ApplyEffect(EffectData effect, CombatantController source, ref string floatingText)
 	{
 		if (effect.IsEmpty())
 		{
@@ -212,6 +214,9 @@ public abstract class CombatantController : MonoBehaviour
 					magnitude *= 2;
 				}
 			}
+
+			// Set the floating combat text string with the damage
+			floatingText = Mathf.Abs(magnitude).ToString();
 			
 			// Apply the effect
 			HP = Mathf.Max(HP + magnitude, 0);

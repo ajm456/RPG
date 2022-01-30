@@ -1125,9 +1125,13 @@ public class BattleController : MonoBehaviour
 			// Apply any effects the ability has on the target
 			foreach (EffectData effect in ability.effects)
 			{
-				target.ApplyEffect(effect, source);
+				string floatingText = "";
+				target.ApplyEffect(effect, source, ref floatingText);
 				// Generate any floating combat text if required
-				floatingTextController.PlayTextForEffect(effect, GetCombatantTransform(target.BattleID));
+				if (floatingText != "")
+				{
+					floatingTextController.PlayText(floatingText, GetCombatantTransform(target.BattleID));
+				}
 			}
 
 			// If the target combatant died, set their animation state
